@@ -7,18 +7,24 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-// <summary>
-// Represents the Genre entity, which stores information about a genre.
-// </summary>
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+/**
+ * Represents the Genre entity, which stores information about a genre.
+ * This class is mapped to the "genres" table in the database.
+ *
+ * @author Brayan Barros
+ * @version 1.0
+ * @since 2025-10-02
+ */
 @Entity
 @Table(name = "genres")
 public class Genre {
 
-    //region Private Filds
+    //#region Private Fields
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,31 +33,17 @@ public class Genre {
     @Column(nullable = false, length = 150)
     private String name;
 
-    //Audit Fields
+    // --- Audit Fields ---
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt; //Creation timestamp
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt; //Update Timestamp
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-    //endregion
-    
-    //region Lifecycle Callbacks
+    //#endregion Private Fields
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    //endregion
-
-    //region Getters and Setters
+    //#region Getters and Setters
 
     public Long getId() {
         return id;
@@ -85,5 +77,5 @@ public class Genre {
         this.updatedAt = updatedAt;
     }
 
-    //endregion
+    //#endregion
 }

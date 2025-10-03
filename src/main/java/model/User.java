@@ -8,23 +8,31 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-// <summary>
-// Represents the User entity, which stores information about a user.
-// </summary>
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+/**
+ * Represents the User entity, which stores information about a user.
+ * This class is mapped to the "users" table in the database.
+ *
+ * @author Brayan Barros
+ * @version 1.0
+ * @since 2025-10-02
+ */
 @Entity
 @Table(name = "users")
 public class User {
+
+    // #region Private Fields
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 150)
-    private String display_name;
+    @Column(name = "avatar_path", nullable = false, length = 150)
+    private String displayName;
 
     @Column(nullable = false)
     private String email;
@@ -38,31 +46,17 @@ public class User {
     @Column(name = "birth_path", nullable = false)
     private LocalDate birthDate;
 
-    //Audit Fields
+    // --- Audit Fields ---
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt; //Creation timestamp
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt; //Update Timestamp
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-    //endregion Private Filds
-    
-    //region Lifecycle Callbacks
+    //#endregion Private Fields
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    //endregion
-
-    //region Getters and Setters
+    //#region Getters and Setters
 
     public Long getId() {
         return id;
@@ -72,12 +66,12 @@ public class User {
         this.id = id;
     }
 
-    public String getDisplay_name() {
-        return display_name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setDisplay_name(String display_name) {
-        this.display_name = display_name;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getEmail() {
@@ -128,5 +122,5 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    //endregion
+    //#endregion
 }
