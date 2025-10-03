@@ -10,18 +10,24 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-// <summary>
-// Represents the Game entity, which stores information about a game in the collection.
-// </summary>
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+/**
+ * Represents the Game entity, which stores information about a game.
+ * This class is mapped to the "games" table in the database.
+ *
+ * @author Brayan Barros
+ * @version 1.0
+ * @since 2025-10-02
+ */
 @Entity
 @Table(name = "games")
 public class Game {
 
-    //region Private Filds
+    //#region Private Fields
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +50,7 @@ public class Game {
 
     private Integer relevance;
 
-    //Relationships with entities
+    // --- Relationships with other entities ---
 
     @ManyToOne
     @JoinColumn(name = "genre_id")
@@ -58,31 +64,17 @@ public class Game {
     @JoinColumn(name = "developer_id")
     private Developer developer;
 
-    //Audit Fields
+    // --- Audit Fields ---
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt; //Creation timestamp
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt; //Update Timestamp
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-    //endregion
+    //#endregion Private Fields
 
-    //region Lifecycle Callbacks
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    //endregion
-
-    //region Getters e Setters
+    //#region Getters and Setters
 
     public Long getId() {
         return id;
@@ -180,5 +172,5 @@ public class Game {
         this.updatedAt = updatedAt;
     }
 
-    //endregion
+    //#endregion
 }
