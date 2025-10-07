@@ -25,10 +25,8 @@ public class GameDAO extends GenericDAO<Game, Long> {
     public GameDAO(EntityManager entityManager) {
         super(entityManager);
     }
-
-    // ----------------------------------------------------------------------------------
-    // Custom query methods specific to the Game entity can be added below.
-    // ----------------------------------------------------------------------------------
+    
+    // --- Custom Query Methods ---
 
     /**
      * Finds all games belonging to a specific genre.
