@@ -31,7 +31,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "avatar_path", nullable = false, length = 150)
+    @Column(name = "display_name", nullable = false, length = 150)
     private String displayName;
 
     @Column(nullable = false)

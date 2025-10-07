@@ -2,14 +2,18 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,7 +31,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "games")
 public class Game {
 
-    //#region Private Fields
+    // #region Private Fields
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,17 +56,29 @@ public class Game {
 
     // --- Relationships with other entities ---
 
-    @ManyToOne
-    @JoinColumn(name = "genre_id")
-    private Genre genre;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "game_genres",
+        joinColumns = @JoinColumn(name = "game_id"),
+        inverseJoinColumns = @JoinColumn(name = "genre_id")
+        )
+    private Set<Genre> genres = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "platform_id")
-    private Platform platform;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "game_platforms",
+        joinColumns = @JoinColumn(name = "game_id"),
+        inverseJoinColumns = @JoinColumn(name = "platform_id")
+        )
+    private Set<Platform> platforms = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "developer_id")
-    private Developer developer;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "game_developers",
+        joinColumns = @JoinColumn(name = "game_id"),
+        inverseJoinColumns = @JoinColumn(name = "developers_id")
+        )
+    private Set<Developer> developers = new HashSet<>();
 
     // --- Audit Fields ---
 
@@ -72,11 +88,11 @@ public class Game {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    //#endregion Private Fields
+    // #endregion Private Fields
 
-    //#region Getters and Setters
+    // #region Getters and Setters
 
-    public Long getId() {
+        public Long getId() {
         return id;
     }
 
@@ -132,28 +148,28 @@ public class Game {
         this.relevance = relevance;
     }
 
-    public Genre getGenre() {
-        return genre;
+    public Set<Genre> getGenres() {
+        return genres;
     }
 
-    public void setGenre(Genre genre) {
-        this.genre = genre;
+    public void setGenres(Set<Genre> genres) {
+        this.genres = genres;
     }
 
-    public Platform getPlatform() {
-        return platform;
+    public Set<Platform> getPlatforms() {
+        return platforms;
     }
 
-    public void setPlatform(Platform platform) {
-        this.platform = platform;
+    public void setPlatforms(Set<Platform> platforms) {
+        this.platforms = platforms;
     }
 
-    public Developer getDeveloper() {
-        return developer;
+    public Set<Developer> getDevelopers() {
+        return developers;
     }
 
-    public void setDeveloper(Developer developer) {
-        this.developer = developer;
+    public void setDevelopers(Set<Developer> developers) {
+        this.developers = developers;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -172,5 +188,5 @@ public class Game {
         this.updatedAt = updatedAt;
     }
 
-    //#endregion
+    // #endregion
 }

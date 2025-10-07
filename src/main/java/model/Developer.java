@@ -1,12 +1,15 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,8 +28,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "developers")
 public class Developer {
 
-    //#region Private Fields
-    
+    // #region Private Fields
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,6 +43,11 @@ public class Developer {
     @Column(nullable = false)
     private Long location;
 
+    // --- Relationships with other entities ---
+
+    @ManyToMany(mappedBy = "developers") // "developers" is the field name in the Game entity
+    private Set<Game> games = new HashSet<>();
+
     // --- Audit Fields ---
 
     @CreationTimestamp
@@ -48,9 +56,9 @@ public class Developer {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    //#endregion Private Fields
+    // #endregion Private Fields
 
-    //#region Getters and Setters
+    // #region Getters and Setters
 
     public Long getId() {
         return id;
@@ -84,6 +92,14 @@ public class Developer {
         this.location = location;
     }
 
+    public Set<Game> getGames() {
+        return games;
+    }
+
+    public void setGames(Set<Game> games) {
+        this.games = games;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -100,5 +116,5 @@ public class Developer {
         this.updatedAt = updatedAt;
     }
 
-    //#endregion
+    // #endregion
 }

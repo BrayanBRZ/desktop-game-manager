@@ -1,12 +1,15 @@
 package model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -32,6 +35,11 @@ public class Genre {
 
     @Column(nullable = false, length = 150)
     private String name;
+
+    // --- Relationships with other entities ---
+
+    @ManyToMany(mappedBy = "genres") // "genres" is the field name in the Game entity
+    private Set<Game> games = new HashSet<>();
 
     // --- Audit Fields ---
 
@@ -61,6 +69,14 @@ public class Genre {
         this.name = name;
     }
 
+    public Set<Game> getGames() {
+        return games;
+    }
+
+    public void setGames(Set<Game> games) {
+        this.games = games;
+    }
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
