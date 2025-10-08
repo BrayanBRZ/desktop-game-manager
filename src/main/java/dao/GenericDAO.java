@@ -34,8 +34,8 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
     }
 
     @Override
-    public void update(T entity) {
-        this.entityManager.merge(entity);
+    public T update(T entity) {
+        return this.entityManager.merge(entity);
     }
 
     @Override
