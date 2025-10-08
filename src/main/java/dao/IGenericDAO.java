@@ -28,7 +28,7 @@ public interface IGenericDAO<T, K> {
      *
      * @param entity The entity to be updated.
      */
-    void update(T entity);
+    T update(T entity);
 
     /**
      * Removes an entity from the database by its primary key ID.
