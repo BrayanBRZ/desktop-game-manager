@@ -67,6 +67,14 @@ public class Game {
     )
     private Set<GameDeveloper> gameDevelopers = new HashSet<>();
 
+    @OneToMany(
+            mappedBy = "game",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<UserGame> userGameEntries = new HashSet<>();
+
     // --- Audit Fields ---
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -146,6 +154,14 @@ public class Game {
 
     public void setGameDevelopers(Set<GameDeveloper> gameDevelopers) {
         this.gameDevelopers = gameDevelopers;
+    }
+
+    public Set<UserGame> getUserGameEntries() {
+        return userGameEntries;
+    }
+
+    public void setUserGameEntries(Set<UserGame> userGameEntries) {
+        this.userGameEntries = userGameEntries;
     }
 
     public LocalDateTime getCreatedAt() {
