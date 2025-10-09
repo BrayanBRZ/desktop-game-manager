@@ -6,19 +6,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-
 public class GameDAO extends GenericDAO<Game, Long> {
-
-    public GameDAO(EntityManager entityManager) {
-        super();
-    }
-
-    //#region Exclusive Finders
 
     public GameDAO() {
         super();
     }
 
+    //#region Exclusive Finders
     /**
      * @param minRating The minimum rating value.
      * @return A list of games that meet the rating criteria.
@@ -32,15 +26,13 @@ public class GameDAO extends GenericDAO<Game, Long> {
 
         return query.getResultList();
     }
-
     //#endregion
 
     // #region Finders by NAME
-
     /**
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
-     *         exists.
+     * exists.
      */
     public Game findByExactName(String name) {
         EntityManager em = factory.createEntityManager();
@@ -112,11 +104,9 @@ public class GameDAO extends GenericDAO<Game, Long> {
 
         return query.getResultList();
     }
-
     // #endregion
 
     // #region Finders by ID
-
     /**
      * @param genreId The ID of the genre to search for.
      * @return A list of games that match the specified genre ID.
@@ -155,6 +145,5 @@ public class GameDAO extends GenericDAO<Game, Long> {
         query.setParameter("developerId", developerId);
         return query.getResultList();
     }
-
     // #endregion
 }

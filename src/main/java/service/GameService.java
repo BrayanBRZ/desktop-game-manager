@@ -5,6 +5,9 @@ import dao.GenreDAO;
 import dao.PlatformDAO;
 import dao.DeveloperDAO;
 import model.Game;
+import model.GameDeveloper;
+import model.GameGenre;
+import model.GamePlatform;
 import model.Genre;
 import model.Platform;
 import model.Developer;
@@ -56,9 +59,7 @@ public class GameService {
     }
 
     // #region CRUD Operations
-
-    public Game createGame(String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds,
-            List<Long> developerIds)
+    public Game createGame(String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds, List<Long> developerIds)
             throws ValidationException, ServiceException {
 
         ValidatedGameData validatedData = validateAndFetchGameData(name, genreIds, platformIds, developerIds);
@@ -66,11 +67,22 @@ public class GameService {
         Game newGame = new Game();
         newGame.setName(validatedData.getName());
         newGame.setReleaseDate(releaseDate);
-        newGame.setGenres(validatedData.getGenres());
-        newGame.setPlatforms(validatedData.getPlatforms());
-        newGame.setDevelopers(validatedData.getDevelopers());
+
+        for (Genre genre : validatedData.getGenres()) {
+            GameGenre gameGenre = new GameGenre(newGame, genre);
+            newGame.getGameGenres().add(gameGenre);
+        }
+        for (Platform platform : validatedData.getPlatforms()) {
+            GamePlatform gamePlatform = new GamePlatform(newGame, platform);
+            newGame.getGamePlatforms().add(gamePlatform);
+        }
+        for (Developer developer : validatedData.getDevelopers()) {
+            GameDeveloper gameDeveloper = new GameDeveloper(newGame, developer);
+            newGame.getGameDevelopers().add(gameDeveloper);
+        }
 
         try {
+            // Because of CascadeType.ALL, saving the game will also save the join entities.
             gameDAO.save(newGame);
             return newGame;
         } catch (PersistenceException e) {
@@ -78,12 +90,7 @@ public class GameService {
         }
     }
 
-    /**
-     * @param gameId The ID of the game to delete.
-     * @throws ServiceException if a database error occurs.
-     */
-    public Game updateGame(Long gameId, String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds,
-            List<Long> developerIds)
+    public Game updateGame(Long gameId, String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds, List<Long> developerIds)
             throws ValidationException, ServiceException {
 
         Game gameToUpdate = gameDAO.findById(gameId);
@@ -91,13 +98,31 @@ public class GameService {
             throw new ValidationException("Game with ID " + gameId + " not found.");
         }
 
+        // Fetch the new sets of related entities
         ValidatedGameData validatedData = validateAndFetchGameData(name, genreIds, platformIds, developerIds);
 
         gameToUpdate.setName(validatedData.getName());
         gameToUpdate.setReleaseDate(releaseDate);
-        gameToUpdate.setGenres(validatedData.getGenres());
-        gameToUpdate.setPlatforms(validatedData.getPlatforms());
-        gameToUpdate.setDevelopers(validatedData.getDevelopers());
+
+        // NEW LOGIC (Update Strategy: Clear and Replace)
+        // 1. Clear existing associations. OrphanRemoval will delete them from the database.
+        gameToUpdate.getGameGenres().clear();
+        gameToUpdate.getGamePlatforms().clear();
+        gameToUpdate.getGameDevelopers().clear();
+
+        // 2. Add the new associations, just like in the create method.
+        for (Genre genre : validatedData.getGenres()) {
+            GameGenre gameGenre = new GameGenre(gameToUpdate, genre);
+            gameToUpdate.getGameGenres().add(gameGenre);
+        }
+        for (Platform platform : validatedData.getPlatforms()) {
+            GamePlatform gamePlatform = new GamePlatform(gameToUpdate, platform);
+            gameToUpdate.getGamePlatforms().add(gamePlatform);
+        }
+        for (Developer developer : validatedData.getDevelopers()) {
+            GameDeveloper gameDeveloper = new GameDeveloper(gameToUpdate, developer);
+            gameToUpdate.getGameDevelopers().add(gameDeveloper);
+        }
 
         try {
             Game updatedGame = gameDAO.update(gameToUpdate);
@@ -107,22 +132,18 @@ public class GameService {
         }
     }
 
-    /**
-     * @param gameId The ID of the game to delete.
-     * @throws ServiceException if a database error occurs.
-     */
     public void deleteGameById(Long gameId) throws ServiceException {
         try {
+            // Because of CascadeType.ALL and OrphanRemoval, deleting the game
+            // will automatically delete its associations from the join tables.
             gameDAO.delete(gameId);
         } catch (PersistenceException e) {
             throw new ServiceException("Failed to delete game with ID " + gameId, e);
         }
     }
-
     // #endregion
 
     // #region Validation Logic
-
     private ValidatedGameData validateAndFetchGameData(String name, List<Long> genreIds, List<Long> platformIds,
             List<Long> developerIds)
             throws ValidationException {
@@ -157,13 +178,10 @@ public class GameService {
 
         return new ValidatedGameData(name.trim(), genres, platforms, developers);
     }
-
     // #endregion
 
     // --- Read-only methods ---
-
     // #region Exclusive Finders
-
     /**
      * @return A list of all games.
      * @throws ServiceException if a database access error occurs.
@@ -188,15 +206,13 @@ public class GameService {
             throw new ServiceException("Error finding games with high rating.", e);
         }
     }
-
     // #endregion
 
     // #region Finders by NAME
-
     /**
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
-     *         exists.
+     * exists.
      * @throws ServiceException if a database access error occurs.
      */
     public Game findGameByName(String name) throws ServiceException {
@@ -258,11 +274,9 @@ public class GameService {
             throw new ServiceException("Error finding games by developer: " + developerName, e);
         }
     }
-
     // #endregion
 
     // #region Finders by ID
-
     /**
      * @param id The game ID.
      * @return The found Game, or null if not found.
@@ -314,6 +328,5 @@ public class GameService {
             throw new ServiceException("Error finding game with developer ID " + developerId, e);
         }
     }
-
     // #endregion
 }

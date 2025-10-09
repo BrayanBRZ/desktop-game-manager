@@ -10,12 +10,8 @@ import model.Developer;
 
 public class DeveloperDAO extends GenericDAO<Developer, Long> {
 
-    public DeveloperDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
     public DeveloperDAO() {
-        //TODO Auto-generated constructor stub
+        super();
     }
 
     /**
@@ -24,9 +20,10 @@ public class DeveloperDAO extends GenericDAO<Developer, Long> {
      *         name exists.
      */
     public Developer findByName(String name) {
+        EntityManager em = factory.createEntityManager();
         String jpql = "SELECT p FROM Developer p WHERE p.name = :name";
 
-        TypedQuery<Developer> query = entityManager.createQuery(jpql, Developer.class);
+        TypedQuery<Developer> query = em.createQuery(jpql, Developer.class);
         query.setParameter("name", name);
 
         try {
@@ -41,9 +38,10 @@ public class DeveloperDAO extends GenericDAO<Developer, Long> {
      * @return A list of developers that match the specified location.
      */
     public List<Developer> findByLocation(String location) {
+        EntityManager em = factory.createEntityManager();
         String jpql = "SELECT d FROM Developer d WHERE d.location = :location";
 
-        TypedQuery<Developer> query = entityManager.createQuery(jpql, Developer.class);
+        TypedQuery<Developer> query = em.createQuery(jpql, Developer.class);
         query.setParameter("location", location);
 
         return query.getResultList();

@@ -6,30 +6,21 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/**
- * Represents the Developer entity, which stores information about a game
- * developer.
- * This class is mapped to the "developers" table in the database.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- */
 @Entity
 @Table(name = "developers")
 public class Developer {
 
     // #region Private Fields
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,23 +34,22 @@ public class Developer {
     @Column(nullable = false)
     private Long location;
 
-    // --- Relationships with other entities ---
-
-    @ManyToMany(mappedBy = "developers") // "developers" is the field name in the Game entity
-    private Set<Game> games = new HashSet<>();
+    // --- Relationships ---
+    @OneToMany(
+            mappedBy = "developer",
+            fetch = FetchType.LAZY
+    )
+    private Set<GameDeveloper> gameDevelopers = new HashSet<>();
 
     // --- Audit Fields ---
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    // #endregion Private Fields
+    // #endregion
 
     // #region Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -92,12 +82,12 @@ public class Developer {
         this.location = location;
     }
 
-    public Set<Game> getGames() {
-        return games;
+    public Set<GameDeveloper> getGameDevelopers() {
+        return gameDevelopers;
     }
 
-    public void setGames(Set<Game> games) {
-        this.games = games;
+    public void setGameDevelopers(Set<GameDeveloper> gameDevelopers) {
+        this.gameDevelopers = gameDevelopers;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -115,6 +105,5 @@ public class Developer {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     // #endregion
 }

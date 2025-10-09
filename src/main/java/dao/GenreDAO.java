@@ -8,12 +8,8 @@ import model.Genre;
 
 public class GenreDAO extends GenericDAO<Genre, Long> {
 
-    public GenreDAO(EntityManager entityManager) {
-        super(entityManager);
-    }
-
     public GenreDAO() {
-        //TODO Auto-generated constructor stub
+        super();
     }
 
     /**
@@ -22,9 +18,10 @@ public class GenreDAO extends GenericDAO<Genre, Long> {
      *         exists.
      */
     public Genre findByName(String name) {
+        EntityManager em = factory.createEntityManager();
         String jpql = "SELECT g FROM Genre g WHERE g.name = :name";
 
-        TypedQuery<Genre> query = entityManager.createQuery(jpql, Genre.class);
+        TypedQuery<Genre> query = em.createQuery(jpql, Genre.class);
         query.setParameter("name", name);
 
         try {
