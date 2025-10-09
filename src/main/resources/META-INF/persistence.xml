@@ -1,6 +1,6 @@
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
 	version="2.2">
-	<persistence-unit name="persistenciaPU">
+	<persistence-unit name="desktopgamemanager">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		<properties>
 
@@ -8,7 +8,7 @@
 				value="com.mysql.cj.jdbc.Driver" />
 				
 			<property name="javax.persistence.jdbc.url"
-				value="jdbc:mysql://localhost:3306/app?useSSL=false" />
+				value="jdbc:mysql://localhost:5244/app?useSSL=false" />
 				
 			<property name="javax.persistence.jdbc.user" value="root" />
 			

@@ -9,30 +9,19 @@ import model.Genre;
 import model.Platform;
 import model.Developer;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Service layer for managing Game entities.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-08
- */
 public class GameService {
 
-    private final EntityManager entityManager;
-
     // The service uses multiple DAOs to perform its operations.
-    private final GameDAO gameDAO;
-    private final GenreDAO genreDAO;
-    private final PlatformDAO platformDAO;
-    private final DeveloperDAO developerDAO;
+    private final GameDAO gameDAO = new GameDAO();
+    private final GenreDAO genreDAO = new GenreDAO();
+    private final PlatformDAO platformDAO = new PlatformDAO();
+    private final DeveloperDAO developerDAO = new DeveloperDAO();
 
     private static class ValidatedGameData {
 
@@ -66,22 +55,10 @@ public class GameService {
         }
     }
 
-    /**
-     * Constructs a GameService and initializes all necessary DAOs.
-     *
-     * @param entityManager The EntityManager instance for database interaction.
-     */
-    public GameService(EntityManager entityManager) {
-        this.entityManager = entityManager;
-        this.gameDAO = new GameDAO(entityManager);
-        this.genreDAO = new GenreDAO(entityManager);
-        this.platformDAO = new PlatformDAO(entityManager);
-        this.developerDAO = new DeveloperDAO(entityManager);
-    }
-
     // #region CRUD Operations
 
-    public Game createGame(String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds, List<Long> developerIds)
+    public Game createGame(String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds,
+            List<Long> developerIds)
             throws ValidationException, ServiceException {
 
         ValidatedGameData validatedData = validateAndFetchGameData(name, genreIds, platformIds, developerIds);
@@ -93,21 +70,20 @@ public class GameService {
         newGame.setPlatforms(validatedData.getPlatforms());
         newGame.setDevelopers(validatedData.getDevelopers());
 
-        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            transaction.begin();
             gameDAO.save(newGame);
-            transaction.commit();
             return newGame;
         } catch (PersistenceException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
             throw new ServiceException("Failed to create game due to a persistence error.", e);
         }
     }
 
-    public Game updateGame(Long gameId, String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds, List<Long> developerIds)
+    /**
+     * @param gameId The ID of the game to delete.
+     * @throws ServiceException if a database error occurs.
+     */
+    public Game updateGame(Long gameId, String name, LocalDate releaseDate, List<Long> genreIds, List<Long> platformIds,
+            List<Long> developerIds)
             throws ValidationException, ServiceException {
 
         Game gameToUpdate = gameDAO.findById(gameId);
@@ -123,45 +99,32 @@ public class GameService {
         gameToUpdate.setPlatforms(validatedData.getPlatforms());
         gameToUpdate.setDevelopers(validatedData.getDevelopers());
 
-        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            transaction.begin();
             Game updatedGame = gameDAO.update(gameToUpdate);
-            transaction.commit();
             return updatedGame;
         } catch (PersistenceException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
             throw new ServiceException("Failed to update game with ID " + gameId, e);
         }
     }
 
     /**
-     * Deletes a game from the database by its ID.
-     *
      * @param gameId The ID of the game to delete.
      * @throws ServiceException if a database error occurs.
      */
     public void deleteGameById(Long gameId) throws ServiceException {
-        EntityTransaction transaction = entityManager.getTransaction();
         try {
-            transaction.begin();
             gameDAO.delete(gameId);
-            transaction.commit();
         } catch (PersistenceException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
             throw new ServiceException("Failed to delete game with ID " + gameId, e);
         }
     }
 
     // #endregion
 
-    //#region Validation Logic
+    // #region Validation Logic
 
-    private ValidatedGameData validateAndFetchGameData(String name, List<Long> genreIds, List<Long> platformIds, List<Long> developerIds)
+    private ValidatedGameData validateAndFetchGameData(String name, List<Long> genreIds, List<Long> platformIds,
+            List<Long> developerIds)
             throws ValidationException {
 
         if (name == null || name.trim().isEmpty()) {
@@ -195,14 +158,13 @@ public class GameService {
         return new ValidatedGameData(name.trim(), genres, platforms, developers);
     }
 
-    //#endregion
+    // #endregion
 
     // --- Read-only methods ---
 
     // #region Exclusive Finders
+
     /**
-     * Retrieves all games from the database.
-     *
      * @return A list of all games.
      * @throws ServiceException if a database access error occurs.
      */
@@ -215,8 +177,6 @@ public class GameService {
     }
 
     /**
-     * Find games by rating.
-     *
      * @param minRating The minimum rating of games.
      * @return A list of games by rating.
      * @throws ServiceException if a database access error occurs.
@@ -234,11 +194,9 @@ public class GameService {
     // #region Finders by NAME
 
     /**
-     * Finds a game by its specific name.
-     *
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
-     * exists.
+     *         exists.
      * @throws ServiceException if a database access error occurs.
      */
     public Game findGameByName(String name) throws ServiceException {
@@ -250,8 +208,6 @@ public class GameService {
     }
 
     /**
-     * Find games by search term.
-     *
      * @param searchTerm The text to search for within the game names.
      * @return A list of games that match the search criteria.
      * @throws ServiceException if a database access error occurs.
@@ -265,8 +221,6 @@ public class GameService {
     }
 
     /**
-     * Find games by genre.
-     *
      * @param genreName The genre of games.
      * @return A list of games by genre.
      * @throws ServiceException if a database access error occurs.
@@ -280,8 +234,6 @@ public class GameService {
     }
 
     /**
-     * Find games by platform.
-     *
      * @param platformName The platform of games.
      * @return A list of games by platform.
      * @throws ServiceException if a database access error occurs.
@@ -295,8 +247,6 @@ public class GameService {
     }
 
     /**
-     * Find games by developer.
-     *
      * @param developerName The developer of games.
      * @return A list of games by developer.
      * @throws ServiceException if a database access error occurs.
@@ -312,10 +262,8 @@ public class GameService {
     // #endregion
 
     // #region Finders by ID
-    
+
     /**
-     * Finds a game by its ID.
-     *
      * @param id The game ID.
      * @return The found Game, or null if not found.
      * @throws ServiceException if a database access error occurs.
@@ -329,8 +277,6 @@ public class GameService {
     }
 
     /**
-     * Find games by genre ID.
-     *
      * @param id The genre ID.
      * @return The found Game, or null if not found.
      * @throws ServiceException if a database access error occurs.
@@ -344,8 +290,6 @@ public class GameService {
     }
 
     /**
-     * Find games by platform ID.
-     *
      * @param id The platform ID.
      * @return The found Game, or null if not found.
      * @throws ServiceException if a database access error occurs.
@@ -359,8 +303,6 @@ public class GameService {
     }
 
     /**
-     * Find games by developer ID.
-     *
      * @param id The developer ID.
      * @return The found Game, or null if not found.
      * @throws ServiceException if a database access error occurs.

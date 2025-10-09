@@ -2,18 +2,6 @@ package dao;
 
 import java.util.List;
 
-/**
- * Generic interface for data access operations (DAO).
- * This interface defines common CRUD (Create, Read, Update, Delete)
- * operations for any entity.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- *
- * @param <T> The type of the entity.
- * @param <K> The type of the primary key of the entity.
- */
 public interface IGenericDAO<T, K> {
 
     /**
@@ -27,6 +15,7 @@ public interface IGenericDAO<T, K> {
      * Updates an existing entity in the database.
      *
      * @param entity The entity to be updated.
+     * @return The updated entity.
      */
     T update(T entity);
 

@@ -6,21 +6,15 @@ import javax.persistence.TypedQuery;
 
 import model.Genre;
 
-/**
- * Data Access Object (DAO) for the {@link Genre} entity.
- * It can also be used to implement custom, genre-specific query methods.
- * 
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-06
- */
 public class GenreDAO extends GenericDAO<Genre, Long> {
 
     public GenreDAO(EntityManager entityManager) {
         super(entityManager);
     }
 
-    // --- Custom Query Methods ---
+    public GenreDAO() {
+        //TODO Auto-generated constructor stub
+    }
 
     /**
      * @param name The name of the genre to search for.
@@ -34,8 +28,6 @@ public class GenreDAO extends GenericDAO<Genre, Long> {
         query.setParameter("name", name);
 
         try {
-            // getSingleResult() throws an exception if no result is found.
-            // We catch it and return null to provide a more user-friendly API.
             return query.getSingleResult();
         } catch (NoResultException e) {
             return null;
