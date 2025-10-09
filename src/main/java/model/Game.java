@@ -19,14 +19,6 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/**
- * Represents the Game entity, which stores information about a game.
- * This class is mapped to the "games" table in the database.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- */
 @Entity
 @Table(name = "games")
 public class Game {
@@ -52,32 +44,18 @@ public class Game {
     @Column(precision = 3, scale = 1)
     private Double rating;
 
-    private Integer relevance;
-
     // --- Relationships with other entities ---
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "game_genres",
-        joinColumns = @JoinColumn(name = "game_id"),
-        inverseJoinColumns = @JoinColumn(name = "genre_id")
-        )
+    @JoinTable(name = "game_genres", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "game_platforms",
-        joinColumns = @JoinColumn(name = "game_id"),
-        inverseJoinColumns = @JoinColumn(name = "platform_id")
-        )
+    @JoinTable(name = "game_platforms", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "platform_id"))
     private Set<Platform> platforms = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "game_developers",
-        joinColumns = @JoinColumn(name = "game_id"),
-        inverseJoinColumns = @JoinColumn(name = "developers_id")
-        )
+    @JoinTable(name = "game_developers", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "developers_id"))
     private Set<Developer> developers = new HashSet<>();
 
     // --- Audit Fields ---
@@ -92,7 +70,7 @@ public class Game {
 
     // #region Getters and Setters
 
-        public Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -138,14 +116,6 @@ public class Game {
 
     public void setRating(Double rating) {
         this.rating = rating;
-    }
-
-    public Integer getRelevance() {
-        return relevance;
-    }
-
-    public void setRelevance(Integer relevance) {
-        this.relevance = relevance;
     }
 
     public Set<Genre> getGenres() {
