@@ -4,31 +4,24 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/**
- * Represents the Genre entity, which stores information about a genre.
- * This class is mapped to the "genres" table in the database.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- */
 @Entity
 @Table(name = "genres")
 public class Genre {
 
     //#region Private Fields
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,23 +29,22 @@ public class Genre {
     @Column(nullable = false, length = 150)
     private String name;
 
-    // --- Relationships with other entities ---
-
-    @ManyToMany(mappedBy = "genres") // "genres" is the field name in the Game entity
-    private Set<Game> games = new HashSet<>();
+    // --- Relationships ---
+    @OneToMany(
+            mappedBy = "genre",
+            fetch = FetchType.LAZY
+    )
+    private Set<GameGenre> gameGenres = new HashSet<>();
 
     // --- Audit Fields ---
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    //#endregion Private Fields
+    //#endregion
 
     //#region Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -69,14 +61,14 @@ public class Genre {
         this.name = name;
     }
 
-    public Set<Game> getGames() {
-        return games;
+    public Set<GameGenre> getGameGenres() {
+        return gameGenres;
     }
 
-    public void setGames(Set<Game> games) {
-        this.games = games;
+    public void setGameGenres(Set<GameGenre> gameGenres) {
+        this.gameGenres = gameGenres;
     }
-    
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -92,6 +84,5 @@ public class Genre {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     //#endregion
 }

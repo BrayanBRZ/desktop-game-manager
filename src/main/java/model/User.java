@@ -13,29 +13,17 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/**
- * Represents the User entity, which stores information about a user.
- * This class is mapped to the "users" table in the database.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- */
 @Entity
 @Table(name = "users")
 public class User {
 
     // #region Private Fields
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "display_name", nullable = false, length = 150)
-    private String displayName;
-
-    @Column(nullable = false)
-    private String email;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -47,17 +35,14 @@ public class User {
     private LocalDate birthDate;
 
     // --- Audit Fields ---
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    //#endregion Private Fields
+    //#endregion
 
     //#region Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -67,19 +52,11 @@ public class User {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return username;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -121,6 +98,5 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     //#endregion
 }

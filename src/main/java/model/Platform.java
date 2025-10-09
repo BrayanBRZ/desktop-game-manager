@@ -6,30 +6,21 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/**
- * Represents the Platform entity, which stores information about a game
- * platform.
- * This class is mapped to the "platforms" table in the database.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-02
- */
 @Entity
 @Table(name = "platforms")
 public class Platform {
 
     // #region Private Fields
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,23 +31,22 @@ public class Platform {
     @Column(name = "symbol_path")
     private String symbolPath;
 
-    // --- Relationships with other entities ---
-
-    @ManyToMany(mappedBy = "platforms") // "platforms" is the field name in the Game entity
-    private Set<Game> games = new HashSet<>();
+    // --- Relationships ---
+    @OneToMany(
+            mappedBy = "platform",
+            fetch = FetchType.LAZY
+    )
+    private Set<GamePlatform> gamePlatforms = new HashSet<>();
 
     // --- Audit Fields ---
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     // #endregion Private Fields
 
     // #region Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -81,12 +71,12 @@ public class Platform {
         this.symbolPath = symbolPath;
     }
 
-    public Set<Game> getGames() {
-        return games;
+    public Set<GamePlatform> getGamePlatforms() {
+        return gamePlatforms;
     }
 
-    public void setGames(Set<Game> games) {
-        this.games = games;
+    public void setGamePlatforms(Set<GamePlatform> gamePlatforms) {
+        this.gamePlatforms = gamePlatforms;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -104,6 +94,5 @@ public class Platform {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     // #endregion
 }

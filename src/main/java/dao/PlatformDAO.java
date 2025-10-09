@@ -18,6 +18,7 @@ public class PlatformDAO extends GenericDAO<Platform, Long> {
      *         exists.
      */
     public Platform findByName(String name) {
+        EntityManager em = factory.createEntityManager();
         String jpql = "SELECT p FROM Platform p WHERE p.name = :name";
 
         TypedQuery<Platform> query = em.createQuery(jpql, Platform.class);

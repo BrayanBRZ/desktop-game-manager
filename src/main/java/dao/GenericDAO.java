@@ -28,7 +28,7 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
                 .getActualTypeArguments()[0];
     }
 
-        @Override
+    @Override
     public void save(T entity) {
         EntityManager em = factory.createEntityManager();
         EntityTransaction transaction = em.getTransaction();
@@ -37,8 +37,10 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
             em.persist(entity);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw e; // Re-lança a exceção para a camada de serviço tratar.
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }
@@ -54,7 +56,9 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
             updatedEntity = em.merge(entity);
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
             throw e;
         } finally {
             em.close();
@@ -74,7 +78,9 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
             }
             transaction.commit();
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
             throw e;
         } finally {
             em.close();
@@ -82,7 +88,6 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
     }
 
     // --- Read-only methods ---
-
     @Override
     public T findById(K id) {
         EntityManager em = factory.createEntityManager();

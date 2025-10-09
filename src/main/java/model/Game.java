@@ -5,15 +5,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,7 +23,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 public class Game {
 
     // #region Private Fields
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,32 +42,40 @@ public class Game {
     @Column(precision = 3, scale = 1)
     private Double rating;
 
-    // --- Relationships with other entities ---
+    // --- Relationships ---
+    @OneToMany(
+            mappedBy = "game",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<GameGenre> gameGenres = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_genres", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private Set<Genre> genres = new HashSet<>();
+    @OneToMany(
+            mappedBy = "game",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<GamePlatform> gamePlatforms = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_platforms", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "platform_id"))
-    private Set<Platform> platforms = new HashSet<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_developers", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "developers_id"))
-    private Set<Developer> developers = new HashSet<>();
+    @OneToMany(
+            mappedBy = "game",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<GameDeveloper> gameDevelopers = new HashSet<>();
 
     // --- Audit Fields ---
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     // #endregion Private Fields
 
     // #region Getters and Setters
-
     public Long getId() {
         return id;
     }
@@ -118,28 +124,28 @@ public class Game {
         this.rating = rating;
     }
 
-    public Set<Genre> getGenres() {
-        return genres;
+    public Set<GameGenre> getGameGenres() {
+        return gameGenres;
     }
 
-    public void setGenres(Set<Genre> genres) {
-        this.genres = genres;
+    public void setGameGenres(Set<GameGenre> gameGenres) {
+        this.gameGenres = gameGenres;
     }
 
-    public Set<Platform> getPlatforms() {
-        return platforms;
+    public Set<GamePlatform> getGamePlatforms() {
+        return gamePlatforms;
     }
 
-    public void setPlatforms(Set<Platform> platforms) {
-        this.platforms = platforms;
+    public void setGamePlatforms(Set<GamePlatform> gamePlatforms) {
+        this.gamePlatforms = gamePlatforms;
     }
 
-    public Set<Developer> getDevelopers() {
-        return developers;
+    public Set<GameDeveloper> getGameDevelopers() {
+        return gameDevelopers;
     }
 
-    public void setDevelopers(Set<Developer> developers) {
-        this.developers = developers;
+    public void setGameDevelopers(Set<GameDeveloper> gameDevelopers) {
+        this.gameDevelopers = gameDevelopers;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -157,6 +163,5 @@ public class Game {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
     // #endregion
 }
