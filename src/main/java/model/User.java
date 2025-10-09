@@ -2,12 +2,17 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -33,6 +38,15 @@ public class User {
 
     @Column(name = "birth_path", nullable = false)
     private LocalDate birthDate;
+
+    // --- Relationships ---
+    @OneToMany(
+            mappedBy = "user", // "user" é o nome do campo na classe UserGame que aponta de volta para esta classe.
+            cascade = CascadeType.ALL, // Salva/atualiza/deleta os UserGames junto com o User.
+            orphanRemoval = true, // Remove um UserGame do banco se ele for removido desta coleção.
+            fetch = FetchType.LAZY // Carrega a biblioteca apenas quando for explicitamente acessada.
+    )
+    private Set<UserGame> userGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -81,6 +95,14 @@ public class User {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public Set<UserGame> getUserGames() {
+        return userGames;
+    }
+
+    public void setUserGames(Set<UserGame> userGames) {
+        this.userGames = userGames;
     }
 
     public LocalDateTime getCreatedAt() {
