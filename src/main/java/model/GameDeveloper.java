@@ -10,12 +10,18 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Table(name = "game_developers")
+@Table(
+        name = "game_developers",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"user_id", "game_id"})
+        }
+)
 public class GameDeveloper {
 
     //#region Private Fields
@@ -25,11 +31,11 @@ public class GameDeveloper {
 
     // --- Relationships ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(nullable = false, name = "game_id")
     private Game game;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "developer_id")
+    @JoinColumn(nullable = false, name = "developer_id")
     private Developer developer;
 
     // --- Audit Fields ---

@@ -36,15 +36,15 @@ public class User {
     @Column(name = "avatar_path")
     private Long avatarPath;
 
-    @Column(name = "birth_path", nullable = false)
+    @Column(name = "birth_path")
     private LocalDate birthDate;
 
     // --- Relationships ---
     @OneToMany(
-            mappedBy = "user", // "user" é o nome do campo na classe UserGame que aponta de volta para esta classe.
-            cascade = CascadeType.ALL, // Salva/atualiza/deleta os UserGames junto com o User.
-            orphanRemoval = true, // Remove um UserGame do banco se ele for removido desta coleção.
-            fetch = FetchType.LAZY // Carrega a biblioteca apenas quando for explicitamente acessada.
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
     private Set<UserGame> userGames = new HashSet<>();
 
@@ -54,6 +54,45 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    //#endregion
+
+    //#region Constructors
+    public User() {
+    }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+    //#endregion
+
+    //#region Owner Methods
+    public void addGame(Game game) {
+        boolean alreadyHas = userGames.stream()
+                .anyMatch(ug -> ug.getGame().equals(game));
+
+        if (!alreadyHas) {
+            UserGame ug = new UserGame(this, game);
+            userGames.add(ug);
+            game.getUserGames().add(ug);
+        }
+    }
+
+    public void removeGame(Game game) {
+        UserGame toRemove = userGames.stream()
+                .filter(ug -> ug.getGame().equals(game))
+                .findFirst()
+                .orElse(null);
+
+        if (toRemove != null) {
+
+            userGames.remove(toRemove);
+            game.getUserGames().remove(toRemove);
+
+            toRemove.setUser(null);
+            toRemove.setGame(null);
+        }
+    }
     //#endregion
 
     //#region Getters and Setters

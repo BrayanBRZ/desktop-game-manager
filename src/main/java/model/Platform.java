@@ -36,7 +36,7 @@ public class Platform {
             mappedBy = "platform",
             fetch = FetchType.LAZY
     )
-    private Set<GamePlatform> gamePlatforms = new HashSet<>();
+    private Set<GamePlatform> platformedGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -45,6 +45,15 @@ public class Platform {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     // #endregion Private Fields
+
+    //#region Constructors
+    public Platform() {
+    }
+
+    public Platform(String name) {
+        this.name = name;
+    }
+    //#endregion
 
     // #region Getters and Setters
     public Long getId() {
@@ -71,12 +80,12 @@ public class Platform {
         this.symbolPath = symbolPath;
     }
 
-    public Set<GamePlatform> getGamePlatforms() {
-        return gamePlatforms;
+    public Set<GamePlatform> getPlatformedGames() {
+        return platformedGames;
     }
 
-    public void setGamePlatforms(Set<GamePlatform> gamePlatforms) {
-        this.gamePlatforms = gamePlatforms;
+    public void setPlatformedGames(Set<GamePlatform> platformedGames) {
+        this.platformedGames = platformedGames;
     }
 
     public LocalDateTime getCreatedAt() {

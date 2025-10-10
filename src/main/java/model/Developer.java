@@ -32,17 +32,17 @@ public class Developer {
     @Column(name = "symbol_path")
     private String symbolPath;
 
-    @Column(nullable = false)
+    @Column
     private Long location;
 
     // --- Relationships ---
     @OneToMany(
             mappedBy = "developer",
-            cascade = CascadeType.REMOVE,
+            cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<GameDeveloper> gameDevelopers = new HashSet<>();
+    private Set<GameDeveloper> developedGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -51,6 +51,15 @@ public class Developer {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     // #endregion
+
+    //#region Constructors
+    public Developer() {
+    }
+
+    public Developer(String name) {
+        this.name = name;
+    }
+    //#endregion
 
     // #region Getters and Setters
     public Long getId() {
@@ -85,12 +94,12 @@ public class Developer {
         this.location = location;
     }
 
-    public Set<GameDeveloper> getGameDevelopers() {
-        return gameDevelopers;
+    public Set<GameDeveloper> getDevelopedGames() {
+        return developedGames;
     }
 
-    public void setGameDevelopers(Set<GameDeveloper> gameDevelopers) {
-        this.gameDevelopers = gameDevelopers;
+    public void setDevelopedGames(Set<GameDeveloper> developedGames) {
+        this.developedGames = developedGames;
     }
 
     public LocalDateTime getCreatedAt() {

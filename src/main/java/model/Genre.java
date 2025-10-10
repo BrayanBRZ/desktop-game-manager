@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -31,9 +32,11 @@ public class Genre {
     // --- Relationships ---
     @OneToMany(
             mappedBy = "genre",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<GameGenre> gameGenres = new HashSet<>();
+    private Set<GameGenre> genderedGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -41,6 +44,15 @@ public class Genre {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    //#endregion
+
+    //#region Constructors
+    public Genre() {
+    }
+
+    public Genre(String name) {
+        this.name = name;
+    }
     //#endregion
 
     //#region Getters and Setters
@@ -60,12 +72,12 @@ public class Genre {
         this.name = name;
     }
 
-    public Set<GameGenre> getGameGenres() {
-        return gameGenres;
+    public Set<GameGenre> getGenderedGames() {
+        return genderedGames;
     }
 
-    public void setGameGenres(Set<GameGenre> gameGenres) {
-        this.gameGenres = gameGenres;
+    public void setGenderedGames(Set<GameGenre> genderedGames) {
+        this.genderedGames = genderedGames;
     }
 
     public LocalDateTime getCreatedAt() {
