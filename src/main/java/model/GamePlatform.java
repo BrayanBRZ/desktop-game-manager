@@ -19,7 +19,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(
         name = "game_platforms",
         uniqueConstraints = {
-            @UniqueConstraint(columnNames = {"user_id", "game_id"})
+            @UniqueConstraint(columnNames = {"platform_id", "game_id"})
         }
 )
 public class GamePlatform {
@@ -31,12 +31,12 @@ public class GamePlatform {
 
     // --- Relationships ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "game_id")
-    private Game game;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "platform_id")
     private Platform platform;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "game_id")
+    private Game game;
 
     // --- Audit Fields ---
     @CreationTimestamp

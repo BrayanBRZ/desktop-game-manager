@@ -13,11 +13,7 @@ import java.util.List;
  */
 public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
 
-    protected static final EntityManagerFactory factory;
-
-    static {
-        factory = Persistence.createEntityManagerFactory("desktopgamemanager");
-    }
+    protected static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("desktop-game-manager");
 
     private final Class<T> persistentClass;
 
