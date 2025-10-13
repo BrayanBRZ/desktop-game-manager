@@ -82,7 +82,6 @@ public class GameService {
         }
 
         try {
-            // Because of CascadeType.ALL, saving the game will also save the join entities.
             gameDAO.save(newGame);
             return newGame;
         } catch (PersistenceException e) {
@@ -104,13 +103,10 @@ public class GameService {
         gameToUpdate.setName(validatedData.getName());
         gameToUpdate.setReleaseDate(releaseDate);
 
-        // NEW LOGIC (Update Strategy: Clear and Replace)
-        // 1. Clear existing associations. OrphanRemoval will delete them from the database.
         gameToUpdate.getGameGenres().clear();
         gameToUpdate.getGamePlatforms().clear();
         gameToUpdate.getGameDevelopers().clear();
 
-        // 2. Add the new associations, just like in the create method.
         for (Genre genre : validatedData.getGenres()) {
             GameGenre gameGenre = new GameGenre(gameToUpdate, genre);
             gameToUpdate.getGameGenres().add(gameGenre);
@@ -134,8 +130,6 @@ public class GameService {
 
     public void deleteGameById(Long gameId) throws ServiceException {
         try {
-            // Because of CascadeType.ALL and OrphanRemoval, deleting the game
-            // will automatically delete its associations from the join tables.
             gameDAO.delete(gameId);
         } catch (PersistenceException e) {
             throw new ServiceException("Failed to delete game with ID " + gameId, e);
