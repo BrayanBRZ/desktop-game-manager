@@ -1,16 +1,12 @@
 package model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,13 +23,6 @@ public class Genre {
 
     @Column(nullable = false, length = 150)
     private String name;
-
-    // --- Relationships ---
-    @OneToMany(
-            mappedBy = "genre",
-            fetch = FetchType.LAZY
-    )
-    private Set<GameGenre> genderedGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -67,14 +56,6 @@ public class Genre {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Set<GameGenre> getGenderedGames() {
-        return genderedGames;
-    }
-
-    public void setGenderedGames(Set<GameGenre> genderedGames) {
-        this.genderedGames = genderedGames;
     }
 
     public LocalDateTime getCreatedAt() {

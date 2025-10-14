@@ -1,16 +1,12 @@
 package model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,13 +26,6 @@ public class Platform {
 
     @Column(name = "symbol_path")
     private String symbolPath;
-
-    // --- Relationships ---
-    @OneToMany(
-            mappedBy = "platform",
-            fetch = FetchType.LAZY
-    )
-    private Set<GamePlatform> platformedGames = new HashSet<>();
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -78,14 +67,6 @@ public class Platform {
 
     public void setSymbolPath(String symbolPath) {
         this.symbolPath = symbolPath;
-    }
-
-    public Set<GamePlatform> getPlatformedGames() {
-        return platformedGames;
-    }
-
-    public void setPlatformedGames(Set<GamePlatform> platformedGames) {
-        this.platformedGames = platformedGames;
     }
 
     public LocalDateTime getCreatedAt() {
