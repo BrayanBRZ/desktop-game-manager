@@ -84,62 +84,7 @@ public class Game {
     // #endregion Private Fields
 
     //#region Owner Methods
-    // --- Genre ---
-    public void addGenre(Genre genre) {
-        boolean alreadyHas = gameGenres.stream()
-                .anyMatch(gg -> gg.getGenre().equals(genre));
-
-        if (!alreadyHas) {
-            GameGenre gg = new GameGenre(this, genre);
-            gameGenres.add(gg);
-            genre.getGenderedGames().add(gg);
-        }
-    }
-
-    public void removeGenre(Genre genre) {
-        GameGenre toRemove = gameGenres.stream()
-                .filter(gg -> gg.getGenre().equals(genre))
-                .findFirst()
-                .orElse(null);
-
-        if (toRemove != null) {
-
-            gameGenres.remove(toRemove);
-            genre.getGenderedGames().remove(toRemove);
-
-            toRemove.setGenre(null);
-            toRemove.setGame(null);
-        }
-    }
-
-    // --- Platform ---
-    public void addPlatform(Platform platform) {
-        boolean alreadyHas = gamePlatforms.stream()
-                .anyMatch(gp -> gp.getPlatform().equals(platform));
-
-        if (!alreadyHas) {
-            GamePlatform gp = new GamePlatform(this, platform);
-            gamePlatforms.add(gp);
-            platform.getPlatformedGames().add(gp);
-        }
-    }
-
-    public void removePlatform(Platform platform) {
-        GamePlatform toRemove = gamePlatforms.stream()
-                .filter(gp -> gp.getPlatform().equals(platform))
-                .findFirst()
-                .orElse(null);
-
-        if (toRemove != null) {
-            gamePlatforms.remove(toRemove);
-            platform.getPlatformedGames().remove(toRemove);
-
-            toRemove.setPlatform(null);
-            toRemove.setGame(null);
-        }
-    }
     // --- Developer ---
-
     public void addDeveloper(Developer developer) {
         boolean alreadyHas = gameDevelopers.stream()
                 .anyMatch(gd -> gd.getDeveloper().equals(developer));
