@@ -8,7 +8,7 @@ import java.util.List;
 
 public class GameDAO extends GenericDAO<Game, Long> {
 
-    //#region Exclusive Finders
+    // #region Exclusive Finders
     public List<Game> findByRatingGreaterThan(Double minRating) {
         EntityManager em = factory.createEntityManager();
 
@@ -21,9 +21,9 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    //#endregion
+    // #endregion Exclusive Finders
 
-    // #region Finders by NAME
+    //#region Finders by NAME
     /**
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
@@ -61,7 +61,9 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
+    // #endregion Finders by NAME
 
+    // #region Finders by RELATED ENTITY NAME
     /**
      * @param genreName The name of the genre to search for.
      * @return A list of games that match the specified genre.
@@ -109,9 +111,9 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion
+    //#endregion Finders by RELATED ENTITY NAME
 
-    // #region Finders by ID
+    // #region Finders by RELATED ENTITY ID
     /**
      * @param genreId The ID of the genre to search for.
      * @return A list of games that match the specified genre ID.
@@ -159,5 +161,5 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion
+    // #endregion Finders by RELATED ENTITY ID
 }
