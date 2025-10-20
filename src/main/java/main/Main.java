@@ -67,7 +67,6 @@ public class Main {
     }
 
     // --- MENUS ---
-
     private static void printMainMenu() {
         System.out.println("\n--- GAME DESKTOP MANAGER ---");
         System.out.println("1 - Gerenciar Jogos");
@@ -87,8 +86,7 @@ public class Main {
             System.out.println("3 - Buscar Jogo por Nome");
             System.out.println("4 - Editar Jogo");
             System.out.println("5 - Deletar Jogo");
-            System.out.println("0 - Voltar ao Menu Principal");
-            System.out.print("Escolha uma opção: ");
+            System.out.println("Escolha uma opção (ou 0 para voltar): ");
             choice = scanner.nextLine();
 
             switch (choice) {
@@ -113,21 +111,28 @@ public class Main {
 
     // Menus para Gêneros, Plataformas e Desenvolvedores (simplificados para brevidade)
     private static void manageGenresMenu() throws ServiceException, ValidationException {
-        System.out.println("\n--- Gerenciar Gêneros ---");
-        System.out.println("1 - Adicionar/Encontrar Gênero");
-        System.out.println("2 - Listar Todos os Gêneros");
-        System.out.print("Escolha uma opção (ou 0 para voltar): ");
-        String choice = scanner.nextLine();
-        if (choice.equals("1")) {
-            System.out.print("Digite o nome do Gênero: ");
-            String name = scanner.nextLine();
-            Genre genre = genreService.createOrFind(name);
-            System.out.println("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
-        } else if (choice.equals("2")) {
-            List<Genre> genres = genreService.findAll();
-            System.out.println("Gêneros encontrados: " + genres.size());
-            genres.forEach(g -> System.out.println("ID: " + g.getId() + " - Nome: " + g.getName()));
-        }
+        String choice;
+        do {
+            System.out.println("\n--- Gerenciar Gêneros ---");
+            System.out.println("1 - Adicionar/Encontrar Gênero");
+            System.out.println("2 - Listar Todos os Gêneros");
+            System.out.println("3 - Buscar Gênero por Nome");
+            System.out.println("4 - Deletar Gênero");
+            System.out.print("Escolha uma opção (ou 0 para voltar): ");
+            choice = scanner.nextLine();
+
+            if (choice.equals("1")) {
+                System.out.print("Digite o nome do Gênero: ");
+                String name = scanner.nextLine();
+                Genre genre = genreService.createOrFind(name);
+                System.out.println("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
+
+            } else if (choice.equals("2")) {
+                List<Genre> genres = genreService.findAll();
+                System.out.println("Gêneros encontrados: " + genres.size());
+                genres.forEach(g -> System.out.println("ID: " + g.getId() + " - Nome: " + g.getName()));
+            }
+        } while (!choice.equals("0"));
     }
 
     private static void managePlatformsMenu() throws ServiceException, ValidationException {
@@ -140,9 +145,7 @@ public class Main {
         System.out.println("\nFuncionalidade de Desenvolvedores a ser implementada.");
     }
 
-
     // --- MÉTODOS DE AÇÃO PARA JOGOS ---
-
     private static void addNewGame() throws ServiceException, ValidationException {
         System.out.println("\n--- Adicionar Novo Jogo ---");
         System.out.print("Nome do Jogo: ");
@@ -172,8 +175,8 @@ public class Main {
         } else {
             games.forEach(game -> {
                 String genres = game.getGameGenres().stream()
-                                    .map(gg -> gg.getGenre().getName())
-                                    .collect(Collectors.joining(", "));
+                        .map(gg -> gg.getGenre().getName())
+                        .collect(Collectors.joining(", "));
                 System.out.println("ID: " + game.getId() + " | Nome: " + game.getName() + " | Gêneros: [" + genres + "]");
             });
         }
@@ -213,10 +216,9 @@ public class Main {
         List<Long> genreIds = gameToUpdate.getGameGenres().stream().map(gg -> gg.getGenre().getId()).collect(Collectors.toList());
         List<Long> platformIds = gameToUpdate.getGamePlatforms().stream().map(gp -> gp.getPlatform().getId()).collect(Collectors.toList());
         List<Long> developerIds = gameToUpdate.getGameDevelopers().stream().map(gd -> gd.getDeveloper().getId()).collect(Collectors.toList());
-        
+
         System.out.println("Re-selecione os gêneros (atuais: " + genreIds + "):");
         List<Long> newGenreIds = selectMultipleEntities(genreService.findAll(), "Gêneros");
-
 
         Game updatedGame = gameService.updateGame(gameId, name, gameToUpdate.getReleaseDate(), newGenreIds, platformIds, developerIds);
         System.out.println("\nSUCESSO: Jogo '" + updatedGame.getName() + "' atualizado.");
@@ -225,11 +227,11 @@ public class Main {
     private static void deleteGame() throws ServiceException {
         System.out.print("\nDigite o ID do jogo que deseja deletar: ");
         Long gameId = Long.parseLong(scanner.nextLine());
-        
+
         // Confirmação para segurança
         System.out.print("Tem certeza que deseja deletar o jogo com ID " + gameId + "? (s/n): ");
         String confirmation = scanner.nextLine();
-        
+
         if (confirmation.equalsIgnoreCase("s")) {
             gameService.deleteGameById(gameId);
             System.out.println("SUCESSO: Jogo deletado.");
@@ -238,13 +240,15 @@ public class Main {
         }
     }
 
-
     // --- MÉTODOS AUXILIARES ---
-
     /**
-     * Um método genérico para exibir uma lista de entidades e permitir que o usuário selecione várias.
-     * @param entities A lista de entidades a serem exibidas (deve ter um método 'getId' e 'getName').
-     * @param entityName O nome do tipo de entidade para exibir no prompt (ex: "Gêneros").
+     * Um método genérico para exibir uma lista de entidades e permitir que o
+     * usuário selecione várias.
+     *
+     * @param entities A lista de entidades a serem exibidas (deve ter um método
+     * 'getId' e 'getName').
+     * @param entityName O nome do tipo de entidade para exibir no prompt (ex:
+     * "Gêneros").
      * @return Uma lista de IDs selecionados pelo usuário.
      */
     private static <T> List<Long> selectMultipleEntities(List<T> entities, String entityName) {
