@@ -27,7 +27,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "display_name", nullable = false, length = 150)
+    @Column(name = "username", nullable = false, length = 150)
     private String username;
 
     @Column(nullable = false)
@@ -40,12 +40,7 @@ public class User {
     private LocalDate birthDate;
 
     // --- Relationships ---
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserGame> userGames = new HashSet<>();
 
     // --- Audit Fields ---
@@ -54,9 +49,9 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    // #endregion
 
-    //#region Constructors
+    // #region Constructors
     public User() {
     }
 
@@ -64,9 +59,9 @@ public class User {
         this.username = username;
         this.password = password;
     }
-    //#endregion
+    // #endregion
 
-    //#region Owner Methods
+    // #region Owner Methods
     public void addGame(Game game) {
         boolean alreadyHas = userGames.stream()
                 .anyMatch(ug -> ug.getGame().equals(game));
@@ -74,7 +69,6 @@ public class User {
         if (!alreadyHas) {
             UserGame ug = new UserGame(this, game);
             userGames.add(ug);
-            game.getUserGames().add(ug);
         }
     }
 
@@ -85,17 +79,13 @@ public class User {
                 .orElse(null);
 
         if (toRemove != null) {
-
             userGames.remove(toRemove);
-            game.getUserGames().remove(toRemove);
-
             toRemove.setUser(null);
-            toRemove.setGame(null);
         }
     }
-    //#endregion
+    // #endregion
 
-    //#region Getters and Setters
+    // #region Getters and Setters
     public Long getId() {
         return id;
     }
@@ -159,5 +149,5 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    //#endregion
+    // #endregion
 }

@@ -32,7 +32,7 @@ public class Developer {
     private String symbolPath;
 
     @Column
-    private Long location;
+    private String location;
 
     // --- Relationships ---
     @OneToMany(
@@ -83,11 +83,11 @@ public class Developer {
         this.symbolPath = symbolPath;
     }
 
-    public Long getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(Long location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
