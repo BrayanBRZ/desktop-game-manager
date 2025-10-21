@@ -23,23 +23,21 @@ public class GameDAO extends GenericDAO<Game, Long> {
     }
     // #endregion Exclusive Finders
 
-    //#region Finders by NAME
+    // #region Finders by NAME
     /**
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
-     * exists.
+     *         exists.
      */
-    public Game findByExactName(String name) {
+    public Game findByName(String name) {
         EntityManager em = factory.createEntityManager();
         try {
             String jpql = "SELECT g FROM Game g WHERE g.name = :name";
             TypedQuery<Game> query = em.createQuery(jpql, Game.class);
             query.setParameter("name", name);
-            try {
-                return query.getSingleResult();
-            } catch (NoResultException e) {
-                return null;
-            }
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } finally {
             em.close();
         }
@@ -111,7 +109,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    //#endregion Finders by RELATED ENTITY NAME
+    // #endregion Finders by RELATED ENTITY NAME
 
     // #region Finders by RELATED ENTITY ID
     /**

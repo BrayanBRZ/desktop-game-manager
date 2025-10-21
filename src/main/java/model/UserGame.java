@@ -37,10 +37,10 @@ public class UserGame {
 
     private UserGameState gameState;
 
-    @Column(name = "total_time_path")
+    @Column(name = "total_time_played")
     private double totaltimePlayed;
 
-    @Column(name = "last_time_path")
+    @Column(name = "last_time_played")
     private LocalDateTime lastTimePlayed;
 
     // --- Relationships ---
