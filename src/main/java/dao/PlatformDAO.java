@@ -48,5 +48,5 @@ public class PlatformDAO extends GenericDAO<Platform, Long> {
             em.close();
         }
     }
-    // #endregion Finders by NAME
+    // #endregion
 }

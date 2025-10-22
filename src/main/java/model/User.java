@@ -27,16 +27,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false, length = 150)
+    @Column(name = "username", nullable = false, unique = true, length = 150)
     private String username;
 
     @Column(nullable = false)
     private String password;
 
     @Column(name = "avatar_path")
-    private Long avatarPath;
+    private String avatarPath;
 
-    @Column(name = "birth_path")
+    @Column(name = "birth_date")
     private LocalDate birthDate;
 
     // --- Relationships ---
@@ -62,26 +62,45 @@ public class User {
     // #endregion
 
     // #region Owner Methods
+    /**
+     * Adds a game to the user's library, ensuring the bidirectional
+     * relationship is maintained. Prevents adding a game if it's already in the
+     * library.
+     *
+     * @param game The Game to add.
+     */
     public void addGame(Game game) {
-        boolean alreadyHas = userGames.stream()
-                .anyMatch(ug -> ug.getGame().equals(game));
+        if (game == null) {
+            return;
+        }
+        boolean alreadyHas = this.userGames.stream()
+                .anyMatch(ug -> ug.getGame() != null && ug.getGame().equals(game));
 
         if (!alreadyHas) {
-            UserGame ug = new UserGame(this, game);
-            userGames.add(ug);
+            UserGame userGame = new UserGame(this, game);
+            this.userGames.add(userGame);
         }
     }
 
+    /**
+     * Removes a game from the user's library, ensuring the bidirectional
+     * relationship is broken.
+     *
+     * @param game The Game to remove.
+     */
     public void removeGame(Game game) {
-        UserGame toRemove = userGames.stream()
-                .filter(ug -> ug.getGame().equals(game))
-                .findFirst()
-                .orElse(null);
-
-        if (toRemove != null) {
-            userGames.remove(toRemove);
-            toRemove.setUser(null);
+        if (game == null) {
+            return;
         }
+
+        this.userGames.removeIf(userGame -> {
+            if (userGame.getGame() != null && userGame.getGame().equals(game)) {
+                userGame.setUser(null);
+                userGame.setGame(null);
+                return true;
+            }
+            return false;
+        });
     }
     // #endregion
 
@@ -94,7 +113,7 @@ public class User {
         this.id = id;
     }
 
-    public String getDisplayName() {
+    public String getUsername() {
         return username;
     }
 
@@ -110,12 +129,12 @@ public class User {
         this.password = password;
     }
 
-    public Long getAvatarPath() {
+    public String getAvatarPath() {
         return avatarPath;
     }
 
-    public void setAvatarPath(Long avatarPath) {
-        this.avatarPath = avatarPath;
+    public String setAvatarPath(String avatarPath) {
+        return this.avatarPath = avatarPath;
     }
 
     public LocalDate getBirthDate() {

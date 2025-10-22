@@ -33,7 +33,7 @@ public class Platform {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion Private Fields
+    // #endregion
 
     //#region Constructors
     public Platform() {

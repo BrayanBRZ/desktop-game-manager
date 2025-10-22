@@ -2,150 +2,248 @@ package main;
 
 import model.*;
 import service.*;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Main {
 
-    // Scanner para ler a entrada do usuário em toda a aplicação
     private static final Scanner scanner = new Scanner(System.in);
-
-    // Instâncias dos serviços que serão usados
     private static final GameService gameService = new GameService();
     private static final GenreService genreService = new GenreService();
     private static final PlatformService platformService = new PlatformService();
     private static final DeveloperService developerService = new DeveloperService();
+    private static final UserService userService = new UserService();
+
+    private static User loggedInUser = null; // Guarda o usuário que "fez login"
 
     public static void main(String[] args) {
-        runMenu();
+        runMainMenu();
+        scanner.close();
+        System.out.println("Aplicação encerrada.");
     }
 
-    private static void runMenu() {
+    // --- MENUS PRINCIPAIS ---
+
+    private static void runMainMenu() {
         String choice;
         do {
             printMainMenu();
             choice = scanner.nextLine();
-
             try {
                 switch (choice) {
                     case "1":
-                        manageGamesMenu();
+                        loginOrRegister();
+                        if (loggedInUser != null) {
+                            runUserMenu();
+                        }
                         break;
                     case "2":
-                        manageGenresMenu();
-                        break;
-                    case "3":
-                        managePlatformsMenu();
-                        break;
-                    case "4":
-                        manageDevelopersMenu();
+                        manageCatalogMenu(); // Menu de "Admin"
                         break;
                     case "0":
-                        System.out.println("Saindo da aplicação...");
                         break;
                     default:
                         System.out.println("Opção inválida. Tente novamente.");
                 }
-            } catch (ServiceException | ValidationException e) {
-                // Captura erros dos serviços e os exibe de forma amigável
+            } catch (ValidationException | ServiceException e) {
                 System.err.println("\n!!! ERRO: " + e.getMessage() + "\n");
             } catch (Exception e) {
-                // Captura qualquer outro erro inesperado
                 System.err.println("\n!!! ERRO INESPERADO: " + e.getMessage() + "\n");
                 e.printStackTrace();
             }
-
         } while (!choice.equals("0"));
-
-        // Garante o encerramento limpo da aplicação
-        scanner.close();
     }
 
-    // --- MENUS ---
-    private static void printMainMenu() {
-        System.out.println("\n--- GAME DESKTOP MANAGER ---");
-        System.out.println("1 - Gerenciar Jogos");
-        System.out.println("2 - Gerenciar Gêneros");
-        System.out.println("3 - Gerenciar Plataformas");
-        System.out.println("4 - Gerenciar Desenvolvedores");
-        System.out.println("0 - Sair");
-        System.out.print("Escolha uma opção: ");
+    private static void runUserMenu() throws ValidationException, ServiceException {
+        String choice;
+        do {
+            printUserMenu();
+            choice = scanner.nextLine();
+            switch (choice) {
+                case "1":
+                    viewMyLibrary();
+                    break;
+                case "2":
+                    addGameToMyLibrary();
+                    break;
+                case "3":
+                    removeGameFromMyLibrary();
+                    break;
+                case "4":
+                    loggedInUser = null; // Logout
+                    System.out.println("Logout realizado com sucesso.");
+                    return; // Retorna ao menu principal
+            }
+        } while (true);
     }
+
+    // --- LÓGICA DE USUÁRIO E BIBLIOTECA ---
+
+    private static void loginOrRegister() throws ValidationException, ServiceException {
+        System.out.println("\n--- Login / Registro ---");
+        System.out.print("Digite seu nome de usuário: ");
+        String username = scanner.nextLine();
+
+        loggedInUser = userService.findByUsername(username);
+
+        if (loggedInUser == null) {
+            System.out.println("Usuário não encontrado. Deseja registrar um novo usuário com este nome? (s/n)");
+            String choice = scanner.nextLine();
+            if (choice.equalsIgnoreCase("s")) {
+                System.out.print("Digite uma senha: ");
+                String password = scanner.nextLine();
+                loggedInUser = userService.registerUser(username, password);
+                System.out.println("Usuário '" + loggedInUser.getUsername() + "' registrado e logado com sucesso!");
+            }
+        } else {
+            System.out.println("Login bem-sucedido! Bem-vindo(a), " + loggedInUser.getUsername() + "!");
+        }
+    }
+
+    private static void viewMyLibrary() throws ServiceException {
+        // Para exibir a biblioteca, precisamos recarregar o usuário para inicializar a coleção
+        User userWithLibrary = userService.findById(loggedInUser.getId());
+        Set<UserGame> library = userWithLibrary.getUserGames();
+
+        System.out.println("\n--- Minha Biblioteca de Jogos (" + library.size() + ") ---");
+        if (library.isEmpty()) {
+            System.out.println("Sua biblioteca está vazia.");
+        } else {
+            library.forEach(userGame -> {
+                Game game = userGame.getGame();
+                System.out.println("ID: " + game.getId() + " | Nome: " + game.getName());
+            });
+        }
+    }
+
+    private static void addGameToMyLibrary() throws ValidationException, ServiceException {
+        System.out.println("\n--- Adicionar Jogo à Biblioteca ---");
+        listAllGames(); // Mostra todos os jogos disponíveis no catálogo
+        System.out.print("Digite o ID do jogo que deseja adicionar: ");
+        Long gameId = Long.parseLong(scanner.nextLine());
+
+        userService.addGameToLibrary(loggedInUser.getId(), gameId);
+        System.out.println("SUCESSO: Jogo adicionado à sua biblioteca!");
+    }
+
+    private static void removeGameFromMyLibrary() throws ValidationException, ServiceException {
+        System.out.println("\n--- Remover Jogo da Biblioteca ---");
+        viewMyLibrary(); // Mostra os jogos que o usuário já tem
+        System.out.print("Digite o ID do jogo que deseja remover: ");
+        Long gameId = Long.parseLong(scanner.nextLine());
+
+        userService.removeGameFromLibrary(loggedInUser.getId(), gameId);
+        System.out.println("SUCESSO: Jogo removido da sua biblioteca!");
+    }
+
+    // --- MENUS E LÓGICA DE ADMINISTRAÇÃO DO CATÁLOGO ---
+    // (Esta seção contém os métodos que você já tinha, mas reorganizados)
+
+    private static void manageCatalogMenu() throws ValidationException, ServiceException {
+        String choice;
+        do {
+            printCatalogMenu();
+            choice = scanner.nextLine();
+            switch (choice) {
+                case "1":
+                    manageGamesMenu();
+                    break;
+                case "2":
+                    manageGenresMenu();
+                    break;
+                case "3":
+                    managePlatformsMenu();
+                    break;
+                case "4":
+                    manageDevelopersMenu();
+                    break;
+            }
+        } while (!choice.equals("0"));
+    }
+
+    // --- MENUS E LÓGICA DE ADMINISTRAÇÃO ---
 
     private static void manageGamesMenu() throws ServiceException, ValidationException {
         String choice;
         do {
-            System.out.println("\n--- Gerenciar Jogos ---");
+            System.out.println("\n--- Gerenciar Jogos do Catálogo ---");
             System.out.println("1 - Adicionar Novo Jogo");
             System.out.println("2 - Listar Todos os Jogos");
             System.out.println("3 - Buscar Jogo por Nome");
             System.out.println("4 - Editar Jogo");
             System.out.println("5 - Deletar Jogo");
-            System.out.println("Escolha uma opção (ou 0 para voltar): ");
-            choice = scanner.nextLine();
-
-            switch (choice) {
-                case "1":
-                    addNewGame();
-                    break;
-                case "2":
-                    listAllGames();
-                    break;
-                case "3":
-                    searchGameByName();
-                    break;
-                case "4":
-                    editGame();
-                    break;
-                case "5":
-                    deleteGame();
-                    break;
-            }
-        } while (!choice.equals("0"));
-    }
-
-    // Menus para Gêneros, Plataformas e Desenvolvedores (simplificados para brevidade)
-    private static void manageGenresMenu() throws ServiceException, ValidationException {
-        String choice;
-        do {
-            System.out.println("\n--- Gerenciar Gêneros ---");
-            System.out.println("1 - Adicionar/Encontrar Gênero");
-            System.out.println("2 - Listar Todos os Gêneros");
-            System.out.println("3 - Buscar Gênero por Nome");
-            System.out.println("4 - Deletar Gênero");
             System.out.print("Escolha uma opção (ou 0 para voltar): ");
             choice = scanner.nextLine();
 
-            if (choice.equals("1")) {
-                System.out.print("Digite o nome do Gênero: ");
-                String name = scanner.nextLine();
-                Genre genre = genreService.createOrFind(name);
-                System.out.println("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
-
-            } else if (choice.equals("2")) {
-                List<Genre> genres = genreService.findAll();
-                System.out.println("Gêneros encontrados: " + genres.size());
-                genres.forEach(g -> System.out.println("ID: " + g.getId() + " - Nome: " + g.getName()));
+            switch (choice) {
+                case "1": addNewGame(); break;
+                case "2": listAllGames(); break;
+                case "3": searchGameByName(); break;
+                case "4": editGame(); break;
+                case "5": deleteGame(); break;
             }
         } while (!choice.equals("0"));
     }
 
+    private static void manageGenresMenu() throws ServiceException, ValidationException {
+        System.out.println("\n--- Gerenciar Gêneros ---");
+        System.out.print("Digite o nome do Gênero para criar ou encontrar: ");
+        String name = scanner.nextLine();
+        Genre genre = genreService.createOrFind(name);
+        System.out.println("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
+    }
+
     private static void managePlatformsMenu() throws ServiceException, ValidationException {
-        // Implementação similar ao manageGenresMenu
-        System.out.println("\nFuncionalidade de Plataformas a ser implementada.");
+        System.out.println("\n--- Gerenciar Plataformas ---");
+        System.out.print("Digite o nome da Plataforma para criar ou encontrar: ");
+        String name = scanner.nextLine();
+        Platform platform = platformService.createOrFind(name, null); // Symbol path pode ser adicionado depois
+        System.out.println("Plataforma '" + platform.getName() + "' processada com ID: " + platform.getId());
     }
 
     private static void manageDevelopersMenu() throws ServiceException, ValidationException {
-        // Implementação similar ao manageGenresMenu
-        System.out.println("\nFuncionalidade de Desenvolvedores a ser implementada.");
+        System.out.println("\n--- Gerenciar Desenvolvedores ---");
+        System.out.print("Digite o nome do Desenvolvedor para criar ou encontrar: ");
+        String name = scanner.nextLine();
+        Developer dev = developerService.createOrFind(name);
+        System.out.println("Desenvolvedor '" + dev.getName() + "' processado com ID: " + dev.getId());
     }
 
-    // --- MÉTODOS DE AÇÃO PARA JOGOS ---
+    // --- IMPRESSÃO DE MENUS ---
+
+    private static void printMainMenu() {
+        System.out.println("\n===== GAME DESKTOP MANAGER =====");
+        System.out.println("1 - Acessar Biblioteca (Login/Registro)");
+        System.out.println("2 - Gerenciar Catálogo (Admin)");
+        System.out.println("0 - Sair");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    private static void printUserMenu() {
+        System.out.println("\n--- Menu do Usuário: " + loggedInUser.getUsername() + " ---");
+        System.out.println("1 - Ver minha biblioteca");
+        System.out.println("2 - Adicionar jogo à minha biblioteca");
+        System.out.println("3 - Remover jogo da minha biblioteca");
+        System.out.println("4 - Logout (Voltar ao menu principal)");
+        System.out.print("Escolha uma opção: ");
+    }
+    
+    private static void printCatalogMenu() {
+        System.out.println("\n--- Gerenciar Catálogo (Admin) ---");
+        System.out.println("1 - Gerenciar Jogos");
+        System.out.println("2 - Gerenciar Gêneros");
+        System.out.println("3 - Gerenciar Plataformas");
+        System.out.println("4 - Gerenciar Desenvolvedores");
+        System.out.println("0 - Voltar ao Menu Principal");
+        System.out.print("Escolha uma opção: ");
+    }
+
+    // --- MÉTODOS DE AÇÃO PARA JOGOS (ADMIN) ---
     private static void addNewGame() throws ServiceException, ValidationException {
         System.out.println("\n--- Adicionar Novo Jogo ---");
         System.out.print("Nome do Jogo: ");
