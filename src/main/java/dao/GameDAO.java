@@ -21,7 +21,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion Exclusive Finders
+    // #endregion
 
     // #region Finders by NAME
     /**
@@ -59,7 +59,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion Finders by NAME
+    // #endregion
 
     // #region Finders by RELATED ENTITY NAME
     /**
@@ -109,7 +109,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion Finders by RELATED ENTITY NAME
+    // #endregion
 
     // #region Finders by RELATED ENTITY ID
     /**
@@ -159,5 +159,5 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.close();
         }
     }
-    // #endregion Finders by RELATED ENTITY ID
+    // #endregion
 }

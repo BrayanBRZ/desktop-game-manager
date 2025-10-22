@@ -48,7 +48,7 @@ public class DeveloperDAO extends GenericDAO<Developer, Long> {
             em.close();
         }
     }
-    // #endregion Finders by NAME
+    // #endregion
 
     // #region Finders by RELATED ENTITY
     /**
@@ -86,5 +86,5 @@ public class DeveloperDAO extends GenericDAO<Developer, Long> {
             em.close();
         }
     }
-    // #endregion Finders by RELATED ENTITY
+    // #endregion
 }

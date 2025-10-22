@@ -174,7 +174,7 @@ public class GameService {
     }
     // #endregion
 
-    // --- Read-only methods ---
+// --- Read-only methods ---
     // #region Exclusive Finders
     /**
      * @return A list of all games.
@@ -202,7 +202,7 @@ public class GameService {
     }
     // #endregion
 
-    // #region Finders by NAME
+    // #region Finders by ENTITY DATA
     /**
      * @param name The name of the game to search for.
      * @return The found Game entity, or {@code null} if no game with that name
@@ -211,7 +211,7 @@ public class GameService {
      */
     public Game findGameByName(String name) throws ServiceException {
         try {
-            return gameDAO.findByExactName(name);
+            return gameDAO.findByName(name);
         } catch (PersistenceException e) {
             throw new ServiceException("Error finding game with ID " + name, e);
         }
@@ -230,6 +230,21 @@ public class GameService {
         }
     }
 
+    /**
+     * @param id The game ID.
+     * @return The found Game, or null if not found.
+     * @throws ServiceException if a database access error occurs.
+     */
+    public Game findGameById(Long id) throws ServiceException {
+        try {
+            return gameDAO.findById(id);
+        } catch (PersistenceException e) {
+            throw new ServiceException("Error finding game with ID " + id, e);
+        }
+    }
+    // #endregion
+
+    // #region Finders by RELATED ENTITY NAME
     /**
      * @param genreName The genre of games.
      * @return A list of games by genre.
@@ -270,20 +285,7 @@ public class GameService {
     }
     // #endregion
 
-    // #region Finders by ID
-    /**
-     * @param id The game ID.
-     * @return The found Game, or null if not found.
-     * @throws ServiceException if a database access error occurs.
-     */
-    public Game findGameById(Long id) throws ServiceException {
-        try {
-            return gameDAO.findById(id);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding game with ID " + id, e);
-        }
-    }
-
+    // #region Finders by RELATED ENTITY ID
     /**
      * @param id The genre ID.
      * @return The found Game, or null if not found.

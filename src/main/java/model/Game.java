@@ -67,21 +67,13 @@ public class Game {
     )
     private Set<GameDeveloper> gameDevelopers = new HashSet<>();
 
-    @OneToMany(
-            mappedBy = "game",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private Set<UserGame> gameUsers = new HashSet<>();
-
     // --- Audit Fields ---
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion Private Fields
+    // #endregion
 
     //#region Owner Methods
     // --- Developer ---
@@ -110,7 +102,7 @@ public class Game {
             toRemove.setGame(null);
         }
     }
-    //#endregion
+    // #endregion
 
     // #region Getters and Setters
     public Long getId() {
@@ -183,14 +175,6 @@ public class Game {
 
     public void setGameDevelopers(Set<GameDeveloper> gameDevelopers) {
         this.gameDevelopers = gameDevelopers;
-    }
-
-    public Set<UserGame> getUserGames() {
-        return gameUsers;
-    }
-
-    public void setUserGames(Set<UserGame> gameUsers) {
-        this.gameUsers = gameUsers;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -5,26 +5,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
-/**
- * Data Access Object (DAO) for the {@link UserGame} entity.
- * This class manages the link between a User and a Game in their library.
- *
- * @author Brayan Barros
- * @version 1.0
- * @since 2025-10-12
- */
 public class UserGameDAO extends GenericDAO<UserGame, Long> {
-
-    /**
-     * Constructs a new UserGameDAO.
-     */
-    public UserGameDAO() {
-        super();
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Custom query methods specific to the UserGame entity can be added below.
-    // ----------------------------------------------------------------------------------
 
     /**
      * Finds a specific library entry for a given user and game.

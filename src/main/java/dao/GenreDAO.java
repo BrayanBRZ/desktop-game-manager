@@ -48,5 +48,5 @@ public class GenreDAO extends GenericDAO<Genre, Long> {
             em.close();
         }
     }
-    // #endregion Finders by NAME
+    // #endregion
 }

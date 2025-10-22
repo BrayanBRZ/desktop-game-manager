@@ -56,7 +56,7 @@ public class Developer {
     public Developer(String name) {
         this.name = name;
     }
-    //#endregion
+    // #endregion
 
     // #region Getters and Setters
     public Long getId() {
