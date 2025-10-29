@@ -1,6 +1,9 @@
 package dao;
 
+import java.util.List;
+
 import model.UserGame;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
@@ -31,7 +34,14 @@ public class UserGameDAO extends GenericDAO<UserGame, Long> {
 
             return query.getSingleResult();
         } catch (NoResultException e) {
-            return null;
+            return null; //return q.getResultStream().findFirst().orElse(null);
         }
+    }
+
+    public List<UserGame> findAllByUser(Long userId) {
+        TypedQuery<UserGame> q = em.createQuery(
+                "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId", UserGame.class);
+        q.setParameter("userId", userId);
+        return q.getResultList();
     }
 }
