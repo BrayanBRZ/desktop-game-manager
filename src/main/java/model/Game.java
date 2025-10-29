@@ -75,35 +75,6 @@ public class Game {
     private LocalDateTime updatedAt;
     // #endregion
 
-    //#region Owner Methods
-    // --- Developer ---
-    public void addDeveloper(Developer developer) {
-        boolean alreadyHas = gameDevelopers.stream()
-                .anyMatch(gd -> gd.getDeveloper().equals(developer));
-
-        if (!alreadyHas) {
-            GameDeveloper gd = new GameDeveloper(this, developer);
-            gameDevelopers.add(gd);
-            developer.getDevelopedGames().add(gd);
-        }
-    }
-
-    public void removeDeveloper(Developer developer) {
-        GameDeveloper toRemove = gameDevelopers.stream()
-                .filter(gd -> gd.getDeveloper().equals(developer))
-                .findFirst()
-                .orElse(null);
-
-        if (toRemove != null) {
-            gameDevelopers.remove(toRemove);
-            developer.getDevelopedGames().remove(toRemove);
-
-            toRemove.setDeveloper(null);
-            toRemove.setGame(null);
-        }
-    }
-    // #endregion
-
     // #region Getters and Setters
     public Long getId() {
         return id;

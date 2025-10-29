@@ -4,276 +4,170 @@ import dao.GameDAO;
 import dao.UserDAO;
 import model.Game;
 import model.User;
+import model.UserGame;
+
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.PersistenceException;
+public class UserService extends BaseService {
 
-public class UserService {
+    // #region Validation
+    private void validateUserData(String name, String password) throws ValidationException {
+        if (name == null || name.trim().isEmpty())
+            throw new ValidationException("O nome de usuário não pode estar vazio.");
+        if (password == null || password.isEmpty())
+            throw new ValidationException("A senha não pode estar vazia.");
+    }
 
-    private final UserDAO userDAO = new UserDAO();
-    private final GameDAO gameDAO = new GameDAO(); // Necessário para buscar jogos
-
-    // #region Private Validation Logic
-    private void validateUserData(String username, String password) throws ValidationException {
-        if (username == null || username.trim().isEmpty()) {
-            throw new ValidationException("Username cannot be empty.");
-        }
-        if (password == null || password.isEmpty()) {
-            throw new ValidationException("Password cannot be empty.");
-        }
+    /**
+     * Verifica se o usuário já possui o jogo na biblioteca.
+     */
+    private boolean userHasGame(User user, Game game) {
+        return user.getUserGames().stream()
+                .anyMatch(ug -> ug.getGame().getId().equals(game.getId()));
     }
     // #endregion
 
-    // #region CRUD and Core Operations
-    /**
-     * Registers a new user.
-     *
-     * @param username The user's name.
-     * @param password The user's password.
-     * @return The newly created User.
-     * @throws ValidationException if username is taken or data is invalid.
-     * @throws ServiceException on database errors.
-     */
-    public User registerUser(String username, String password) throws ValidationException, ServiceException {
-        validateUserData(username, password);
-        try {
-            if (userDAO.findByUsername(username.trim()) != null) {
-                throw new ValidationException("Username '" + username + "' is already taken.");
-            }
-            // Na prática, você deve aplicar hash na senha aqui antes de salvar!
-            User newUser = new User(username.trim(), password);
-            userDAO.save(newUser);
-            return newUser;
-        } catch (PersistenceException e) {
-            throw new ServiceException("Could not register user.", e);
-        }
+    // #region CRUD and Library Management
+    public User registerUser(String name, String password)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            UserDAO userDAO = new UserDAO(em);
+
+            validateUserData(name, password);
+            if (userDAO.findByName(name.trim()) != null)
+                throw new ValidationException("O nome de usuário '" + name + "' já está em uso.");
+
+            User user = new User(name.trim(), password);
+            userDAO.save(user);
+            return user;
+        });
+    }
+
+    public User updateUserProfile(Long id, String name, LocalDate birthDate, String avatarPath)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            UserDAO userDAO = new UserDAO(em);
+
+            if (id == null)
+                throw new ValidationException("O ID do usuário é obrigatório.");
+            if (name == null || name.trim().isEmpty())
+                throw new ValidationException("O nome de usuário não pode estar vazio.");
+
+            User existing = userDAO.findById(id);
+            if (existing == null)
+                throw new ValidationException("Usuário com ID " + id + " não encontrado.");
+
+            User duplicate = userDAO.findByName(name.trim());
+            if (duplicate != null && !duplicate.getId().equals(id))
+                throw new ValidationException("O nome de usuário '" + name + "' já está em uso.");
+
+            existing.setName(name.trim());
+            existing.setBirthDate(birthDate);
+            existing.setAvatarPath(avatarPath);
+
+            return userDAO.update(existing);
+        });
+    }
+
+    public void deleteUser(Long id) throws ServiceException {
+        executeInTransaction(em -> {
+            new UserDAO(em).delete(id);
+            return null;
+        });
     }
 
     /**
-     * Updates a user's profile information.
-     *
-     * @param userId The ID of the user to update.
-     * @param newUsername The new username.
-     * @param newBirthDate The new birth date.
-     * @param newAvatarPath The new avatar path.
-     * @return The updated User entity.
-     * @throws ValidationException if data is invalid or user not found.
-     * @throws ServiceException on database errors.
+     * Adiciona um jogo à biblioteca do usuário, se ainda não existir.
      */
-    public User updateUserProfile(Long userId, String newUsername, LocalDate newBirthDate, String newAvatarPath)
-            throws ValidationException, ServiceException {
-        if (userId == null) {
-            throw new ValidationException("User ID is required for an update.");
-        }
-        if (newUsername == null || newUsername.trim().isEmpty()) {
-            throw new ValidationException("Username cannot be empty.");
-        }
-        try {
-            User userToUpdate = userDAO.findById(userId);
-            if (userToUpdate == null) {
-                throw new ValidationException("User with ID " + userId + " not found.");
-            }
+    public void addGameToLibrary(Long userId, Long gameId)
+            throws ServiceException, ValidationException {
+        executeInTransaction(em -> {
+            UserDAO userDAO = new UserDAO(em);
+            GameDAO gameDAO = new GameDAO(em);
 
-            // Verifica se o novo username já está em uso por OUTRO usuário
-            User existingUser = userDAO.findByUsername(newUsername.trim());
-            if (existingUser != null && !existingUser.getId().equals(userId)) {
-                throw new ValidationException("Username '" + newUsername + "' is already taken.");
-            }
-
-            userToUpdate.setUsername(newUsername.trim());
-            userToUpdate.setBirthDate(newBirthDate);
-            userToUpdate.setAvatarPath(newAvatarPath);
-
-            return userDAO.update(userToUpdate);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Could not update user profile.", e);
-        }
-    }
-
-    /**
-     * Adds a game to a user's library.
-     *
-     * @param userId The ID of the user.
-     * @param gameId The ID of the game to add.
-     * @throws ValidationException if user or game is not found.
-     * @throws ServiceException on database errors.
-     */
-    public void addGameToLibrary(Long userId, Long gameId) throws ValidationException, ServiceException {
-        try {
             User user = userDAO.findById(userId);
-            if (user == null) {
-                throw new ValidationException("User with ID " + userId + " not found.");
-            }
+            if (user == null)
+                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+
             Game game = gameDAO.findById(gameId);
-            if (game == null) {
-                throw new ValidationException("Game with ID " + gameId + " not found.");
-            }
+            if (game == null)
+                throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
 
-            user.addGame(game);
+            if (userHasGame(user, game))
+                throw new ValidationException("O usuário já possui o jogo '" + game.getName() + "' na biblioteca.");
+
+            UserGame userGame = new UserGame(user, game);
+            user.getUserGames().add(userGame);
+
             userDAO.update(user);
-
-        } catch (PersistenceException e) {
-            throw new ServiceException("Could not add game to library.", e);
-        }
+            return null;
+        });
     }
 
     /**
-     * Removes a game from a user's library.
-     *
-     * @param userId The ID of the user.
-     * @param gameId The ID of the game to remove.
-     * @throws ValidationException if user or game is not found.
-     * @throws ServiceException on database errors.
+     * Remove um jogo da biblioteca do usuário, se existir.
      */
-    public void removeGameFromLibrary(Long userId, Long gameId) throws ValidationException, ServiceException {
-        try {
+    public void removeGameFromLibrary(Long userId, Long gameId)
+            throws ServiceException, ValidationException {
+        executeInTransaction(em -> {
+            UserDAO userDAO = new UserDAO(em);
+            GameDAO gameDAO = new GameDAO(em);
+
             User user = userDAO.findById(userId);
-            if (user == null) {
-                throw new ValidationException("User with ID " + userId + " not found.");
-            }
+            if (user == null)
+                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+
             Game game = gameDAO.findById(gameId);
-            if (game == null) {
-                throw new ValidationException("Game with ID " + gameId + " not found.");
-            }
+            if (game == null)
+                throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
 
-            user.removeGame(game);
+            UserGame userGame = user.getUserGames().stream()
+                    .filter(ug -> ug.getGame().getId().equals(game.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (userGame == null)
+                throw new ValidationException("O usuário não possui o jogo '" + game.getName() + "' na biblioteca.");
+
+            user.getUserGames().remove(userGame);
             userDAO.update(user);
-
-        } catch (PersistenceException e) {
-            throw new ServiceException("Could not remove game from library.", e);
-        }
-    }
-
-    public void deleteById(Long id) throws ServiceException {
-        try {
-            userDAO.delete(id);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error deleting user by ID: " + id, e);
-        }
+            return null;
+        });
     }
     // #endregion
 
-    // #region Finder Methods (Exposing all UserDAO methods)
-    /**
-     * Finds a user by their unique ID.
-     *
-     * @param id The user's ID.
-     * @return The found User entity, or null if not found.
-     * @throws ServiceException on database errors.
-     */
+    // #region Read-Only Operations
     public User findById(Long id) throws ServiceException {
-        try {
-            return userDAO.findById(id);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding user by ID: " + id, e);
-        }
+        return executeReadOnly(em -> new UserDAO(em).findById(id));
     }
 
-    /**
-     * Retrieves all users from the database.
-     *
-     * @return A list of all users.
-     * @throws ServiceException on database errors.
-     */
+    public User findByName(String name) throws ServiceException {
+        return executeReadOnly(em -> new UserDAO(em).findByName(name));
+    }
+
     public List<User> findAll() throws ServiceException {
-        try {
-            return userDAO.findAll();
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding all users.", e);
-        }
+        return executeReadOnly(em -> new UserDAO(em).findAll());
     }
 
-    /**
-     * Finds a single User entity by its exact username.
-     *
-     * @param username The username to search for.
-     * @return The found User entity, or null if not found.
-     * @throws ServiceException on database errors.
-     */
-    public User findByUsername(String username) throws ServiceException {
-        try {
-            return userDAO.findByUsername(username);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding user by username: " + username, e);
-        }
+    public List<User> findByNameContaining(String term) throws ServiceException {
+        return executeReadOnly(em -> new UserDAO(em).findByNameContaining(term));
     }
 
-    /**
-     * Finds a list of users whose usernames contain the given search term.
-     *
-     * @param searchTerm The text to search for within usernames.
-     * @return A list of matching users.
-     * @throws ServiceException on database errors.
-     */
-    public List<User> findByNameContaining(String searchTerm) throws ServiceException {
-        try {
-            return userDAO.findByNameContaining(searchTerm);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding users by search term: " + searchTerm, e);
-        }
+    public List<User> findByBirthDate(LocalDate date) throws ServiceException {
+        return executeReadOnly(em -> new UserDAO(em).findByBirthDate(date));
     }
 
-    /**
-     * Finds all users born on a specific date.
-     *
-     * @param birthDate The exact birth date to search for.
-     * @return A list of users born on that date.
-     * @throws ServiceException on database errors.
-     */
-    public List<User> findByBirthDate(LocalDate birthDate) throws ServiceException {
-        try {
-            return userDAO.findByBirthDate(birthDate);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding users by birth date: " + birthDate, e);
-        }
-    }
-
-    /**
-     * Finds all users who are currently a specific age.
-     *
-     * @param age The age to search for.
-     * @return A list of users with that specific age.
-     * @throws ServiceException on database errors.
-     */
     public List<User> findByAge(int age) throws ServiceException {
-        try {
-            return userDAO.findByAge(age);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding users by age: " + age, e);
-        }
+        return executeReadOnly(em -> new UserDAO(em).findByAge(age));
     }
 
-    /**
-     * Finds all users who have a specific game in their library, by the game's
-     * ID.
-     *
-     * @param gameId The ID of the game to search for.
-     * @return A list of users who own the game.
-     * @throws ServiceException on database errors.
-     */
     public List<User> findByGameId(Long gameId) throws ServiceException {
-        try {
-            return userDAO.findByGameId(gameId);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding users by game ID: " + gameId, e);
-        }
+        return executeReadOnly(em -> new UserDAO(em).findByGameId(gameId));
     }
 
-    /**
-     * Finds all users who have a specific game in their library, by the game's
-     * name.
-     *
-     * @param gameName The name of the game to search for.
-     * @return A list of users who own the game.
-     * @throws ServiceException on database errors.
-     */
     public List<User> findByGameName(String gameName) throws ServiceException {
-        try {
-            return userDAO.findByGameName(gameName);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding users by game name: " + gameName, e);
-        }
+        return executeReadOnly(em -> new UserDAO(em).findByGameName(gameName));
     }
     // #endregion
 }

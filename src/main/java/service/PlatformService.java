@@ -3,145 +3,102 @@ package service;
 import dao.PlatformDAO;
 import model.Platform;
 
-import javax.persistence.PersistenceException;
 import java.util.List;
 
-/**
- * Service layer for managing Platform entities.
- * Encapsulates business logic, validation, and transaction management for platforms.
- */
-public class PlatformService {
-
-    private final PlatformDAO platformDAO = new PlatformDAO();
+public class PlatformService extends BaseService {
 
     // #region CRUD Operations
-    /**
-     * Creates a new platform.
-     * @param name The platform's name.
-     * @param symbolPath The path to the platform's symbol (can be null).
-     * @return The newly created Platform entity.
-     * @throws ValidationException if the data is invalid or the name is already taken.
-     * @throws ServiceException on database errors.
-     */
-    public Platform createPlatform(String name, String symbolPath) throws ValidationException, ServiceException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new ValidationException("Platform name cannot be empty.");
-        }
-        try {
+    public Platform createPlatform(String name, String symbolPath)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            PlatformDAO platformDAO = new PlatformDAO(em);
+
+            if (name == null || name.trim().isEmpty()) {
+                throw new ValidationException("Nome da plataforma não pode estar vazio.");
+            }
+
             if (platformDAO.findByName(name.trim()) != null) {
-                throw new ValidationException("A platform with the name '" + name + "' already exists.");
+                throw new ValidationException("Já existe uma plataforma com o nome '" + name + "'.");
             }
 
-            Platform newPlatform = new Platform(name.trim());
-            newPlatform.setSymbolPath(symbolPath);
-            platformDAO.save(newPlatform);
-            return newPlatform;
-        } catch (PersistenceException e) {
-            throw new ServiceException("Failed to create platform.", e);
-        }
+            Platform platform = new Platform(name.trim());
+            platform.setSymbolPath(symbolPath);
+            platformDAO.save(platform);
+            return platform;
+        });
     }
 
-    /**
-     * Updates an existing platform.
-     * @param id The ID of the platform to update.
-     * @param name The new name for the platform.
-     * @param symbolPath The new symbol path for the platform.
-     * @return The updated Platform entity.
-     * @throws ValidationException if data is invalid or platform is not found.
-     * @throws ServiceException on database errors.
-     */
-    public Platform updatePlatform(Long id, String name, String symbolPath) throws ValidationException, ServiceException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new ValidationException("Platform name cannot be empty.");
-        }
-        if (id == null) {
-            throw new ValidationException("Platform ID is required for an update.");
-        }
-        try {
-            Platform platformToUpdate = platformDAO.findById(id);
-            if (platformToUpdate == null) {
-                throw new ValidationException("Platform with ID " + id + " not found.");
+    public Platform updatePlatform(Long id, String name, String symbolPath)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            PlatformDAO platformDAO = new PlatformDAO(em);
+
+            if (id == null) {
+                throw new ValidationException("ID da plataforma é obrigatório.");
             }
-            
-            Platform existingPlatformWithNewName = platformDAO.findByName(name.trim());
-            if (existingPlatformWithNewName != null && !existingPlatformWithNewName.getId().equals(id)) {
-                throw new ValidationException("Another platform with the name '" + name + "' already exists.");
+            if (name == null || name.trim().isEmpty()) {
+                throw new ValidationException("Nome da plataforma não pode estar vazio.");
             }
 
-            platformToUpdate.setName(name.trim());
-            platformToUpdate.setSymbolPath(symbolPath);
-            return platformDAO.update(platformToUpdate);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Failed to update platform with ID " + id, e);
-        }
+            Platform existing = platformDAO.findById(id);
+            if (existing == null) {
+                throw new ValidationException("Plataforma com ID " + id + " não encontrada.");
+            }
+
+            Platform duplicate = platformDAO.findByName(name.trim());
+            if (duplicate != null && !duplicate.getId().equals(id)) {
+                throw new ValidationException("Já existe outra plataforma com o nome '" + name + "'.");
+            }
+
+            existing.setName(name.trim());
+            existing.setSymbolPath(symbolPath);
+            return platformDAO.update(existing);
+        });
     }
 
-    /**
-     * Deletes a platform by its ID.
-     * @param id The ID of the platform to delete.
-     * @throws ServiceException on database errors.
-     */
-    public void deleteById(Long id) throws ServiceException {
-        try {
-            platformDAO.delete(id);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Failed to delete platform by ID: " + id, e);
-        }
+    public void deletePlatform(Long id) throws ServiceException {
+        executeInTransaction(em -> {
+            new PlatformDAO(em).delete(id);
+            return null;
+        });
     }
     // #endregion
 
-    // #region Finder Methods
-    
+    // #region Read-Only Operations
     public Platform findById(Long id) throws ServiceException {
-        try {
-            return platformDAO.findById(id);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding platform by ID: " + id, e);
-        }
+        return executeReadOnly(em -> new PlatformDAO(em).findById(id));
     }
 
     public Platform findByName(String name) throws ServiceException {
-        try {
-            return platformDAO.findByName(name);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding platform by name: " + name, e);
-        }
+        return executeReadOnly(em -> new PlatformDAO(em).findByName(name));
     }
-    
+
     public List<Platform> findAll() throws ServiceException {
-        try {
-            return platformDAO.findAll();
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding all platforms.", e);
-        }
+        return executeReadOnly(em -> new PlatformDAO(em).findAll());
     }
 
-    public List<Platform> findByNameContaining(String searchTerm) throws ServiceException {
-        try {
-            return platformDAO.findByNameContaining(searchTerm);
-        } catch (PersistenceException e) {
-            throw new ServiceException("Error finding platforms by search term: " + searchTerm, e);
-        }
+    public List<Platform> findByNameContaining(String term) throws ServiceException {
+        return executeReadOnly(em -> new PlatformDAO(em).findByNameContaining(term));
     }
 
-    /**
-     * Finds a platform by name. If it doesn't exist, a new one is created.
-     * @param name The name of the platform.
-     * @param symbolPath The path to the symbol for the new platform, if created.
-     * @return The existing or newly created Platform entity.
-     * @throws ValidationException if the name is null or empty.
-     * @throws ServiceException on database errors.
-     */
-    public Platform createOrFind(String name, String symbolPath) throws ValidationException, ServiceException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new ValidationException("Platform name cannot be empty.");
-        }
-        try {
-            Platform existing = findByName(name);
-            return existing != null ? existing : createPlatform(name, symbolPath);
-        } catch (ServiceException e) {
-            throw e;
-        }
+    public Platform createOrFind(String name, String symbolPath)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            PlatformDAO dao = new PlatformDAO(em);
+            if (name == null || name.trim().isEmpty()) {
+                throw new ValidationException("Nome da plataforma não pode estar vazio.");
+            }
+
+            Platform existing = dao.findByName(name.trim());
+            if (existing != null) {
+                return existing;
+            }
+
+            Platform platform = new Platform(name.trim());
+            platform.setSymbolPath(symbolPath);
+            dao.save(platform);
+            return platform;
+        });
     }
     // #endregion
 }

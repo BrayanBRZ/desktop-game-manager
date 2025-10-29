@@ -27,8 +27,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false, unique = true, length = 150)
-    private String username;
+    @Column(name = "name", nullable = false, unique = true, length = 150)
+    private String name;
 
     @Column(nullable = false)
     private String password;
@@ -40,7 +40,11 @@ public class User {
     private LocalDate birthDate;
 
     // --- Relationships ---
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private Set<UserGame> userGames = new HashSet<>();
 
     // --- Audit Fields ---
@@ -55,52 +59,9 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password) {
-        this.username = username;
+    public User(String name, String password) {
+        this.name = name;
         this.password = password;
-    }
-    // #endregion
-
-    // #region Owner Methods
-    /**
-     * Adds a game to the user's library, ensuring the bidirectional
-     * relationship is maintained. Prevents adding a game if it's already in the
-     * library.
-     *
-     * @param game The Game to add.
-     */
-    public void addGame(Game game) {
-        if (game == null) {
-            return;
-        }
-        boolean alreadyHas = this.userGames.stream()
-                .anyMatch(ug -> ug.getGame() != null && ug.getGame().equals(game));
-
-        if (!alreadyHas) {
-            UserGame userGame = new UserGame(this, game);
-            this.userGames.add(userGame);
-        }
-    }
-
-    /**
-     * Removes a game from the user's library, ensuring the bidirectional
-     * relationship is broken.
-     *
-     * @param game The Game to remove.
-     */
-    public void removeGame(Game game) {
-        if (game == null) {
-            return;
-        }
-
-        this.userGames.removeIf(userGame -> {
-            if (userGame.getGame() != null && userGame.getGame().equals(game)) {
-                userGame.setUser(null);
-                userGame.setGame(null);
-                return true;
-            }
-            return false;
-        });
     }
     // #endregion
 
@@ -113,12 +74,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {

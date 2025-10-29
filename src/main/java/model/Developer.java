@@ -1,16 +1,12 @@
 package model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,13 +30,6 @@ public class Developer {
     @Column
     private String location;
 
-    // --- Relationships ---
-    @OneToMany(
-            mappedBy = "developer",
-            fetch = FetchType.LAZY
-    )
-    private Set<GameDeveloper> developedGames = new HashSet<>();
-
     // --- Audit Fields ---
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -49,7 +38,7 @@ public class Developer {
     private LocalDateTime updatedAt;
     // #endregion
 
-    //#region Constructors
+    // #region Constructors
     public Developer() {
     }
 
@@ -89,14 +78,6 @@ public class Developer {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public Set<GameDeveloper> getDevelopedGames() {
-        return developedGames;
-    }
-
-    public void setDevelopedGames(Set<GameDeveloper> developedGames) {
-        this.developedGames = developedGames;
     }
 
     public LocalDateTime getCreatedAt() {
