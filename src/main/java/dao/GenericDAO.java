@@ -1,9 +1,8 @@
 package dao;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
@@ -13,95 +12,78 @@ import java.util.List;
  */
 public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
 
-    protected static final EntityManagerFactory factory = Persistence.createEntityManagerFactory("desktop-game-manager");
+    protected final EntityManager em;
 
     private final Class<T> persistentClass;
 
     @SuppressWarnings("unchecked")
-    public GenericDAO() {
+    public GenericDAO(EntityManager em) {
         this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
                 .getGenericSuperclass())
                 .getActualTypeArguments()[0];
+        this.em = em;
     }
 
     @Override
     public void save(T entity) {
-        EntityManager em = factory.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            em.persist(entity);
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+        em.persist(entity);
     }
 
     @Override
     public T update(T entity) {
-        EntityManager em = factory.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        T updatedEntity = null;
-        try {
-            transaction.begin();
-            updatedEntity = em.merge(entity);
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
-        return updatedEntity;
+        return em.merge(entity);
     }
 
     @Override
     public void delete(K id) {
-        EntityManager em = factory.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        try {
-            transaction.begin();
-            T entity = em.find(persistentClass, id);
-            if (entity != null) {
-                em.remove(entity);
-            }
-            transaction.commit();
-        } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
+        T entity = em.find(persistentClass, id);
+        if (entity != null) {
+            em.remove(entity);
         }
     }
 
-    // --- Read-only methods ---
+    // #region Read-only Methods
     @Override
     public T findById(K id) {
-        EntityManager em = factory.createEntityManager();
-        try {
-            return em.find(persistentClass, id);
-        } finally {
-            em.close();
-        }
+        return em.find(persistentClass, id);
     }
 
     @Override
     public List<T> findAll() {
-        EntityManager em = factory.createEntityManager();
+        String jpql = "FROM " + persistentClass.getName();
+        return em.createQuery(jpql, persistentClass).getResultList();
+    }
+
+    /**
+     * Finds a entity by its exact name.
+     *
+     * @param name The exact name of the entity to find.
+     * @return The entity with the specified name, or null if not found.
+     */
+    public T findByName(String name) {
         try {
-            String jpql = "FROM " + persistentClass.getName();
-            return em.createQuery(jpql, persistentClass).getResultList();
-        } finally {
-            em.close();
+            String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE t.name = :name";
+            TypedQuery<T> query = em.createQuery(jpql, persistentClass);
+            query.setParameter("name", name);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
+
+    /**
+     * Finds a list of entity whose names contain the given search term
+     * (case-insensitive).
+     *
+     * @param searchTerm The text to search for within the entity names.
+     * @return A list of entity that match the search criteria.
+     */
+    public List<T> findByNameContaining(String searchTerm) {
+        String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE LOWER(t.name) LIKE LOWER(:searchTerm)";
+        TypedQuery<T> query = em.createQuery(jpql, persistentClass);
+        String searchTermWithWildcards = "%" + (searchTerm == null ? "" : searchTerm) + "%";
+        query.setParameter("searchTerm", searchTermWithWildcards);
+        return query.getResultList();
+    }
+    // #endregion Read-only Methods
 }

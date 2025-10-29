@@ -38,7 +38,7 @@ public class UserGame {
     private UserGameState gameState;
 
     @Column(name = "total_time_played")
-    private double totaltimePlayed;
+    private double totalTimePlayed;
 
     @Column(name = "last_time_played")
     private LocalDateTime lastTimePlayed;
@@ -104,11 +104,11 @@ public class UserGame {
     }
 
     public double getTotaltimePlayed() {
-        return totaltimePlayed;
+        return totalTimePlayed;
     }
 
-    public void setTotaltimePlayed(double totaltimePlayed) {
-        this.totaltimePlayed = totaltimePlayed;
+    public void setTotaltimePlayed(double totalTimePlayed) {
+        this.totalTimePlayed = totalTimePlayed;
     }
 
     public LocalDateTime getLastTimePlayed() {
