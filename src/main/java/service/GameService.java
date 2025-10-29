@@ -68,7 +68,7 @@ public class GameService extends BaseService {
     }
     // #endregion CRUD Operations
 
-    // #region Helper Classes and Methods
+    // #region Helpers
     private static class ValidatedGameData {
 
         private final String name;
