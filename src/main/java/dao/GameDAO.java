@@ -7,7 +7,6 @@ import java.util.List;
 
 public class GameDAO extends GenericDAO<Game, Long> {
 
-    // Constructor
     public GameDAO(EntityManager em) {
         super(em);
     }

@@ -25,22 +25,24 @@ import org.hibernate.annotations.UpdateTimestamp;
 )
 public class UserGame {
 
-    //#region Private Fields
+    // #region Private Fields
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "game_path")
-    private Long gamePath;
+    @Column(nullable = true, length = 500, name = "game_path")
+    private String gamePath;
 
+    @Column(nullable = true)
     private boolean estimated;
 
+    @Column(nullable = true, name = "game_state")
     private UserGameState gameState;
 
-    @Column(name = "total_time_played")
+    @Column(nullable = true, name = "total_time_played")
     private double totalTimePlayed;
 
-    @Column(name = "last_time_played")
+    @Column(nullable = true, name = "last_time_played")
     private LocalDateTime lastTimePlayed;
 
     // --- Relationships ---
@@ -58,7 +60,7 @@ public class UserGame {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    // #endregion Private Fields
 
     // #region Constructors
     public UserGame() {
@@ -68,9 +70,9 @@ public class UserGame {
         this.user = user;
         this.game = game;
     }
-    //#endregion
+    // #endregion Constructors
 
-    //#region Getters and Setters
+    // #region Getters and Setters
     public Long getId() {
         return id;
     }
@@ -79,11 +81,11 @@ public class UserGame {
         this.id = id;
     }
 
-    public Long getGamePath() {
+    public String getGamePath() {
         return gamePath;
     }
 
-    public void setGamePath(Long gamePath) {
+    public void setGamePath(String gamePath) {
         this.gamePath = gamePath;
     }
 
@@ -150,5 +152,5 @@ public class UserGame {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    // #endregion
+    // #endregion Getters and Setters
 }

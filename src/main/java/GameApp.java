@@ -15,7 +15,7 @@ public class GameApp {
     private static final UserGameService userGameService = new UserGameService();
     private static final GenreService genreService = new GenreService();
     private static final PlatformService platformService = new PlatformService();
-    private static final DeveloperService developerService = new DeveloperService(); // ADICIONADO
+    private static final DeveloperService developerService = new DeveloperService();
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

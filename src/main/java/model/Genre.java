@@ -30,7 +30,7 @@ public class Genre {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    //#endregion Private Fields
 
     //#region Constructors
     public Genre() {
@@ -73,5 +73,5 @@ public class Genre {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    //#endregion
+    //#endregion Getters and Setters
 }

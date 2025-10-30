@@ -2,6 +2,7 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,16 +31,16 @@ public class Game {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(name = "release_date")
+    @Column(nullable = true, name = "release_date")
     private LocalDate releaseDate;
 
-    @Column(name = "cover_path")
+    @Column(nullable = true, length = 500, name = "cover_path")
     private String coverPath;
 
-    @Column(name = "banner_path")
+    @Column(nullable = true, length = 500, name = "banner_path")
     private String bannerPath;
 
-    @Column(precision = 3, scale = 1)
+    @Column(nullable = true, precision = 3, scale = 1)
     private Double rating;
 
     // --- Relationships ---
@@ -73,7 +74,20 @@ public class Game {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion
+    // #endregion Private Fields
+
+    //#region Constructors
+    public Game() {
+    }
+
+    public Game(String name, LocalDate releaseDate, String coverPath, String bannerPath, Double rating) {
+        this.name = name;
+        this.releaseDate = releaseDate;
+        this.coverPath = coverPath;
+        this.bannerPath = bannerPath;
+        this.rating = rating;
+    }
+    //#endregion Constructors
 
     // #region Getters and Setters
     public Long getId() {
@@ -163,5 +177,5 @@ public class Game {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    // #endregion
+    // #endregion Getters and Setters
 }

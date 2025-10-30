@@ -24,7 +24,7 @@ public class Platform {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(name = "symbol_path")
+    @Column(nullable = true, length = 500, name = "symbol_path")
     private String symbolPath;
 
     // --- Audit Fields ---
@@ -33,7 +33,7 @@ public class Platform {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion
+    // #endregion Private Fields
 
     //#region Constructors
     public Platform() {
@@ -42,7 +42,12 @@ public class Platform {
     public Platform(String name) {
         this.name = name;
     }
-    //#endregion
+
+    public Platform(String name, String symbolPath) {
+        this.name = name;
+        this.symbolPath = symbolPath;
+    }
+    //#endregion Constructors
 
     // #region Getters and Setters
     public Long getId() {
@@ -84,5 +89,5 @@ public class Platform {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    // #endregion
+    // #endregion Getters and Setters
 }
