@@ -44,7 +44,7 @@ public class GameDeveloper {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    //#endregion Private Fields
 
     // #region Constructors
     public GameDeveloper() {
@@ -54,7 +54,7 @@ public class GameDeveloper {
         this.game = game;
         this.developer = developer;
     }
-    // #endregion
+    // #endregion Constructors
 
     //#region Getters and Setters
     public Long getId() {
@@ -96,5 +96,5 @@ public class GameDeveloper {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    //#endregion
+    //#endregion Getters and Setters
 }

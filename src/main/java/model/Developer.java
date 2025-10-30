@@ -24,10 +24,10 @@ public class Developer {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(name = "symbol_path")
+    @Column(nullable = true, length = 500, name = "symbol_path")
     private String symbolPath;
 
-    @Column
+    @Column(nullable = true, length = 150)
     private String location;
 
     // --- Audit Fields ---
@@ -36,16 +36,18 @@ public class Developer {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion
+    // #endregion Private Fields
 
     // #region Constructors
     public Developer() {
     }
 
-    public Developer(String name) {
+    public Developer(String name, String symbolPath, String location) {
         this.name = name;
+        this.symbolPath = symbolPath;
+        this.location = location;
     }
-    // #endregion
+    // #endregion Constructors
 
     // #region Getters and Setters
     public Long getId() {
@@ -95,5 +97,5 @@ public class Developer {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    // #endregion
+    // #endregion Getters and Setters
 }

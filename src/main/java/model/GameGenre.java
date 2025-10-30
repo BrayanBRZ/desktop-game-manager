@@ -33,7 +33,7 @@ public class GameGenre {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "genre_id")
     private Genre genre;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "game_id")
     private Game game;
@@ -44,7 +44,7 @@ public class GameGenre {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    //#endregion Private Fields
 
     // #region Constructors
     public GameGenre() {
@@ -54,7 +54,7 @@ public class GameGenre {
         this.game = game;
         this.genre = genre;
     }
-    // #endregion
+    // #endregion Constructors
 
     //#region Getters and Setters
     public Long getId() {
@@ -96,5 +96,5 @@ public class GameGenre {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    //#endregion
+    //#endregion Getters and Setters
 }

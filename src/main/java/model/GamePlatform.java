@@ -33,7 +33,7 @@ public class GamePlatform {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "platform_id")
     private Platform platform;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "game_id")
     private Game game;
@@ -44,7 +44,7 @@ public class GamePlatform {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    //#endregion
+    //#endregion Private Fields
 
     // #region Constructors
     public GamePlatform() {
@@ -54,7 +54,7 @@ public class GamePlatform {
         this.game = game;
         this.platform = platform;
     }
-    // #endregion
+    // #endregion Constructors
 
     //#region Getters and Setters
     public Long getId() {
@@ -96,5 +96,5 @@ public class GamePlatform {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    //#endregion
+    //#endregion Getters and Setters
 }

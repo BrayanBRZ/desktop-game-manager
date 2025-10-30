@@ -27,16 +27,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true, length = 150)
+    @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 250)
     private String password;
 
-    @Column(name = "avatar_path")
+    @Column(nullable = true, length = 500, name = "avatar_path")
     private String avatarPath;
 
-    @Column(name = "birth_date")
+    @Column(nullable = true, name = "birth_date")
     private LocalDate birthDate;
 
     // --- Relationships ---
@@ -53,7 +53,7 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    // #endregion
+    // #endregion Private Fields
 
     // #region Constructors
     public User() {
@@ -63,7 +63,14 @@ public class User {
         this.name = name;
         this.password = password;
     }
-    // #endregion
+
+    public User(String name, String password, String avatarPath, LocalDate birthDate) {
+        this.name = name;
+        this.password = password;
+        this.avatarPath = avatarPath;
+        this.birthDate = birthDate;
+    }
+    // #endregion Constructors
 
     // #region Getters and Setters
     public Long getId() {
@@ -129,5 +136,5 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-    // #endregion
+    // #endregion Getters and Setters
 }
