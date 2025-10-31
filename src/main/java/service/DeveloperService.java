@@ -66,8 +66,11 @@ public class DeveloperService extends BaseService {
             new DeveloperDAO(em).delete(id);
         });
     }
+    // #endregion CRUD Operations
 
-    public Developer createOrFind(String name) throws ServiceException, ValidationException {
+    // #region Create or Find
+    public Developer createOrFind(String name)
+            throws ServiceException, ValidationException {
         return executeInTransaction(em -> {
             DeveloperDAO dao = new DeveloperDAO(em);
             if (name == null || name.trim().isEmpty()) {
@@ -85,7 +88,7 @@ public class DeveloperService extends BaseService {
             return newDev;
         });
     }
-    // #endregion
+    // #endregion Create or Find
 
     // #region Read-Only Operations
     public Developer findById(Long id) throws ServiceException {

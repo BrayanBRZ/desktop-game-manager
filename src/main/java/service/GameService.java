@@ -1,9 +1,17 @@
 package service;
 
-import dao.*;
 import model.*;
+
+import dao.GameDAO;
+import dao.GenreDAO;
+import dao.PlatformDAO;
+import dao.DeveloperDAO;
+
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -68,7 +76,7 @@ public class GameService extends BaseService {
     }
     // #endregion CRUD Operations
 
-    // #region Helpers
+    // #region Helpers Classes and Methods
     private static class ValidatedGameData {
 
         private final String name;
@@ -147,11 +155,7 @@ public class GameService extends BaseService {
     // #endregion Helper Classes and Methods
 
     // #region Read-Only Operations
-    // Exclusive Finders
-    public List<Game> listAll() throws ServiceException {
-        return executeReadOnly(em -> new GameDAO(em).findAll());
-    }
-
+    // Generic Finders
     public Game findById(Long id) throws ServiceException {
         return executeReadOnly(em -> new GameDAO(em).findById(id));
     }
@@ -160,7 +164,15 @@ public class GameService extends BaseService {
         return executeReadOnly(em -> new GameDAO(em).findByNameContaining(name));
     }
 
-    // Finders by RELATED ENTITY NAME
+    public List<Game> findAll() throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findAll());
+    }
+
+    public List<Game> findByNameContaining(String term) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByNameContaining(term));
+    }
+
+    // Exclusive Finders
     public List<Game> listByGenreName(String genre) throws ServiceException {
         return executeReadOnly(em -> new GameDAO(em).findByGenreName(genre));
     }
@@ -173,7 +185,6 @@ public class GameService extends BaseService {
         return executeReadOnly(em -> new GameDAO(em).findByPlatformName(platform));
     }
 
-    // Finders by RELATED ENTITY ID
     public List<Game> listByGenreId(Long id) throws ServiceException {
         return executeReadOnly(em -> new GameDAO(em).findByGenreId(id));
     }

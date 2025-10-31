@@ -16,6 +16,7 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
 
     private final Class<T> persistentClass;
 
+    // Constructor
     @SuppressWarnings("unchecked")
     public GenericDAO(EntityManager em) {
         this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
@@ -24,6 +25,7 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
         this.em = em;
     }
 
+    // #region CRUD Methods
     @Override
     public void save(T entity) {
         em.persist(entity);
@@ -41,6 +43,7 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
             em.remove(entity);
         }
     }
+    // #endregion CRUD Methods
 
     // #region Read-only Methods
     @Override
@@ -54,12 +57,6 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
         return em.createQuery(jpql, persistentClass).getResultList();
     }
 
-    /**
-     * Finds a entity by its exact name.
-     *
-     * @param name The exact name of the entity to find.
-     * @return The entity with the specified name, or null if not found.
-     */
     public T findByName(String name) {
         try {
             String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE t.name = :name";
@@ -71,13 +68,6 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
         }
     }
 
-    /**
-     * Finds a list of entity whose names contain the given search term
-     * (case-insensitive).
-     *
-     * @param searchTerm The text to search for within the entity names.
-     * @return A list of entity that match the search criteria.
-     */
     public List<T> findByNameContaining(String searchTerm) {
         String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE LOWER(t.name) LIKE LOWER(:searchTerm)";
         TypedQuery<T> query = em.createQuery(jpql, persistentClass);

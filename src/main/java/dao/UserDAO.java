@@ -14,12 +14,6 @@ public class UserDAO extends GenericDAO<User, Long> {
     }
 
     // #region Finders by Profile Data
-    /**
-     * Finds all users born on a specific date.
-     *
-     * @param birthDate The exact birth date to search for.
-     * @return A list of users born on that date.
-     */
     public List<User> findByBirthDate(LocalDate birthDate) {
         String jpql = "SELECT u FROM User u WHERE u.birthDate = :birthDate";
         TypedQuery<User> query = em.createQuery(jpql, User.class);
@@ -27,15 +21,7 @@ public class UserDAO extends GenericDAO<User, Long> {
         return query.getResultList();
     }
 
-    /**
-     * Finds all users who are currently a specific age. This is calculated
-     * based on their birth date.
-     *
-     * @param age The age to search for.
-     * @return A list of users with that specific age.
-     */
     public List<User> findByAge(int age) {
-        // Logic to calculate the date range for a given age
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusYears(age + 1).plusDays(1);
         LocalDate endDate = today.minusYears(age);
@@ -46,16 +32,9 @@ public class UserDAO extends GenericDAO<User, Long> {
         query.setParameter("endDate", endDate);
         return query.getResultList();
     }
-    // #endregion
+    // #endregion Finders by Profile Data
 
-    // #region Finders by Game Library
-    /**
-     * Finds all users who have a specific game in their library, searching by
-     * the game's name.
-     *
-     * @param gameName The name of the game to search for in user libraries.
-     * @return A list of users who own the game.
-     */
+    // #region Finders by RELATED ENTITY
     public List<User> findByGameName(String gameName) {
         String jpql = "SELECT DISTINCT u FROM User u JOIN u.userGames ug WHERE ug.game.name = :gameName";
         TypedQuery<User> query = em.createQuery(jpql, User.class);
@@ -63,18 +42,11 @@ public class UserDAO extends GenericDAO<User, Long> {
         return query.getResultList();
     }
 
-    /**
-     * Finds all users who have a specific game in their library, searching by
-     * the game's ID.
-     *
-     * @param gameId The ID of the game to search for in user libraries.
-     * @return A list of users who own the game.
-     */
     public List<User> findByGameId(Long gameId) {
         String jpql = "SELECT DISTINCT u FROM User u JOIN u.userGames ug WHERE ug.game.id = :gameId";
         TypedQuery<User> query = em.createQuery(jpql, User.class);
         query.setParameter("gameId", gameId);
         return query.getResultList();
     }
-    // #endregion
+    // #endregion Finders by RELATED ENTITY
 }

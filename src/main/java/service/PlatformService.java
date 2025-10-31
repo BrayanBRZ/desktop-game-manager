@@ -62,7 +62,9 @@ public class PlatformService extends BaseService {
             return null;
         });
     }
+    // #endregion CRUD Operations
 
+    // #region Create or Find
     public Platform createOrFind(String name)
             throws ServiceException, ValidationException {
         return executeInTransaction(em -> {
@@ -81,7 +83,7 @@ public class PlatformService extends BaseService {
             return platform;
         });
     }
-    // #endregion CRUD Operations
+    // #endregion Create or Find
 
     // #region Read-Only Operations
     public Platform findById(Long id) throws ServiceException {
