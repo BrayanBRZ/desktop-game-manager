@@ -345,7 +345,7 @@ public class GameApp {
     }
 
     private static void listarTodosJogos() throws ServiceException {
-        List<Game> jogos = gameService.listAll();
+        List<Game> jogos = gameService.findAll();
         System.out.println("\n--- TODOS OS JOGOS (" + jogos.size() + ") ---");
         if (jogos.isEmpty()) {
             System.out.println("Nenhum jogo cadastrado.");
@@ -363,21 +363,21 @@ public class GameApp {
     private static void listarPorGenero() throws ServiceException {
         listarGeneros();
         String genre = lerString("Nome do gênero: ");
-        List<Game> jogos = gameService.listByGenre(genre);
+        List<Game> jogos = gameService.listByGenreName(genre);
         exibirListaJogos(jogos, "Nenhum jogo encontrado para o gênero '" + genre + "'.");
     }
 
     private static void listarPorPlataforma() throws ServiceException {
         listarPlataformas();
         String platform = lerString("Nome da plataforma: ");
-        List<Game> jogos = gameService.listByPlatform(platform);
+        List<Game> jogos = gameService.listByPlatformName(platform);
         exibirListaJogos(jogos, "Nenhum jogo encontrado para a plataforma '" + platform + "'.");
     }
 
     private static void listarPorDesenvolvedor() throws ServiceException {
         listarDesenvolvedores();
         String dev = lerString("Nome do desenvolvedor: ");
-        List<Game> jogos = gameService.listByDeveloper(dev);
+        List<Game> jogos = gameService.listByDeveloperName(dev);
         exibirListaJogos(jogos, "Nenhum jogo encontrado para o desenvolvedor '" + dev + "'.");
     }
 

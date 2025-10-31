@@ -57,8 +57,11 @@ public class GenreService extends BaseService {
             new GenreDAO(em).delete(id);
         });
     }
+    // #endregion CRUD Operations
 
-    public Genre createOrFind(String name) throws ServiceException, ValidationException {
+    // #region Create or Find
+    public Genre createOrFind(String name)
+            throws ServiceException, ValidationException {
         return executeInTransaction(em -> {
             GenreDAO dao = new GenreDAO(em);
             if (name == null || name.trim().isEmpty()) {
@@ -70,12 +73,13 @@ public class GenreService extends BaseService {
                 return existing;
             }
 
-            Genre newGenre = new Genre(name.trim());
-            dao.save(newGenre);
-            return newGenre;
+            Genre newDev = new Genre();
+            newDev.setName(name.trim());
+            dao.save(newDev);
+            return newDev;
         });
     }
-    // #endregion CRUD Operations
+    // #endregion Create or Find
 
     // #region Read-Only Operations
     public Genre findById(Long id) throws ServiceException {

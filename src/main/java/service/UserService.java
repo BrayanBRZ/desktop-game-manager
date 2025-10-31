@@ -55,9 +55,7 @@ public class UserService extends BaseService {
         return hashed != null && Objects.equals(hashPassword(plain), hashed);
     }
 
-    /**
-     * Retorna uma cópia do usuário sem senha.
-     */
+    // Returns a copy of the user without a password
     private User sanitizeUser(User user) {
         if (user == null) {
             return null;
@@ -73,9 +71,7 @@ public class UserService extends BaseService {
         return safe;
     }
 
-    /**
-     * Retorna uma lista de usuários sanitizados (sem senha).
-     */
+    // Returns a list of sanitized users (without passwords)
     private List<User> sanitizeList(List<User> users) {
         return users.stream().map(this::sanitizeUser).collect(Collectors.toList());
     }
@@ -259,9 +255,10 @@ public class UserService extends BaseService {
             return null;
         });
     }
-
     // #endregion Profile and Library Management
+
     // #region Read-Only Operations
+    // Generic Finders
     public User findById(Long id) throws ServiceException {
         return executeReadOnly(em -> sanitizeUser(new UserDAO(em).findById(id)));
     }
@@ -278,6 +275,7 @@ public class UserService extends BaseService {
         return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByNameContaining(term)));
     }
 
+    // Exclusive Finders
     public List<User> findByBirthDate(LocalDate date) throws ServiceException {
         return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByBirthDate(date)));
     }
