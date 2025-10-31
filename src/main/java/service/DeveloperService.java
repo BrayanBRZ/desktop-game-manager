@@ -66,24 +66,6 @@ public class DeveloperService extends BaseService {
             new DeveloperDAO(em).delete(id);
         });
     }
-    // #endregion
-
-    // #region Read-Only Operations
-    public Developer findById(Long id) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findById(id));
-    }
-
-    public Developer findByName(String name) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findByName(name));
-    }
-
-    public List<Developer> findAll() throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findAll());
-    }
-
-    public List<Developer> findByNameContaining(String term) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findByNameContaining(term));
-    }
 
     public Developer createOrFind(String name) throws ServiceException, ValidationException {
         return executeInTransaction(em -> {
@@ -104,4 +86,22 @@ public class DeveloperService extends BaseService {
         });
     }
     // #endregion
+
+    // #region Read-Only Operations
+    public Developer findById(Long id) throws ServiceException {
+        return executeReadOnly(em -> new DeveloperDAO(em).findById(id));
+    }
+
+    public Developer findByName(String name) throws ServiceException {
+        return executeReadOnly(em -> new DeveloperDAO(em).findByName(name));
+    }
+
+    public List<Developer> findAll() throws ServiceException {
+        return executeReadOnly(em -> new DeveloperDAO(em).findAll());
+    }
+
+    public List<Developer> findByNameContaining(String term) throws ServiceException {
+        return executeReadOnly(em -> new DeveloperDAO(em).findByNameContaining(term));
+    }
+    // #endregion Read-Only Operations
 }

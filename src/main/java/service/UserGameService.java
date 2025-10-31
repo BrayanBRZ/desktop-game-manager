@@ -9,7 +9,7 @@ import java.util.List;
 
 public class UserGameService extends BaseService {
 
-    // #region Attribute Update Methods
+    // #region Data Update Methods
     public UserGame updateEstimated(Long userId, Long gameId, boolean estimated) throws ServiceException {
         return executeInTransaction(em -> {
             UserGameDAO dao = new UserGameDAO(em);
@@ -61,9 +61,6 @@ public class UserGameService extends BaseService {
         });
     }
 
-    /**
-     * Atualiza todos os atributos internos de UserGame de uma vez.
-     */
     public UserGame updateAllAttributes(Long userId, Long gameId,
             boolean estimated,
             UserGameState state,

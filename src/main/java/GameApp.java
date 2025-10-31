@@ -313,8 +313,7 @@ public class GameApp {
         System.out.println("\n--- GERENCIAR PLATAFORMAS ---");
         listarPlataformas();
         String name = lerString("Nome da plataforma para criar ou encontrar: ");
-        String symbolPath = lerString("Caminho do símbolo (Enter para vazio): ");
-        Platform platform = platformService.createOrFind(name, symbolPath.isEmpty() ? null : symbolPath);
+        Platform platform = platformService.createOrFind(name);
         System.out.println("Plataforma '" + platform.getName() + "' processada com ID: " + platform.getId());
     }
 
