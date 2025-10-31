@@ -57,24 +57,6 @@ public class GenreService extends BaseService {
             new GenreDAO(em).delete(id);
         });
     }
-    // #endregion
-
-    // #region Read-Only Operations
-    public Genre findById(Long id) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findById(id));
-    }
-
-    public Genre findByName(String name) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findByName(name));
-    }
-
-    public List<Genre> findAll() throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findAll());
-    }
-
-    public List<Genre> findByNameContaining(String term) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findByNameContaining(term));
-    }
 
     public Genre createOrFind(String name) throws ServiceException, ValidationException {
         return executeInTransaction(em -> {
@@ -93,5 +75,23 @@ public class GenreService extends BaseService {
             return newGenre;
         });
     }
-    // #endregion
+    // #endregion CRUD Operations
+
+    // #region Read-Only Operations
+    public Genre findById(Long id) throws ServiceException {
+        return executeReadOnly(em -> new GenreDAO(em).findById(id));
+    }
+
+    public Genre findByName(String name) throws ServiceException {
+        return executeReadOnly(em -> new GenreDAO(em).findByName(name));
+    }
+
+    public List<Genre> findAll() throws ServiceException {
+        return executeReadOnly(em -> new GenreDAO(em).findAll());
+    }
+
+    public List<Genre> findByNameContaining(String term) throws ServiceException {
+        return executeReadOnly(em -> new GenreDAO(em).findByNameContaining(term));
+    }
+    // #endregion Read-Only Operations
 }

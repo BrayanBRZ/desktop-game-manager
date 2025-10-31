@@ -147,6 +147,7 @@ public class GameService extends BaseService {
     // #endregion Helper Classes and Methods
 
     // #region Read-Only Operations
+    // Exclusive Finders
     public List<Game> listAll() throws ServiceException {
         return executeReadOnly(em -> new GameDAO(em).findAll());
     }
@@ -159,16 +160,30 @@ public class GameService extends BaseService {
         return executeReadOnly(em -> new GameDAO(em).findByNameContaining(name));
     }
 
-    public List<Game> listByGenre(String genre) throws ServiceException {
-        return executeReadOnly(em -> new GameDAO(em).findByGenre(genre));
+    // Finders by RELATED ENTITY NAME
+    public List<Game> listByGenreName(String genre) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByGenreName(genre));
     }
 
-    public List<Game> listByDeveloper(String dev) throws ServiceException {
-        return executeReadOnly(em -> new GameDAO(em).findByDeveloper(dev));
+    public List<Game> listByDeveloperName(String dev) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByDeveloperName(dev));
     }
 
-    public List<Game> listByPlatform(String platform) throws ServiceException {
-        return executeReadOnly(em -> new GameDAO(em).findByPlatform(platform));
+    public List<Game> listByPlatformName(String platform) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByPlatformName(platform));
+    }
+
+    // Finders by RELATED ENTITY ID
+    public List<Game> listByGenreId(Long id) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByGenreId(id));
+    }
+
+    public List<Game> listByDeveloperId(Long id) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByDeveloperId(id));
+    }
+
+    public List<Game> listByPlatformId(Long id) throws ServiceException {
+        return executeReadOnly(em -> new GameDAO(em).findByPlatformId(id));
     }
     // #endregion Read-Only Operations
 }

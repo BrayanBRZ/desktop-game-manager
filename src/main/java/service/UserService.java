@@ -9,14 +9,11 @@ import model.UserGame;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Serviço responsável por operações relacionadas a usuários: - Registro, login,
- * atualização de perfil, senha e biblioteca de jogos. - Retorna sempre usuários
- * sem o campo de senha por segurança.
- */
 public class UserService extends BaseService {
 
     // #region Helper Methods

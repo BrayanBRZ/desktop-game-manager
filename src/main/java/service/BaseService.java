@@ -2,6 +2,7 @@ package service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+
 import util.JPAUtil;
 
 import java.util.function.Consumer;
@@ -9,6 +10,7 @@ import java.util.function.Function;
 
 public abstract class BaseService {
 
+    // #region Generic Entity Manager Transactions
     protected <R> R executeInTransaction(Function<EntityManager, R> action) throws ServiceException {
         EntityManager em = JPAUtil.getEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -28,11 +30,11 @@ public abstract class BaseService {
     }
 
     protected void executeInTransaction(Consumer<EntityManager> action) throws ServiceException {
-    executeInTransaction(em -> {
-        action.accept(em);
-        return null;
-    });
-}
+        executeInTransaction(em -> {
+            action.accept(em);
+            return null;
+        });
+    }
 
     protected <R> R executeReadOnly(Function<EntityManager, R> action) throws ServiceException {
         EntityManager em = JPAUtil.getEntityManager();
@@ -44,4 +46,5 @@ public abstract class BaseService {
             em.close();
         }
     }
+    // #endregion Generic Entity Manager Transactions
 }

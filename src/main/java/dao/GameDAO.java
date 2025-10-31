@@ -25,7 +25,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
      * @param genreName The name of the genre to search for.
      * @return A list of games that match the specified genre.
      */
-    public List<Game> findByGenre(String genreName) {
+    public List<Game> findByGenreName(String genreName) {
         String jpql = "SELECT DISTINCT g FROM Game g JOIN g.gameGenres gg JOIN gg.genre genre WHERE genre.name = :genreName";
         TypedQuery<Game> query = em.createQuery(jpql, Game.class);
         query.setParameter("genreName", genreName);
@@ -36,7 +36,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
      * @param platformName The name of the platform to search for.
      * @return A list of games that match the specified platform.
      */
-    public List<Game> findByPlatform(String platformName) {
+    public List<Game> findByPlatformName(String platformName) {
         String jpql = "SELECT DISTINCT g FROM Game g JOIN g.gamePlatforms gp JOIN gp.platform platform WHERE platform.name = :platformName";
         TypedQuery<Game> query = em.createQuery(jpql, Game.class);
         query.setParameter("platformName", platformName);
@@ -47,7 +47,7 @@ public class GameDAO extends GenericDAO<Game, Long> {
      * @param developerName The name of the developer to search for.
      * @return A list of games that match the specified developer.
      */
-    public List<Game> findByDeveloper(String developerName) {
+    public List<Game> findByDeveloperName(String developerName) {
         String jpql = "SELECT DISTINCT g FROM Game g JOIN g.gameDevelopers gd JOIN gd.developer developer WHERE developer.name = :developerName";
         TypedQuery<Game> query = em.createQuery(jpql, Game.class);
         query.setParameter("developerName", developerName);

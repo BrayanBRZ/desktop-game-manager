@@ -62,7 +62,26 @@ public class PlatformService extends BaseService {
             return null;
         });
     }
-    // #endregion
+
+    public Platform createOrFind(String name)
+            throws ServiceException, ValidationException {
+        return executeInTransaction(em -> {
+            PlatformDAO dao = new PlatformDAO(em);
+            if (name == null || name.trim().isEmpty()) {
+                throw new ValidationException("Nome da plataforma não pode estar vazio.");
+            }
+
+            Platform existing = dao.findByName(name.trim());
+            if (existing != null) {
+                return existing;
+            }
+
+            Platform platform = new Platform(name.trim());
+            dao.save(platform);
+            return platform;
+        });
+    }
+    // #endregion CRUD Operations
 
     // #region Read-Only Operations
     public Platform findById(Long id) throws ServiceException {
@@ -80,25 +99,5 @@ public class PlatformService extends BaseService {
     public List<Platform> findByNameContaining(String term) throws ServiceException {
         return executeReadOnly(em -> new PlatformDAO(em).findByNameContaining(term));
     }
-
-    public Platform createOrFind(String name, String symbolPath)
-            throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            PlatformDAO dao = new PlatformDAO(em);
-            if (name == null || name.trim().isEmpty()) {
-                throw new ValidationException("Nome da plataforma não pode estar vazio.");
-            }
-
-            Platform existing = dao.findByName(name.trim());
-            if (existing != null) {
-                return existing;
-            }
-
-            Platform platform = new Platform(name.trim());
-            platform.setSymbolPath(symbolPath);
-            dao.save(platform);
-            return platform;
-        });
-    }
-    // #endregion
+    // #endregion Read-Only Operations
 }
