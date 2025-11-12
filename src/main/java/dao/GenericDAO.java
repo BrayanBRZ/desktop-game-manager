@@ -1,8 +1,14 @@
 package dao;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import javax.persistence.EntityTransaction;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
@@ -12,17 +18,19 @@ import java.util.List;
  */
 public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
 
-    protected final EntityManager em;
+    private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("desktop-game-manager");
 
     private final Class<T> persistentClass;
 
+    protected final EntityManager em;
+
     // Constructor
     @SuppressWarnings("unchecked")
-    public GenericDAO(EntityManager em) {
+    public GenericDAO() {
         this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
                 .getGenericSuperclass())
                 .getActualTypeArguments()[0];
-        this.em = em;
+        this.em = FACTORY.createEntityManager();
     }
 
     // #region CRUD Methods
@@ -76,4 +84,49 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
         return query.getResultList();
     }
     // #endregion Read-only Methods
+
+    // #region Transaction & Execution Control
+    public <R> R executeInTransaction(Function<EntityManager, R> action) {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            R result = action.apply(em);
+            tx.commit();
+            return result;
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new RuntimeException("Erro ao executar transação", e);
+        }
+    }
+
+    public void performInTransaction(Consumer<EntityManager> action) {
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            action.accept(em);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new RuntimeException("Erro ao executar transação", e);
+        }
+    }
+
+    public <R> R executeReadOnly(Function<EntityManager, R> action) {
+        try {
+            return action.apply(em);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao executar operação de leitura", e);
+        }
+    }
+
+    public void close() {
+        if (em != null && em.isOpen()) {
+            em.close();
+        }
+    }
+    // #endregion Transaction & Execution Control
 }
