@@ -1,22 +1,27 @@
 package service;
 
+import java.util.List;
+
 import dao.DeveloperDAO;
 import model.Developer;
 
-import java.util.List;
+public class DeveloperService {
 
-public class DeveloperService extends BaseService {
+    private final DeveloperDAO developerDAO;
+
+    public DeveloperService() {
+        this.developerDAO = new DeveloperDAO();
+    }
 
     // #region CRUD Operations
     public Developer createDeveloper(String name, String location, String symbolPath)
-            throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            DeveloperDAO developerDAO = new DeveloperDAO(em);
+            throws ValidationException {
+
+        return developerDAO.executeInTransaction(manager -> {
 
             if (name == null || name.trim().isEmpty()) {
                 throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
             }
-
             if (developerDAO.findByName(name.trim()) != null) {
                 throw new ValidationException("Já existe um desenvolvedor com o nome '" + name + "'.");
             }
@@ -32,10 +37,9 @@ public class DeveloperService extends BaseService {
     }
 
     public Developer updateDeveloper(Long id, String name, String location, String symbolPath)
-            throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            DeveloperDAO developerDAO = new DeveloperDAO(em);
+            throws ValidationException {
 
+        return developerDAO.executeInTransaction(manager -> {
             if (id == null) {
                 throw new ValidationException("ID do desenvolvedor é obrigatório.");
             }
@@ -43,11 +47,11 @@ public class DeveloperService extends BaseService {
                 throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
             }
 
+            // Busca e validação DENTRO da transação.
             Developer existing = developerDAO.findById(id);
             if (existing == null) {
                 throw new ValidationException("Desenvolvedor com ID " + id + " não encontrado.");
             }
-
             Developer duplicate = developerDAO.findByName(name.trim());
             if (duplicate != null && !duplicate.getId().equals(id)) {
                 throw new ValidationException("Já existe outro desenvolvedor com o nome '" + name + "'.");
@@ -61,50 +65,24 @@ public class DeveloperService extends BaseService {
         });
     }
 
-    public void deleteDeveloper(Long id) throws ServiceException {
-        executeInTransaction(em -> {
-            new DeveloperDAO(em).delete(id);
+    public void deleteDeveloper(Long id) {
+        developerDAO.performInTransaction(manager -> {
+            developerDAO.delete(id);
         });
     }
     // #endregion CRUD Operations
 
-    // #region Create or Find
-    public Developer createOrFind(String name)
-            throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            DeveloperDAO dao = new DeveloperDAO(em);
-            if (name == null || name.trim().isEmpty()) {
-                throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
-            }
-
-            Developer existing = dao.findByName(name.trim());
-            if (existing != null) {
-                return existing;
-            }
-
-            Developer newDev = new Developer();
-            newDev.setName(name.trim());
-            dao.save(newDev);
-            return newDev;
-        });
-    }
-    // #endregion Create or Find
-
     // #region Read-Only Operations
-    public Developer findById(Long id) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findById(id));
+    public Developer findById(Long id) {
+        return developerDAO.executeReadOnly(manager -> developerDAO.findById(id));
     }
 
-    public Developer findByName(String name) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findByName(name));
-    }
-
-    public List<Developer> findAll() throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findAll());
-    }
-
-    public List<Developer> findByNameContaining(String term) throws ServiceException {
-        return executeReadOnly(em -> new DeveloperDAO(em).findByNameContaining(term));
+    public List<Developer> findAll() {
+        return developerDAO.executeReadOnly(manager -> developerDAO.findAll());
     }
     // #endregion Read-Only Operations
+
+    public void close() {
+        developerDAO.close();
+    }
 }
