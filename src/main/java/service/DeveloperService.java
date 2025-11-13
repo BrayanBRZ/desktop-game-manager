@@ -17,8 +17,6 @@ public class DeveloperService {
     public Developer createDeveloper(String name, String location, String symbolPath)
             throws ValidationException {
 
-        return developerDAO.executeInTransaction(manager -> {
-
             if (name == null || name.trim().isEmpty()) {
                 throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
             }
@@ -33,13 +31,11 @@ public class DeveloperService {
 
             developerDAO.save(newDeveloper);
             return newDeveloper;
-        });
     }
 
     public Developer updateDeveloper(Long id, String name, String location, String symbolPath)
             throws ValidationException {
 
-        return developerDAO.executeInTransaction(manager -> {
             if (id == null) {
                 throw new ValidationException("ID do desenvolvedor é obrigatório.");
             }
@@ -62,7 +58,6 @@ public class DeveloperService {
             existing.setSymbolPath(symbolPath);
 
             return developerDAO.update(existing);
-        });
     }
 
     public void deleteDeveloper(Long id) {
@@ -81,8 +76,4 @@ public class DeveloperService {
         return developerDAO.executeReadOnly(manager -> developerDAO.findAll());
     }
     // #endregion Read-Only Operations
-
-    public void close() {
-        developerDAO.close();
-    }
 }

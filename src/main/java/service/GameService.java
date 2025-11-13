@@ -4,7 +4,10 @@ import dao.*;
 import model.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Collection;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
@@ -211,12 +214,4 @@ public class GameService {
         }
     }
     // #endregion Helpers
-
-
-    public void close() {
-        gameDAO.close();
-        genreDAO.close();
-        platformDAO.close();
-        developerDAO.close();
-    }
 }

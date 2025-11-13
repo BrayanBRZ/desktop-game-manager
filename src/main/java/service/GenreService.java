@@ -5,12 +5,17 @@ import model.Genre;
 
 import java.util.List;
 
-public class GenreService extends BaseService {
+public class GenreService {
+
+    private final GenreDAO genreDAO;
+
+    public GenreService() {
+        this.genreDAO = new GenreDAO();
+    }
 
     // #region CRUD Operations
     public Genre createGenre(String name) throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            GenreDAO genreDAO = new GenreDAO(em);
+        return genreDAO.executeInTransaction(em -> {
 
             if (name == null || name.trim().isEmpty()) {
                 throw new ValidationException("Nome do gênero não pode estar vazio.");
@@ -27,8 +32,7 @@ public class GenreService extends BaseService {
     }
 
     public Genre updateGenre(Long id, String name) throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            GenreDAO genreDAO = new GenreDAO(em);
+        return genreDAO.executeInTransaction(em -> {
 
             if (id == null) {
                 throw new ValidationException("ID do gênero é obrigatório.");
@@ -53,8 +57,8 @@ public class GenreService extends BaseService {
     }
 
     public void deleteGenre(Long id) throws ServiceException {
-        executeInTransaction(em -> {
-            new GenreDAO(em).delete(id);
+        genreDAO.performInTransaction(em -> {
+            genreDAO.delete(id);
         });
     }
     // #endregion CRUD Operations
@@ -62,20 +66,19 @@ public class GenreService extends BaseService {
     // #region Create or Find
     public Genre createOrFind(String name)
             throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            GenreDAO dao = new GenreDAO(em);
+        return genreDAO.executeInTransaction(em -> {
             if (name == null || name.trim().isEmpty()) {
                 throw new ValidationException("Nome do gênero não pode estar vazio.");
             }
 
-            Genre existing = dao.findByName(name.trim());
+            Genre existing = genreDAO.findByName(name.trim());
             if (existing != null) {
                 return existing;
             }
 
             Genre newDev = new Genre();
             newDev.setName(name.trim());
-            dao.save(newDev);
+            genreDAO.save(newDev);
             return newDev;
         });
     }
@@ -83,19 +86,19 @@ public class GenreService extends BaseService {
 
     // #region Read-Only Operations
     public Genre findById(Long id) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findById(id));
+        return genreDAO.executeReadOnly(em -> genreDAO.findById(id));
     }
 
     public Genre findByName(String name) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findByName(name));
+        return genreDAO.executeReadOnly(em -> genreDAO.findByName(name));
     }
 
     public List<Genre> findAll() throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findAll());
+        return genreDAO.executeReadOnly(em -> genreDAO.findAll());
     }
 
     public List<Genre> findByNameContaining(String term) throws ServiceException {
-        return executeReadOnly(em -> new GenreDAO(em).findByNameContaining(term));
+        return genreDAO.executeReadOnly(em -> genreDAO.findByNameContaining(term));
     }
     // #endregion Read-Only Operations
 }
