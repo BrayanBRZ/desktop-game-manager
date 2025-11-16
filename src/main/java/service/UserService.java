@@ -10,14 +10,24 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class UserService extends BaseService {
+public class UserService {
+
+    private final UserDAO userDAO;
+    private final GameDAO gameDAO;
+
+    public UserService() {
+        this.userDAO = new UserDAO();
+        this.gameDAO = new GameDAO();
+    }
 
     // #region Helper Methods
     private void validateBasicUserData(String name, String password) throws ValidationException {
+
         if (name == null || name.trim().isEmpty()) {
             throw new ValidationException("O nome de usuário não pode estar vazio.");
         }
@@ -73,223 +83,199 @@ public class UserService extends BaseService {
 
     // Returns a list of sanitized users (without passwords)
     private List<User> sanitizeList(List<User> users) {
+        if (users == null || users.isEmpty()) {
+            return Collections.emptyList();
+        }
         return users.stream().map(this::sanitizeUser).collect(Collectors.toList());
     }
 
     // #endregion Helper Methods
     // #region Register and Login
     public User registerUser(String name, String password) throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
-            validateBasicUserData(name, password);
 
-            String trimmed = name.trim();
-            if (userDAO.findByName(trimmed) != null) {
-                throw new ValidationException("O nome de usuário '" + trimmed + "' já está em uso.");
-            }
+        validateBasicUserData(name, password);
 
-            User user = new User(trimmed, hashPassword(password));
-            userDAO.save(user);
-            return sanitizeUser(user);
-        });
+        String trimmed = name.trim();
+        if (userDAO.findByName(trimmed) != null) {
+            throw new ValidationException("O nome de usuário '" + trimmed + "' já está em uso.");
+        }
+
+        User user = new User(trimmed, hashPassword(password));
+        userDAO.save(user);
+        return sanitizeUser(user);
     }
 
     /**
      * Autentica um usuário por nome e senha. Retorna o usuário sem senha.
      */
     public User login(String name, String password) throws ServiceException {
-        return executeReadOnly(em -> {
-            if (name == null || password == null) {
-                return null;
-            }
-            UserDAO userDAO = new UserDAO(em);
-            User u = userDAO.findByName(name.trim());
-            if (u == null || !passwordMatches(password, u.getPassword())) {
-                return null;
-            }
-            return sanitizeUser(u);
-        });
+
+        if (name == null || password == null) {
+            return null;
+        }
+        User u = userDAO.findByName(name.trim());
+        if (u == null || !passwordMatches(password, u.getPassword())) {
+            return null;
+        }
+        return sanitizeUser(u);
     }
 
     public void changePassword(Long userId, String currentPassword, String newPassword)
             throws ServiceException, ValidationException {
-        executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
 
-            if (userId == null) {
-                throw new ValidationException("ID do usuário é obrigatório.");
-            }
-            if (currentPassword == null || currentPassword.isEmpty()) {
-                throw new ValidationException("Senha atual é obrigatória.");
-            }
-            if (newPassword == null || newPassword.length() < 6) {
-                throw new ValidationException("Nova senha inválida (mínimo 6 caracteres).");
-            }
+        if (userId == null) {
+            throw new ValidationException("ID do usuário é obrigatório.");
+        }
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            throw new ValidationException("Senha atual é obrigatória.");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new ValidationException("Nova senha inválida (mínimo 6 caracteres).");
+        }
 
-            User existing = userDAO.findById(userId);
-            if (existing == null) {
-                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
-            }
-            if (!passwordMatches(currentPassword, existing.getPassword())) {
-                throw new ValidationException("Senha atual incorreta.");
-            }
+        User existing = userDAO.findById(userId);
+        if (existing == null) {
+            throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+        }
+        if (!passwordMatches(currentPassword, existing.getPassword())) {
+            throw new ValidationException("Senha atual incorreta.");
+        }
 
-            existing.setPassword(hashPassword(newPassword));
-            userDAO.update(existing);
-            return null;
-        });
+        existing.setPassword(hashPassword(newPassword));
+        userDAO.update(existing);
     }
 
     public void resetPassword(Long userId, String newPassword) throws ServiceException, ValidationException {
-        executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
-            if (userId == null) {
-                throw new ValidationException("ID do usuário é obrigatório.");
-            }
-            if (newPassword == null || newPassword.length() < 6) {
-                throw new ValidationException("Nova senha inválida (mínimo 6 caracteres).");
-            }
+        if (userId == null) {
+            throw new ValidationException("ID do usuário é obrigatório.");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new ValidationException("Nova senha inválida (mínimo 6 caracteres).");
+        }
 
-            User existing = userDAO.findById(userId);
-            if (existing == null) {
-                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
-            }
+        User existing = userDAO.findById(userId);
+        if (existing == null) {
+            throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+        }
 
-            existing.setPassword(hashPassword(newPassword));
-            userDAO.update(existing);
-            return null;
-        });
+        existing.setPassword(hashPassword(newPassword));
+        userDAO.update(existing);
     }
 
     // #endregion Register and Login
     // #region Profile and Library Management
     public User updateUserProfile(Long id, String name, LocalDate birthDate, String avatarPath)
             throws ServiceException, ValidationException {
-        return executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
-            if (id == null) {
-                throw new ValidationException("O ID do usuário é obrigatório.");
-            }
-            validateProfileUpdateData(name);
 
-            User existing = userDAO.findById(id);
-            if (existing == null) {
-                throw new ValidationException("Usuário com ID " + id + " não encontrado.");
-            }
+        if (id == null) {
+            throw new ValidationException("O ID do usuário é obrigatório.");
+        }
+        validateProfileUpdateData(name);
 
-            User duplicate = userDAO.findByName(name.trim());
-            if (duplicate != null && !duplicate.getId().equals(id)) {
-                throw new ValidationException("O nome de usuário '" + name.trim() + "' já está em uso.");
-            }
+        User existing = userDAO.findById(id);
+        if (existing == null) {
+            throw new ValidationException("Usuário com ID " + id + " não encontrado.");
+        }
 
-            existing.setName(name.trim());
-            existing.setBirthDate(birthDate);
-            existing.setAvatarPath(avatarPath);
+        User duplicate = userDAO.findByName(name.trim());
+        if (duplicate != null && !duplicate.getId().equals(id)) {
+            throw new ValidationException("O nome de usuário '" + name.trim() + "' já está em uso.");
+        }
 
-            return sanitizeUser(userDAO.update(existing));
-        });
+        existing.setName(name.trim());
+        existing.setBirthDate(birthDate);
+        existing.setAvatarPath(avatarPath);
+
+        return sanitizeUser(userDAO.update(existing));
     }
 
     public void deleteUser(Long id) throws ServiceException {
-        executeInTransaction(em -> {
-            new UserDAO(em).delete(id);
-            return null;
-        });
+        userDAO.delete(id);
     }
 
     public void addGameToLibrary(Long userId, Long gameId)
             throws ServiceException, ValidationException {
-        executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
-            GameDAO gameDAO = new GameDAO(em);
 
-            User user = userDAO.findById(userId);
-            if (user == null) {
-                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
-            }
+        User user = userDAO.findById(userId);
+        if (user == null) {
+            throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+        }
 
-            Game game = gameDAO.findById(gameId);
-            if (game == null) {
-                throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
-            }
+        Game game = gameDAO.findById(gameId);
+        if (game == null) {
+            throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
+        }
 
-            boolean has = user.getUserGames().stream()
-                    .anyMatch(ug -> ug.getGame().getId().equals(game.getId()));
-            if (has) {
-                throw new ValidationException("O usuário já possui o jogo '" + game.getName() + "'.");
-            }
+        boolean has = user.getUserGames().stream()
+                .anyMatch(ug -> ug.getGame().getId().equals(game.getId()));
+        if (has) {
+            throw new ValidationException("O usuário já possui o jogo '" + game.getName() + "'.");
+        }
 
-            user.getUserGames().add(new UserGame(user, game));
-            userDAO.update(user);
-            return null;
-        });
+        user.getUserGames().add(new UserGame(user, game));
+        userDAO.update(user);
     }
 
     public void removeGameFromLibrary(Long userId, Long gameId)
             throws ServiceException, ValidationException {
-        executeInTransaction(em -> {
-            UserDAO userDAO = new UserDAO(em);
-            GameDAO gameDAO = new GameDAO(em);
 
-            User user = userDAO.findById(userId);
-            if (user == null) {
-                throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
-            }
+        User user = userDAO.findById(userId);
+        if (user == null) {
+            throw new ValidationException("Usuário com ID " + userId + " não encontrado.");
+        }
 
-            Game game = gameDAO.findById(gameId);
-            if (game == null) {
-                throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
-            }
+        Game game = gameDAO.findById(gameId);
+        if (game == null) {
+            throw new ValidationException("Jogo com ID " + gameId + " não encontrado.");
+        }
 
-            UserGame found = user.getUserGames().stream()
-                    .filter(ug -> ug.getGame().getId().equals(game.getId()))
-                    .findFirst()
-                    .orElse(null);
+        UserGame found = user.getUserGames().stream()
+                .filter(ug -> ug.getGame().getId().equals(game.getId()))
+                .findFirst()
+                .orElse(null);
 
-            if (found == null) {
-                throw new ValidationException("O usuário não possui o jogo '" + game.getName() + "'.");
-            }
+        if (found == null) {
+            throw new ValidationException("O usuário não possui o jogo '" + game.getName() + "'.");
+        }
 
-            user.getUserGames().remove(found);
-            userDAO.update(user);
-            return null;
-        });
+        user.getUserGames().remove(found);
+        userDAO.update(user);
     }
     // #endregion Profile and Library Management
 
     // #region Read-Only Operations
     // Generic Finders
     public User findById(Long id) throws ServiceException {
-        return executeReadOnly(em -> sanitizeUser(new UserDAO(em).findById(id)));
+        return sanitizeUser(userDAO.findById(id));
     }
 
     public User findByName(String name) throws ServiceException {
-        return executeReadOnly(em -> sanitizeUser(new UserDAO(em).findByName(name)));
+        return sanitizeUser(userDAO.findByName(name));
     }
 
     public List<User> findAll() throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findAll()));
+        return sanitizeList(userDAO.findAll());
     }
 
     public List<User> findByNameContaining(String term) throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByNameContaining(term)));
+        return sanitizeList(userDAO.findByNameContaining(term));
     }
 
     // Exclusive Finders
     public List<User> findByBirthDate(LocalDate date) throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByBirthDate(date)));
+        return sanitizeList(userDAO.findByBirthDate(date));
     }
 
     public List<User> findByAge(int age) throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByAge(age)));
+        return sanitizeList(userDAO.findByAge(age));
     }
 
     public List<User> findByGameId(Long gameId) throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByGameId(gameId)));
+        return sanitizeList(userDAO.findByGameId(gameId));
     }
 
     public List<User> findByGameName(String gameName) throws ServiceException {
-        return executeReadOnly(em -> sanitizeList(new UserDAO(em).findByGameName(gameName)));
+        return sanitizeList(userDAO.findByGameName(gameName));
     }
     // #endregion Read-Only Operations
 }

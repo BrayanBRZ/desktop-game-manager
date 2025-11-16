@@ -15,72 +15,65 @@ public class GenreService {
 
     // #region CRUD Operations
     public Genre createGenre(String name) throws ServiceException, ValidationException {
-        return genreDAO.executeInTransaction(em -> {
 
-            if (name == null || name.trim().isEmpty()) {
-                throw new ValidationException("Nome do gênero não pode estar vazio.");
-            }
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("Nome do gênero não pode estar vazio.");
+        }
 
-            if (genreDAO.findByName(name.trim()) != null) {
-                throw new ValidationException("Já existe um gênero com o nome '" + name + "'.");
-            }
+        if (genreDAO.findByName(name.trim()) != null) {
+            throw new ValidationException("Já existe um gênero com o nome '" + name + "'.");
+        }
 
-            Genre newGenre = new Genre(name.trim());
-            genreDAO.save(newGenre);
-            return newGenre;
-        });
+        Genre newGenre = new Genre(name.trim());
+        genreDAO.save(newGenre);
+        return newGenre;
     }
 
     public Genre updateGenre(Long id, String name) throws ServiceException, ValidationException {
-        return genreDAO.executeInTransaction(em -> {
 
-            if (id == null) {
-                throw new ValidationException("ID do gênero é obrigatório.");
-            }
-            if (name == null || name.trim().isEmpty()) {
-                throw new ValidationException("Nome do gênero não pode estar vazio.");
-            }
+        if (id == null) {
+            throw new ValidationException("ID do gênero é obrigatório.");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("Nome do gênero não pode estar vazio.");
+        }
 
-            Genre existing = genreDAO.findById(id);
-            if (existing == null) {
-                throw new ValidationException("Gênero com ID " + id + " não encontrado.");
-            }
+        Genre existing = genreDAO.findById(id);
+        if (existing == null) {
+            throw new ValidationException("Gênero com ID " + id + " não encontrado.");
+        }
 
-            Genre duplicate = genreDAO.findByName(name.trim());
-            if (duplicate != null && !duplicate.getId().equals(id)) {
-                throw new ValidationException("Já existe outro gênero com o nome '" + name + "'.");
-            }
+        Genre duplicate = genreDAO.findByName(name.trim());
+        if (duplicate != null && !duplicate.getId().equals(id)) {
+            throw new ValidationException("Já existe outro gênero com o nome '" + name + "'.");
+        }
 
-            existing.setName(name.trim());
-            return genreDAO.update(existing);
-        });
+        existing.setName(name.trim());
+        return genreDAO.update(existing);
     }
 
     public void deleteGenre(Long id) throws ServiceException {
-        genreDAO.performInTransaction(em -> {
-            genreDAO.delete(id);
-        });
+        genreDAO.delete(id);
     }
     // #endregion CRUD Operations
 
     // #region Create or Find
     public Genre createOrFind(String name)
             throws ServiceException, ValidationException {
-        return genreDAO.executeInTransaction(em -> {
-            if (name == null || name.trim().isEmpty()) {
-                throw new ValidationException("Nome do gênero não pode estar vazio.");
-            }
 
-            Genre existing = genreDAO.findByName(name.trim());
-            if (existing != null) {
-                return existing;
-            }
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("Nome do gênero não pode estar vazio.");
+        }
 
-            Genre newDev = new Genre();
-            newDev.setName(name.trim());
-            genreDAO.save(newDev);
-            return newDev;
-        });
+        Genre existing = genreDAO.findByName(name.trim());
+        if (existing != null) {
+            return existing;
+        }
+
+        Genre newDev = new Genre();
+        newDev.setName(name.trim());
+        genreDAO.save(newDev);
+        return newDev;
     }
     // #endregion Create or Find
 

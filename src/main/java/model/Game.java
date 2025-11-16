@@ -48,7 +48,7 @@ public class Game {
             mappedBy = "game",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     private Set<GameGenre> gameGenres = new HashSet<>();
 
@@ -56,7 +56,7 @@ public class Game {
             mappedBy = "game",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     private Set<GamePlatform> gamePlatforms = new HashSet<>();
 
@@ -64,7 +64,7 @@ public class Game {
             mappedBy = "game",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY
+            fetch = FetchType.EAGER
     )
     private Set<GameDeveloper> gameDevelopers = new HashSet<>();
 

@@ -30,11 +30,11 @@ public class GameDeveloper {
     private Long id;
 
     // --- Relationships ---
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "developer_id")
     private Developer developer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "game_id")
     private Game game;
 

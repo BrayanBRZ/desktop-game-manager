@@ -44,7 +44,7 @@ public class User {
             mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     private Set<UserGame> userGames = new HashSet<>();
 
     // --- Audit Fields ---

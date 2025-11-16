@@ -55,6 +55,7 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
     // #endregion CRUD Methods
 
     // #region Read-only Methods
+    @Override
     public T findById(K id) {
         return executeReadOnly(em -> em.find(persistentClass, id));
     }

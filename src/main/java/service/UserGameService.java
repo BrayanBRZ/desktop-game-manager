@@ -7,7 +7,13 @@ import model.UserGameState;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class UserGameService extends BaseService {
+public class UserGameService {
+
+    private final UserGameDAO userGameDAO;
+
+    public UserGameService() {
+        this.userGameDAO = new UserGameDAO();
+    }
 
     // #region Data Update Methods
     public UserGame updateAllAttributes(Long userId, Long gameId,
@@ -17,9 +23,7 @@ public class UserGameService extends BaseService {
             LocalDateTime lastPlayed)
             throws ServiceException {
 
-        return executeInTransaction(em -> {
-            UserGameDAO dao = new UserGameDAO(em);
-            UserGame userGame = dao.findByUserAndGame(userId, gameId);
+            UserGame userGame = userGameDAO.findByUserAndGame(userId, gameId);
             if (userGame == null) {
                 throw new ValidationException("Usuário não possui este jogo em sua biblioteca.");
             }
@@ -33,40 +37,32 @@ public class UserGameService extends BaseService {
             userGame.setTotaltimePlayed(totalTimePlayed);
             userGame.setLastTimePlayed(lastPlayed);
 
-            return dao.update(userGame);
-        });
+            return userGameDAO.update(userGame);
     }
 
     public UserGame updateEstimated(Long userId, Long gameId, boolean estimated) throws ServiceException {
-        return executeInTransaction(em -> {
-            UserGameDAO dao = new UserGameDAO(em);
-            UserGame userGame = dao.findByUserAndGame(userId, gameId);
+        
+            UserGame userGame = userGameDAO.findByUserAndGame(userId, gameId);
             if (userGame == null) {
                 throw new ValidationException("Usuário não possui este jogo em sua biblioteca.");
             }
 
             userGame.setEstimated(estimated);
-            return dao.update(userGame);
-        });
+            return userGameDAO.update(userGame);
     }
 
     public UserGame updateGameState(Long userId, Long gameId, UserGameState newState) throws ServiceException {
-        return executeInTransaction(em -> {
-            UserGameDAO dao = new UserGameDAO(em);
-            UserGame userGame = dao.findByUserAndGame(userId, gameId);
+            UserGame userGame = userGameDAO.findByUserAndGame(userId, gameId);
             if (userGame == null) {
                 throw new ValidationException("Usuário não possui este jogo em sua biblioteca.");
             }
 
             userGame.setGameState(newState);
-            return dao.update(userGame);
-        });
+            return userGameDAO.update(userGame);
     }
 
     public UserGame updateTotalTimePlayed(Long userId, Long gameId, double newTime) throws ServiceException {
-        return executeInTransaction(em -> {
-            UserGameDAO dao = new UserGameDAO(em);
-            UserGame userGame = dao.findByUserAndGame(userId, gameId);
+            UserGame userGame = userGameDAO.findByUserAndGame(userId, gameId);
             if (userGame == null) {
                 throw new ValidationException("Usuário não possui este jogo em sua biblioteca.");
             }
@@ -76,39 +72,35 @@ public class UserGameService extends BaseService {
             }
 
             userGame.setTotaltimePlayed(newTime);
-            return dao.update(userGame);
-        });
+            return userGameDAO.update(userGame);
     }
 
     public UserGame updateLastTimePlayed(Long userId, Long gameId, LocalDateTime dateTime) throws ServiceException {
-        return executeInTransaction(em -> {
-            UserGameDAO dao = new UserGameDAO(em);
-            UserGame userGame = dao.findByUserAndGame(userId, gameId);
+            UserGame userGame = userGameDAO.findByUserAndGame(userId, gameId);
             if (userGame == null) {
                 throw new ValidationException("Usuário não possui este jogo em sua biblioteca.");
             }
 
             userGame.setLastTimePlayed(dateTime);
-            return dao.update(userGame);
-        });
+            return userGameDAO.update(userGame);
     }
     // #endregion Attribute Update Methods
 
     // #region Read-Only Operations
     public UserGame findByUserAndGame(Long userId, Long gameId) throws ServiceException {
-        return executeReadOnly(em -> new UserGameDAO(em).findByUserAndGame(userId, gameId));
+        return userGameDAO.findByUserAndGame(userId, gameId);
     }
 
     public List<UserGame> findAllByUser(Long userId) throws ServiceException {
-        return executeReadOnly(em -> new UserGameDAO(em).findAllByUser(userId));
+        return userGameDAO.findAllByUser(userId);
     }
 
     public List<UserGame> findByEstimated(Long userId) throws ServiceException {
-        return executeReadOnly(em -> new UserGameDAO(em).findByEstimated(userId));
+        return userGameDAO.findByEstimated(userId);
     }
 
     public List<UserGame> findByGameState(Long userId, UserGameState state) throws ServiceException {
-        return executeReadOnly(em -> new UserGameDAO(em).findByGameState(userId, state));
+        return userGameDAO.findByGameState(userId, state);
     }
     // #endregion Read-Only Operations
 }
