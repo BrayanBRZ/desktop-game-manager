@@ -7,7 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import model.User;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -127,5 +130,14 @@ public final class ConsoleUtils {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public static void printUsersSet(Set<User> friends, String string) {
+        System.out.println(string);
+        if (friends.isEmpty()) {
+            System.out.println("Nenhum usuário encontrado.");
+        } else {
+            friends.forEach(u -> System.out.printf("ID: %d | Nome: %s%n", u.getId(), u.getName()));
+        }
     }
 }

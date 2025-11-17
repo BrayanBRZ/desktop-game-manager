@@ -2,8 +2,10 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -44,8 +46,49 @@ public class User {
             mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER
+    )
     private Set<UserGame> userGames = new HashSet<>();
+
+    @OneToMany(
+        mappedBy = "fromUser",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.EAGER)
+    private Set<FriendRequest> sentRequests = new HashSet<>();
+
+    @OneToMany(
+        mappedBy = "toUser",
+        fetch = FetchType.EAGER)
+    private Set<FriendRequest> receivedRequests = new HashSet<>();
+
+    // --- Helpers Methods ---
+    public Set<User> getFriends() {
+        Set<User> friends = new HashSet<>();
+        sentRequests.stream()
+            .filter(r -> r.getStatus() == FriendRequestState.ACCEPTED)
+            .map(FriendRequest::getToUser)
+            .forEach(friends::add);
+        receivedRequests.stream()
+            .filter(r -> r.getStatus() == FriendRequestState.ACCEPTED)
+            .map(FriendRequest::getFromUser)
+            .forEach(friends::add);
+        return friends;
+    }
+
+    public Set<FriendRequest> getPendingRequests() {
+        return receivedRequests.stream()
+            .filter(r -> r.getStatus() == FriendRequestState.PENDING)
+            .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
+            .collect(Collectors.toSet());
+    }
+
+    public Set<FriendRequest> getRejectedRequests() {
+        return receivedRequests.stream()
+            .filter(r -> r.getStatus() == FriendRequestState.REJECTED)
+            .sorted(Comparator.comparing(FriendRequest::getCreatedAt).reversed())
+            .collect(Collectors.toSet());
+    }
 
     // --- Audit Fields ---
     @CreationTimestamp
@@ -119,6 +162,22 @@ public class User {
 
     public void setUserGames(Set<UserGame> userGames) {
         this.userGames = userGames;
+    }
+
+    public Set<FriendRequest> getSentRequests() {
+        return sentRequests;
+    }
+
+    public void setSentRequests(Set<FriendRequest> sentRequests) {
+        this.sentRequests = sentRequests;
+    }
+
+    public Set<FriendRequest> getReceivedRequests() {
+        return receivedRequests;
+    }
+
+    public void setReceivedRequests(Set<FriendRequest> receivedRequests) {
+        this.receivedRequests = receivedRequests;
     }
 
     public LocalDateTime getCreatedAt() {

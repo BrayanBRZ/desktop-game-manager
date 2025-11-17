@@ -22,7 +22,7 @@ public class MainMenuController {
             try {
                 switch (option) {
                     case "1":
-                        userMenuController.loginOrRegister();
+                        userMenuController.start();
                         break;
                     case "2":
                         adminMenuController.manageCatalogMenu();
@@ -32,11 +32,12 @@ public class MainMenuController {
                     default:
                         System.out.println("Opção inválida.");
                 }
-            } catch (ServiceException | ValidationException e) {
-                System.out.println("Erro: " + e.getMessage());
+            } catch (ValidationException e) {
+                System.out.println("Erro de validação: " + e.getMessage());
+            } catch (ServiceException e) {
+                System.out.println("Erro no serviço: " + e.getMessage());
             } catch (Exception e) {
                 System.out.println("Erro inesperado: " + e.getMessage());
-                e.printStackTrace();
             }
         } while (!option.equals("0"));
     }
