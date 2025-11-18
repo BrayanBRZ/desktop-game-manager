@@ -2,7 +2,9 @@
 package service;
 
 import dao.UserDAO;
-import model.User;
+import model.user.User;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

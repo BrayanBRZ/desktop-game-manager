@@ -1,11 +1,11 @@
 package view;
 
-import model.Genre;
 import service.GenreService;
-
-import service.ServiceException;
+import service.exception.ServiceException;
 
 import java.util.List;
+
+import model.game.Genre;
 
 public class GenreView {
     

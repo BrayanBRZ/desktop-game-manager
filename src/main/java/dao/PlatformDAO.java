@@ -1,6 +1,6 @@
 package dao;
 
-import model.Platform;
+import model.game.Platform;
 
 public class PlatformDAO extends GenericDAO<Platform, Long> {
 

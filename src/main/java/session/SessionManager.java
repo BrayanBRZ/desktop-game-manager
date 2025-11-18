@@ -1,9 +1,13 @@
 package session;
 
-import model.User;
+import model.user.User;
 
 public class SessionManager {
+
     private static final ThreadLocal<User> currentUser = new ThreadLocal<>();
+
+    private SessionManager() {
+    }
 
     public static void login(User user) {
         currentUser.set(user);

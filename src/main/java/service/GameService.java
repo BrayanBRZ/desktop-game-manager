@@ -1,7 +1,8 @@
 package service;
 
 import dao.*;
-import model.*;
+import model.game.*;
+import service.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -3,7 +3,9 @@ package service;
 import java.util.List;
 
 import dao.DeveloperDAO;
-import model.Developer;
+import model.game.Developer;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 public class DeveloperService {
 

@@ -2,11 +2,11 @@ package dao;
 
 import java.util.List;
 
-import model.UserGame;
-import model.UserGameState;
-
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+
+import model.user.UserGame;
+import model.user.UserGameState;
 
 public class UserGameDAO extends GenericDAO<UserGame, Long> {
 

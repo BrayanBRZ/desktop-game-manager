@@ -1,11 +1,11 @@
 package view;
 
-import model.Platform;
 import service.PlatformService;
-
-import service.ServiceException;
+import service.exception.ServiceException;
 
 import java.util.List;
+
+import model.game.Platform;
 
 public class PlatformView {
 

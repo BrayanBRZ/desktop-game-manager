@@ -1,35 +1,41 @@
-// service/FriendshipService.java
 package service;
 
-import dao.UserDAO;
+import java.util.Set;
+
 import dao.FriendRequestDAO;
-import model.FriendRequest;
-import model.FriendRequestState;
-import model.User;
+import dao.UserDAO;
+import model.user.FriendRequest;
+import model.user.FriendRequestState;
+import model.user.User;
+import service.exception.ValidationException;
 
 public class FriendshipService {
+
     private final UserDAO userDAO = new UserDAO();
     private final FriendRequestDAO requestDAO = new FriendRequestDAO();
 
-    public User sendFriendRequest(Long fromId, String toName) throws ValidationException {
-        User from = userDAO.findById(fromId);
-        User to = userDAO.findByName(toName);
-        if (from == null || to == null) throw new ValidationException("Usuário não encontrado");
-        if (from.getId().equals(to.getId())) throw new ValidationException("Você não pode se adicionar");
+    public void sendFriendRequest(Long fromUserId, Long toUserId) throws ValidationException {
+        User from = userDAO.findById(fromUserId);
+        User to = userDAO.findById(toUserId);
 
-        // Verificações
-        if (from.getFriends().contains(to)) throw new ValidationException("Já são amigos");
-        if (hasPendingRequestBetween(from, to)) throw new ValidationException("Já existe solicitação pendente");
+        if (from == null || to == null) throw new ValidationException("Usuário não encontrado");
+        if (fromUserId.equals(toUserId)) throw new ValidationException("Você não pode se adicionar");
+
+        // Verifica se já são amigos (via DAO)
+        if (requestDAO.findFriendsByUserId(fromUserId).stream()
+                .anyMatch(u -> u.getId().equals(toUserId))) {
+            throw new ValidationException("Já são amigos");
+        }
+
+        // Verifica solicitação pendente nos dois sentidos (via DAO)
+        if (requestDAO.existsPendingBetween(fromUserId, toUserId)) {
+            throw new ValidationException("Já existe solicitação pendente");
+        }
 
         FriendRequest req = new FriendRequest(from, to, FriendRequestState.PENDING);
-        from.getSentRequests().add(req);
-        to.getPendingRequests().add(req);
+        from.getSentRequests().add(req); // só o lado dono
 
         userDAO.update(from);
-        userDAO.update(to);
-        requestDAO.save(req);
-
-        return refreshUser(fromId);
     }
 
     public void acceptRequest(Long requestId, Long userId) throws ValidationException {
@@ -43,18 +49,8 @@ public class FriendshipService {
         requestDAO.update(req);
 
         User from = req.getFromUser();
-        User to = req.getToUser();
-
-        // Adiciona nas duas direções
-        from.getFriends().add(to);
-        to.getFriends().add(from);
-
-        // Remove das listas pendentes/enviadas
         from.getSentRequests().remove(req);
-        to.getPendingRequests().remove(req);
-
         userDAO.update(from);
-        userDAO.update(to);
     }
 
     public void rejectRequest(Long requestId, Long userId) throws ValidationException {
@@ -66,20 +62,25 @@ public class FriendshipService {
         requestDAO.update(req);
 
         User from = req.getFromUser();
-        User to = req.getToUser();
         from.getSentRequests().remove(req);
-        to.getPendingRequests().remove(req);
-
         userDAO.update(from);
-        userDAO.update(to);
     }
 
-    private boolean hasPendingRequestBetween(User a, User b) {
-        return a.getSentRequests().stream().anyMatch(r -> r.getToUser().equals(b) && r.getStatus() == FriendRequestState.PENDING) ||
-               b.getSentRequests().stream().anyMatch(r -> r.getToUser().equals(a) && r.getStatus() == FriendRequestState.PENDING);
+    // #region Read-Only Operations
+    public int getPendingReceivedCount(Long userId) {
+        return requestDAO.findPendingReceivedByUserId(userId).size();
     }
 
-    private User refreshUser(Long id) {
-        return userDAO.findById(id);
+    public Set<FriendRequest> getPendingReceived(Long userId) {
+        return requestDAO.findPendingReceivedByUserId(userId);
     }
+
+    public Set<FriendRequest> getSentPending(Long userId) {
+        return requestDAO.findSentPendingByUserId(userId);
+    }
+
+    public Set<User> getFriends(Long userId) {
+        return requestDAO.findFriendsByUserId(userId);
+    }
+    // #endregion Read-Only Operations
 }

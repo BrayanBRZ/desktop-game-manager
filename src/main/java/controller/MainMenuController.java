@@ -1,14 +1,14 @@
 package controller;
 
-import service.ServiceException;
-import service.ValidationException;
-
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 import util.ConsoleUtils;
+import util.Injector;
 
 public class MainMenuController {
 
-    private final UserMenuController userMenuController = new UserMenuController();
-    private final AdminMenuController adminMenuController = new AdminMenuController();
+    UserMenuController userMenuController = Injector.createUserMenuController();
+    AdminMenuController adminMenuController = new AdminMenuController();
 
     public void runMainMenu() {
         String option;

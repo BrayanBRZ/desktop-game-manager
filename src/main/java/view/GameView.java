@@ -1,13 +1,13 @@
 package view;
 
-import model.Game;
 import service.GameService;
-import service.ServiceException;
-
+import service.exception.ServiceException;
 import util.ConsoleUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import model.game.Game;
 
 public class GameView {
 

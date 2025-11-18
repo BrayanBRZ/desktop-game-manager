@@ -2,9 +2,11 @@ package service;
 
 import dao.GameDAO;
 import dao.UserDAO;
-import model.Game;
-import model.User;
-import model.UserGame;
+import model.game.Game;
+import model.user.User;
+import model.user.UserGame;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.util.List;

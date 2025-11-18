@@ -1,25 +1,43 @@
 package controller;
 
-import model.*;
-import service.*;
+import model.user.FriendRequest;
+import model.user.User;
+import model.user.UserGame;
+import model.user.UserGameState;
+
+import service.AuthService;
+import service.FriendshipService;
+import service.UserGameService;
+import service.UserService;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 import session.SessionManager;
 import util.ConsoleUtils;
+
 import view.GameView;
+import view.UserView;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
+
+import dao.FriendRequestDAO;
 
 public class UserMenuController {
 
-    // Services injetados (poderia ser via DI no futuro)
-    private final AuthService authService = new AuthService();
-    private final UserService userService = new UserService();
-    private final FriendshipService friendshipService = new FriendshipService();
-    private final RecommendationService recommendationService = new RecommendationService();
-    private final UserGameService userGameService = new UserGameService();
+    private final AuthService authService;
+    private final UserService userService;
+    private final FriendshipService friendshipService;
+    private final UserGameService userGameService;
+
+    public UserMenuController(AuthService authService, UserService userService,
+            FriendshipService friendshipService, UserGameService userGameService) {
+        this.authService = authService;
+        this.userService = userService;
+        this.friendshipService = friendshipService;
+        this.userGameService = userGameService;
+    }
 
     public void start() {
         loginOrRegister();
@@ -67,7 +85,7 @@ public class UserMenuController {
         String option;
         do {
             User currentUser = SessionManager.getCurrentUser();
-            System.out.println("\n=== MENU • " + currentUser.getName() + " ===");
+            System.out.println("\n=== MENU - " + currentUser.getName() + " ===");
             System.out.println("1 - Minha biblioteca");
             System.out.println("2 - Adicionar jogo");
             System.out.println("3 - Remover jogo");
@@ -75,14 +93,13 @@ public class UserMenuController {
             System.out.println("5 - Atualizar perfil");
             System.out.println("6 - Alterar senha");
 
-            int pending = currentUser.getPendingRequests().size();
+            // int pending = friendshipService.getPendingReceivedCount(SessionManager.getCurrentUserId());
             String friendText = "7 - Amizades";
-            if (pending > 0) {
-                friendText += " (" + pending + " pendente" + (pending > 1 ? "s" : "") + ")";
-            }
+            // if (pending > 0) {
+            //     friendText += " (" + pending + " pendente" + (pending > 1 ? "s" : "") + ")";
+            // }
             System.out.println(friendText);
 
-            System.out.println("8 - Recomendações de amigos");
             System.out.println("0 - Logout");
 
             option = ConsoleUtils.readString("Opção: ");
@@ -91,7 +108,7 @@ public class UserMenuController {
                 switch (option) {
 
                     case "1":
-                        viewLibrary();
+                        showLibrary();
                         break;
                     case "2":
                         addGameToLibrary();
@@ -111,19 +128,14 @@ public class UserMenuController {
                     case "7":
                         friendshipMenu();
                         break;
-                    case "8":
-                        showRecommendations();
-                        break;
                     case "0": {
                         SessionManager.logout();
                         System.out.println("Logout realizado com sucesso.");
                         break;
                     }
-
                     default:
                         System.out.println("Opção inválida.");
                 }
-                break;
             } catch (Exception e) {
                 System.out.println("Erro: " + e.getMessage());
             }
@@ -131,23 +143,9 @@ public class UserMenuController {
     }
 
     // ======================= BIBLIOTECA =======================
-    private void viewLibrary() {
+    private void showLibrary() {
         User user = SessionManager.getCurrentUser();
-        Set<UserGame> library = user.getUserGames();
-
-        System.out.println("\n--- MINHA BIBLIOTECA (" + library.size() + ") ---");
-        if (library.isEmpty()) {
-            System.out.println("Você ainda não tem jogos na biblioteca.");
-            return;
-        }
-
-        library.forEach(ug -> {
-            Game g = ug.getGame();
-            System.out.printf("ID: %d | %s | %s | %.1fh | %s | Última: %s%n",
-                    g.getId(), g.getName(), ug.getGameState(),
-                    ug.getTotaltimePlayed(), ug.isEstimated() ? "Estimado" : "Real",
-                    ConsoleUtils.formatDateTime(ug.getLastTimePlayed()));
-        });
+        UserView.showLibrary(user.getUserGames());
     }
 
     private void addGameToLibrary() throws ServiceException, ValidationException {
@@ -159,14 +157,12 @@ public class UserMenuController {
     }
 
     private void removeGameFromLibrary() throws ServiceException, ValidationException {
-        viewLibrary();
         Long gameId = ConsoleUtils.readLong("ID do jogo para remover: ");
         userService.removeGameFromLibrary(SessionManager.getCurrentUserId(), gameId);
         System.out.println("Jogo removido com sucesso!");
     }
 
     private void updateGameProgress() throws ServiceException, ValidationException {
-        viewLibrary();
         Long gameId = ConsoleUtils.readLong("ID do jogo: ");
         UserGame ug = userGameService.findByUserAndGame(SessionManager.getCurrentUserId(), gameId);
         if (ug == null) {
@@ -221,9 +217,12 @@ public class UserMenuController {
     // ======================= AMIZADES =======================
     private void friendshipMenu() {
         String op;
+        Long currentUserId = SessionManager.getCurrentUserId();
+        FriendRequestDAO dao = new FriendRequestDAO();
+
         do {
-            User user = SessionManager.getCurrentUser();
-            int pending = user.getPendingRequests().size();
+            int pending = dao.findPendingReceivedByUserId(currentUserId).size();
+
             System.out.println("\n=== AMIZADES ===");
             System.out.println("Você tem " + pending + " solicitação(ões) pendente(s).");
             System.out.println("1 - Enviar solicitação");
@@ -236,7 +235,6 @@ public class UserMenuController {
 
             try {
                 switch (op) {
-
                     case "1":
                         sendFriendRequest();
                         break;
@@ -244,10 +242,11 @@ public class UserMenuController {
                         managePendingRequests();
                         break;
                     case "3":
-                        viewSentRequests();
+                        viewSentPendingRequests();
                         break;
                     case "4":
-                        ConsoleUtils.printUsersSet(user.getFriends(), "MEUS AMIGOS");
+                        Set<User> friends = dao.findFriendsByUserId(currentUserId);
+                        ConsoleUtils.printUsersSet(friends, "MEUS AMIGOS");
                         break;
                     case "0":
                         System.out.println("Voltando...");
@@ -255,7 +254,6 @@ public class UserMenuController {
                     default:
                         System.out.println("Inválido.");
                 }
-                break;
             } catch (Exception e) {
                 System.out.println("Erro: " + e.getMessage());
             }
@@ -263,28 +261,24 @@ public class UserMenuController {
     }
 
     private void sendFriendRequest() throws ValidationException {
-        String name = ConsoleUtils.readString("Nome do usuário: ");
-        friendshipService.sendFriendRequest(SessionManager.getCurrentUserId(), name);
-        System.out.println("Solicitação enviada para " + name + "!");
-        SessionManager.login(userService.findById(SessionManager.getCurrentUserId())); // refresh
+        Long toUserId = ConsoleUtils.readLong("ID do usuário destino: ");
+        friendshipService.sendFriendRequest(SessionManager.getCurrentUserId(), toUserId);
+        System.out.println("Solicitação enviada com sucesso!");
+
+        // Refresh da sessão para atualizar sentRequests
+        SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
     }
 
     private void managePendingRequests() {
-        User user = SessionManager.getCurrentUser();
-        Set<FriendRequest> pending = user.getPendingRequests();
+        Long userId = SessionManager.getCurrentUserId();
+        Set<FriendRequest> pending = new FriendRequestDAO().findPendingReceivedByUserId(userId);
+
+        UserView.showReceivedPendingRequests(pending);
         if (pending.isEmpty()) {
-            System.out.println("Nenhuma solicitação pendente.");
             return;
         }
 
-        pending.forEach(r
-                -> System.out.printf("ID %d | De: %s | %s%n",
-                        r.getId(),
-                        r.getFromUser().getName(),
-                        ConsoleUtils.formatDateTime(r.getCreatedAt())
-                ));
-
-        Long id = ConsoleUtils.readLong("ID da solicitação (0 cancelar): ");
+        Long id = ConsoleUtils.readLong("ID da solicitação (0 para cancelar): ");
         if (id == 0) {
             return;
         }
@@ -294,46 +288,22 @@ public class UserMenuController {
 
         try {
             if (aceitar) {
-                friendshipService.acceptRequest(id, SessionManager.getCurrentUserId());
+                friendshipService.acceptRequest(id, userId);
                 System.out.println("Amigo adicionado!");
             } else {
-                friendshipService.rejectRequest(id, SessionManager.getCurrentUserId());
+                friendshipService.rejectRequest(id, userId);
                 System.out.println("Solicitação rejeitada.");
             }
-            SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
+            // Refresh completo após aceitar/rejeitar
+            SessionManager.login(userService.findById(userId));
         } catch (ValidationException e) {
             System.out.println("Erro: " + e.getMessage());
         }
     }
 
-    private void viewSentRequests() {
-        User user = SessionManager.getCurrentUser();
-        user.getSentRequests().stream()
-                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
-                .forEach(r -> System.out.printf("→ %s | %s%n",
-                r.getToUser().getName(),
-                r.getStatus()
-        ));
-    }
-
-    // ======================= RECOMENDAÇÕES =======================
-    private void showRecommendations() {
-        System.out.println("\n--- RECOMENDAÇÕES DE AMIGOS ---");
-        try {
-            List<Game> recs = recommendationService.getRecommendations(
-                    SessionManager.getCurrentUserId(), 6);
-
-            if (recs.isEmpty()) {
-                System.out.println("Sem recomendações. Adicione amigos ou explore mais jogos!");
-            } else {
-                System.out.println("Jogos que seus amigos estão jogando:");
-                for (int i = 0; i < recs.size(); i++) {
-                    Game g = recs.get(i);
-                    System.out.printf("%d. %s%n", i + 1, g.getName());
-                }
-            }
-        } catch (ServiceException e) {
-            System.out.println("Erro ao carregar recomendações: " + e.getMessage());
-        }
+    private void viewSentPendingRequests() {
+        Long userId = SessionManager.getCurrentUserId();
+        Set<FriendRequest> sent = new FriendRequestDAO().findSentPendingByUserId(userId);
+        UserView.showSentPendingRequests(sent);
     }
 }

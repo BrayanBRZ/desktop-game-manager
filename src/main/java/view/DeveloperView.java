@@ -1,11 +1,11 @@
 package view;
 
-import model.Developer;
 import service.DeveloperService;
-
-import service.ServiceException;
+import service.exception.ServiceException;
 
 import java.util.List;
+
+import model.game.Developer;
 
 public class DeveloperView {
     

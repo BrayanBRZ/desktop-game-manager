@@ -1,21 +1,24 @@
 package controller;
 
-import service.ServiceException;
-import service.UserService;
-import service.ValidationException;
-
+import controller.admin.DeveloperAdminController;
+import controller.admin.GameAdminController;
+import controller.admin.GenreAdminController;
+import controller.admin.PlatformAdminController;
+import controller.admin.UserAdminController;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 import util.ConsoleUtils;
+import util.Injector;
 
 public class AdminMenuController {
 
-    private final GameAdminController gameAdminController = new GameAdminController();
-    private final GenreAdminController genreAdminController = new GenreAdminController();
-    private final PlatformAdminController platformAdminController = new PlatformAdminController();
-    private final DeveloperAdminController developerAdminController = new DeveloperAdminController();
+    private final GameAdminController gameAdminController = Injector.createGameAdminController();
+    private final GenreAdminController genreAdminController = Injector.createGenreAdminController();
+    private final PlatformAdminController platformAdminController = Injector.createPlatformAdminController();
+    private final DeveloperAdminController developerAdminController = Injector.createDeveloperAdminController();
+    private final UserAdminController userAdminController = Injector.createUserAdminController();
 
-    private final UserService userService = new UserService();
-
-    protected void manageCatalogMenu() throws ServiceException, ValidationException {
+    public void manageCatalogMenu() throws ServiceException, ValidationException {
         String option;
         do {
             System.out.println("\n--- GERENCIAR CATÁLOGO (ADMIN) ---");
@@ -41,23 +44,12 @@ public class AdminMenuController {
                     developerAdminController.manageDevelopersMenu();
                     break;
                 case "5":
-                    listUsers();
+                    userAdminController.manageUsersMenu();
                 case "0":
                     break;
                 default:
                     System.out.println("Opção inválida.");
             }
         } while (!option.equals("0"));
-    }
-
-    private void listUsers() {
-        System.out.println("\n--- LISTA DE USUÁRIOS ---");
-        try {
-            userService.findAll().forEach(user -> {
-                System.out.println("ID: " + user.getId() + ", Nome: " + user.getName());
-            });
-        } catch (ServiceException e) {
-            System.out.println("Erro ao listar usuários: " + e.getMessage());
-        }
     }
 }

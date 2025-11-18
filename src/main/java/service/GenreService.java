@@ -1,7 +1,9 @@
 package service;
 
 import dao.GenreDAO;
-import model.Genre;
+import model.game.Genre;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 import java.util.List;
 

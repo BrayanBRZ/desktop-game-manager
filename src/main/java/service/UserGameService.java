@@ -1,8 +1,10 @@
 package service;
 
 import dao.UserGameDAO;
-import model.UserGame;
-import model.UserGameState;
+import model.user.UserGame;
+import model.user.UserGameState;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.List;

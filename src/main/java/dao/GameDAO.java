@@ -1,7 +1,9 @@
 package dao;
 
-import model.Game;
 import javax.persistence.TypedQuery;
+
+import model.game.Game;
+
 import java.util.List;
 
 public class GameDAO extends GenericDAO<Game, Long> {

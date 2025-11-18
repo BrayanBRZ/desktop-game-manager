@@ -1,7 +1,9 @@
 package service;
 
 import dao.PlatformDAO;
-import model.Platform;
+import model.game.Platform;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 
 import java.util.List;
 
