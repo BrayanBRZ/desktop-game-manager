@@ -1,14 +1,12 @@
 package controller.game;
 
-import service.GameService;
-
-import service.GenreService;
-import service.PlatformService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import service.DeveloperService;
+import service.game.DeveloperService;
+import service.game.GameService;
+import service.game.GenreService;
+import service.game.PlatformService;
 import util.ConsoleUtils;
-import util.Navigation;
 import view.GameView;
 import view.MenuRenderer;
 
@@ -16,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import core.Navigation;
 import model.game.Developer;
 import model.game.Game;
 import model.game.Genre;

@@ -1,19 +1,24 @@
 package controller.user;
 
 import model.user.User;
-import service.UserService;
+
 import service.exception.ServiceException;
 import service.exception.ValidationException;
 
+import service.session.AuthService;
+
+import service.user.UserService;
+
 import util.ConsoleUtils;
-import util.Navigation;
 
 import view.MenuRenderer;
 import view.UserView;
 
 import java.time.LocalDate;
 
-import service.AuthService;
+import static core.AppConfig.ADMIN_PASSWORD;
+
+import core.Navigation;
 
 public class UserAdminController {
 
@@ -150,7 +155,7 @@ public class UserAdminController {
     private boolean passIsValid() {
         String password = ConsoleUtils.readString("Digite a senha MASTER para confirmar a exclusão: ");
 
-        if (!password.equals("admin123")) {
+        if (!password.equals(ADMIN_PASSWORD)) {
             MenuRenderer.renderError("Senha incorreta. Operação cancelada.");
             return false;
         }

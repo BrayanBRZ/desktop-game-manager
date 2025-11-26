@@ -3,20 +3,14 @@ package controller.user;
 import model.user.User;
 import model.user.UserGame;
 import model.user.UserGameState;
-
-import service.AuthService;
-import service.FriendshipService;
-import service.UserGameService;
-import service.UserService;
-
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
-import session.SessionManager;
-
+import service.session.AuthService;
+import service.session.SessionManager;
+import service.user.FriendshipService;
+import service.user.UserGameService;
+import service.user.UserService;
 import util.ConsoleUtils;
-import util.Injector;
-
 import view.GameView;
 import view.MenuRenderer;
 import view.UserView;
@@ -24,6 +18,8 @@ import view.UserView;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+
+import core.Injector;
 
 public class UserMenuController {
 

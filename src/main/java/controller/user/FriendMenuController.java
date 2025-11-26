@@ -2,16 +2,16 @@ package controller.user;
 
 import java.util.Set;
 
-import dao.FriendRequestDAO;
+import core.Navigation;
+import dao.user.FriendRequestDAO;
 import model.user.FriendRequest;
 import model.user.User;
-import service.FriendshipService;
-import service.UserService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import session.SessionManager;
+import service.session.SessionManager;
+import service.user.FriendshipService;
+import service.user.UserService;
 import util.ConsoleUtils;
-import util.Navigation;
 import view.MenuRenderer;
 import view.UserView;
 

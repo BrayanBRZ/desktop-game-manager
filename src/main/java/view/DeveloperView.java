@@ -1,7 +1,7 @@
 package view;
 
-import service.DeveloperService;
 import service.exception.ServiceException;
+import service.game.DeveloperService;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import model.game.Developer;
 
 public class DeveloperView {
     
-    private static final DeveloperService developerService = new service.DeveloperService();
+    private static final DeveloperService developerService = new service.game.DeveloperService();
 
     public static void listAll() throws ServiceException {
         List<Developer> devs = developerService.findAll();

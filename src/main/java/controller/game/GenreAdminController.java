@@ -1,14 +1,11 @@
 package controller.game;
 
+import core.Navigation;
 import model.game.Genre;
-
-import service.GenreService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
+import service.game.GenreService;
 import util.ConsoleUtils;
-import util.Navigation;
-
 import view.GenreView;
 import view.MenuRenderer;
 

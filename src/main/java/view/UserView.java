@@ -7,8 +7,8 @@ import model.game.Game;
 import model.user.FriendRequest;
 import model.user.User;
 import model.user.UserGame;
-import service.UserService;
 import service.exception.ServiceException;
+import service.user.UserService;
 import util.ConsoleUtils;
 
 public class UserView {

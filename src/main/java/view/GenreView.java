@@ -1,7 +1,7 @@
 package view;
 
-import service.GenreService;
 import service.exception.ServiceException;
+import service.game.GenreService;
 
 import java.util.List;
 

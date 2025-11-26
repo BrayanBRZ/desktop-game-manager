@@ -24,9 +24,6 @@ public class Platform {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(nullable = true, length = 500, name = "symbol_path")
-    private String symbolPath;
-
     // --- Audit Fields ---
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -41,11 +38,6 @@ public class Platform {
 
     public Platform(String name) {
         this.name = name;
-    }
-
-    public Platform(String name, String symbolPath) {
-        this.name = name;
-        this.symbolPath = symbolPath;
     }
     //#endregion Constructors
 
@@ -64,14 +56,6 @@ public class Platform {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSymbolPath() {
-        return symbolPath;
-    }
-
-    public void setSymbolPath(String symbolPath) {
-        this.symbolPath = symbolPath;
     }
 
     public LocalDateTime getCreatedAt() {

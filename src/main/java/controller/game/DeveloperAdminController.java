@@ -1,14 +1,11 @@
 package controller.game;
 
+import core.Navigation;
 import model.game.Developer;
-
-import service.DeveloperService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
+import service.game.DeveloperService;
 import util.ConsoleUtils;
-import util.Navigation;
-
 import view.DeveloperView;
 import view.MenuRenderer;
 
