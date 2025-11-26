@@ -7,10 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import model.user.User;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -18,7 +15,6 @@ import java.time.format.DateTimeParseException;
 public final class ConsoleUtils {
 
     private static final Scanner scanner = new Scanner(System.in);
-
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -38,22 +34,19 @@ public final class ConsoleUtils {
     }
 
     public static <T> List<Long> selecionarMultiplasEntidades(List<T> entities, String entityName) {
-        System.out.println(
-                "\n--- Selecione " + entityName + " (IDs separados por vírgula, ou Enter para manter atuais) ---");
+        System.out.println("\n--- Selecione " + entityName + " (IDs separados por vírgula, ou Enter para manter atuais) ---"
+        );
+
         if (entities.isEmpty()) {
             System.out.println("Nenhum(a) " + entityName + " cadastrado(a).");
             return new ArrayList<>();
         }
-        entities.forEach(e -> {
-            try {
-                Long id = (Long) e.getClass().getMethod("getId").invoke(e);
-                String name = (String) e.getClass().getMethod("getName").invoke(e);
-                System.out.println("ID: " + id + " - " + name);
-            } catch (Exception ex) {
-                // Ignora
-            }
-        });
-        return readListaIds("IDs: ");
+
+        for (T e : entities) {
+            System.out.println(e.toString());
+        }
+
+        return readListIds("IDs: ");
     }
 
     public static String readString(String prompt) {
@@ -112,7 +105,7 @@ public final class ConsoleUtils {
         }
     }
 
-    public static List<Long> readListaIds(String prompt) {
+    public static List<Long> readListIds(String prompt) {
         String input = readString(prompt);
         if (input.isEmpty()) {
             return new ArrayList<>();
@@ -122,7 +115,7 @@ public final class ConsoleUtils {
                 .filter(s -> !s.isEmpty())
                 .map(s -> {
                     try {
-                        return Long.parseLong(s);
+                        return Long.valueOf(s);
                     } catch (NumberFormatException e) {
                         System.out.println("ID inválido ignorado: " + s);
                         return null;
@@ -132,12 +125,13 @@ public final class ConsoleUtils {
                 .collect(Collectors.toList());
     }
 
-    public static void printUsersSet(Set<User> friends, String string) {
-        System.out.println(string);
-        if (friends.isEmpty()) {
-            System.out.println("Nenhum usuário encontrado.");
-        } else {
-            friends.forEach(u -> System.out.printf("ID: %d | Nome: %s%n", u.getId(), u.getName()));
-        }
+    public static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    public static void waitEnter() {
+        System.out.println("\nPressione ENTER para continuar...");
+        scanner.nextLine();
     }
 }

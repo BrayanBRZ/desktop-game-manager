@@ -8,22 +8,13 @@ import javax.persistence.TypedQuery;
 import model.user.UserGame;
 import model.user.UserGameState;
 
-public class UserGameDAO extends GenericDAO<UserGame, Long> {
+public class UserGameDAO extends GenericDAO<UserGame> {
 
-    // Constructor
     public UserGameDAO() {
-        super();
+        super(UserGame.class);
     }
 
-    /**
-     * Finds a specific library entry for a given user and game. This is useful
-     * for checking if a user already has a game in their library or for
-     * retrieving specific data like playtime.
-     *
-     * @param userId The ID of the User.
-     * @param gameId The ID of the Game.
-     * @return The found UserGame entity, or {@code null} if it does not exist.
-     */
+    // #region Finders
     public UserGame findByUserAndGame(Long userId, Long gameId) {
         return executeInTransaction(em -> {
             try {
@@ -38,9 +29,6 @@ public class UserGameDAO extends GenericDAO<UserGame, Long> {
         });
     }
 
-    /**
-     * Lista todos os jogos de um usuário.
-     */
     public List<UserGame> findAllByUser(Long userId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId";
@@ -50,9 +38,6 @@ public class UserGameDAO extends GenericDAO<UserGame, Long> {
         });
     }
 
-    /**
-     * Lista todos os jogos de um usuário que possuem flag 'estimated' = true.
-     */
     public List<UserGame> findByEstimated(Long userId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId AND ug.estimated = true";
@@ -62,9 +47,6 @@ public class UserGameDAO extends GenericDAO<UserGame, Long> {
         });
     }
 
-    /**
-     * Lista todos os jogos de um usuário com determinado estado (gameState).
-     */
     public List<UserGame> findByGameState(Long userId, UserGameState state) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId AND ug.gameState = :state";
@@ -74,4 +56,5 @@ public class UserGameDAO extends GenericDAO<UserGame, Long> {
             return query.getResultList();
         });
     }
+    // #endregion Finders
 }

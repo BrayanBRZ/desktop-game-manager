@@ -9,87 +9,18 @@ import javax.persistence.EntityTransaction;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-/**
- * @param <T> The type of the entity.
- * @param <K> The type of the primary key of the entity.
- */
-public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
+public abstract class GenericDAO<T> implements IGenericDAO<T> {
 
     private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("desktop-game-manager");
 
     private final Class<T> persistentClass;
 
     // Constructor
-    @SuppressWarnings("unchecked")
-    public GenericDAO() {
-        this.persistentClass = (Class<T>) ((ParameterizedType) getClass()
-                .getGenericSuperclass())
-                .getActualTypeArguments()[0];
+    public GenericDAO(Class<T> persistentClass) {
+        this.persistentClass = persistentClass;
     }
-
-    // #region CRUD Methods
-    @Override
-    public void save(T entity) {
-        executeInTransaction(em -> {
-            em.persist(entity);
-            return null;
-        });
-    }
-
-    @Override
-    public T update(T entity) {
-        return executeInTransaction(em -> em.merge(entity));
-    }
-
-    @Override
-    public void delete(K id) {
-        performInTransaction(em -> {
-            T entity = em.find(persistentClass, id);
-            if (entity != null)
-                em.remove(entity);
-        });
-    }
-    // #endregion CRUD Methods
-
-    // #region Read-only Methods
-    @Override
-    public T findById(K id) {
-        return executeReadOnly(em -> em.find(persistentClass, id));
-    }
-
-    @Override
-    public List<T> findAll() {
-        return executeReadOnly(em -> em.createQuery("FROM " + persistentClass.getName(), persistentClass)
-                .getResultList());
-    }
-
-    public T findByName(String name) {
-        return executeReadOnly(em -> {
-            try {
-                String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE t.name = :name";
-                TypedQuery<T> query = em.createQuery(jpql, persistentClass);
-                query.setParameter("name", name);
-                return query.getSingleResult();
-            } catch (NoResultException e) {
-                return null;
-            }
-        });
-    }
-
-    public List<T> findByNameContaining(String searchTerm) {
-        return executeReadOnly(em -> {
-            String jpql = "SELECT t FROM " + persistentClass.getName()
-                    + " t WHERE LOWER(t.name) LIKE LOWER(:searchTerm)";
-            TypedQuery<T> query = em.createQuery(jpql, persistentClass);
-            String searchTermWithWildcards = "%" + (searchTerm == null ? "" : searchTerm) + "%";
-            query.setParameter("searchTerm", searchTermWithWildcards);
-            return query.getResultList();
-        });
-    }
-    // #endregion Read-only Methods
 
     // #region Transaction & Execution Control
     public <R> R executeInTransaction(Function<EntityManager, R> action) {
@@ -128,4 +59,66 @@ public abstract class GenericDAO<T, K> implements IGenericDAO<T, K> {
         }
     }
     // #endregion Transaction & Execution Control
+
+    // #region CRUD Methods
+    @Override
+    public void save(T entity) {
+        executeInTransaction(em -> {
+            em.persist(entity);
+            return null;
+        });
+    }
+
+    @Override
+    public T update(T entity) {
+        return executeInTransaction(em -> em.merge(entity));
+    }
+
+    @Override
+    public void delete(Long id) {
+        performInTransaction(em -> {
+            T entity = em.find(persistentClass, id);
+            if (entity != null) {
+                em.remove(entity);
+            }
+        });
+    }
+    // #endregion CRUD Methods
+
+    // #region Read-only Methods
+    @Override
+    public T findById(Long id) {
+        return executeReadOnly(em -> em.find(persistentClass, id));
+    }
+
+    @Override
+    public List<T> findAll() {
+        return executeReadOnly(em -> em.createQuery("FROM " + persistentClass.getName(), persistentClass)
+                .getResultList());
+    }
+
+    public T findByName(String name) {
+        return executeReadOnly(em -> {
+            try {
+                String jpql = "SELECT t FROM " + persistentClass.getName() + " t WHERE t.name = :name";
+                TypedQuery<T> query = em.createQuery(jpql, persistentClass);
+                query.setParameter("name", name);
+                return query.getSingleResult();
+            } catch (NoResultException e) {
+                return null;
+            }
+        });
+    }
+
+    public List<T> findByNameContaining(String searchTerm) {
+        return executeReadOnly(em -> {
+            String jpql = "SELECT t FROM " + persistentClass.getName()
+                    + " t WHERE LOWER(t.name) LILongE LOWER(:searchTerm)";
+            TypedQuery<T> query = em.createQuery(jpql, persistentClass);
+            String searchTermWithWildcards = "%" + (searchTerm == null ? "" : searchTerm) + "%";
+            query.setParameter("searchTerm", searchTermWithWildcards);
+            return query.getResultList();
+        });
+    }
+    // #endregion Read-only Methods
 }

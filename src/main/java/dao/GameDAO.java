@@ -6,17 +6,16 @@ import model.game.Game;
 
 import java.util.List;
 
-public class GameDAO extends GenericDAO<Game, Long> {
+public class GameDAO extends GenericDAO<Game> {
 
-    // Constructor
     public GameDAO() {
-        super();
+        super(Game.class);
     }
 
     // #region Utility Methods
     public Game refreshAndClearAssociations(Game game) {
         return executeInTransaction(em -> {
-            // 1. DELETE DEFINITIVO (sem JPQL - direto SQL)
+            // Delete definitivo
             em.createNativeQuery("DELETE FROM game_genres WHERE game_id = :id")
                     .setParameter("id", game.getId()).executeUpdate();
             em.createNativeQuery("DELETE FROM game_platforms WHERE game_id = :id")
@@ -24,11 +23,10 @@ public class GameDAO extends GenericDAO<Game, Long> {
             em.createNativeQuery("DELETE FROM game_developers WHERE game_id = :id")
                     .setParameter("id", game.getId()).executeUpdate();
 
-            // 2. CLEAR CACHE + REFETCH FRESCO
-            em.clear();  // Limpa 1º nível cache
+            em.clear();  // Limpa primeiro nível cache
             em.flush();  // Força escrita pendente
 
-            // 3. Busca NOVO Game sem associações
+            // Busca novo game sem associações
             Game freshGame = em.find(Game.class, game.getId());
             freshGame.getGameGenres().clear();
             freshGame.getGamePlatforms().clear();

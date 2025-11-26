@@ -2,10 +2,9 @@ package dao;
 
 import model.game.Developer;
 
-public class DeveloperDAO extends GenericDAO<Developer, Long> {
+public class DeveloperDAO extends GenericDAO<Developer> {
 
-    // Constructor
     public DeveloperDAO() {
-        super();
+        super(Developer.class);
     }
 }

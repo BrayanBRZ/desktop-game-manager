@@ -2,10 +2,9 @@ package dao;
 
 import model.game.Platform;
 
-public class PlatformDAO extends GenericDAO<Platform, Long> {
+public class PlatformDAO extends GenericDAO<Platform> {
 
-    // Constructor
     public PlatformDAO() {
-        super();
+        super(Platform.class);
     }
 }

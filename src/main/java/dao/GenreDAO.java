@@ -2,10 +2,9 @@ package dao;
 
 import model.game.Genre;
 
-public class GenreDAO extends GenericDAO<Genre, Long> {
+public class GenreDAO extends GenericDAO<Genre> {
 
-    // Constructor
     public GenreDAO() {
-        super();
+        super(Genre.class);
     }
 }

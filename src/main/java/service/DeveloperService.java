@@ -16,7 +16,7 @@ public class DeveloperService {
     }
 
     // #region CRUD Operations
-    public Developer createDeveloper(String name, String location, String symbolPath)
+    public Developer createDeveloper(String name)
             throws ValidationException {
 
         if (name == null || name.trim().isEmpty()) {
@@ -28,14 +28,12 @@ public class DeveloperService {
 
         Developer newDeveloper = new Developer();
         newDeveloper.setName(name.trim());
-        newDeveloper.setLocation(location);
-        newDeveloper.setSymbolPath(symbolPath);
 
         developerDAO.save(newDeveloper);
         return newDeveloper;
     }
 
-    public Developer updateDeveloper(Long id, String name, String location, String symbolPath)
+    public Developer updateDeveloper(Long id, String name)
             throws ValidationException {
 
         if (id == null) {
@@ -45,7 +43,6 @@ public class DeveloperService {
             throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
         }
 
-        // Busca e validação DENTRO da transação.
         Developer existing = developerDAO.findById(id);
         if (existing == null) {
             throw new ValidationException("Desenvolvedor com ID " + id + " não encontrado.");
@@ -56,18 +53,15 @@ public class DeveloperService {
         }
 
         existing.setName(name.trim());
-        existing.setLocation(location);
-        existing.setSymbolPath(symbolPath);
 
         return developerDAO.update(existing);
     }
 
-    // #region Create or Find
     public Developer createOrFind(String name)
             throws ServiceException, ValidationException {
 
         if (name == null || name.trim().isEmpty()) {
-            throw new ValidationException("Nome do gênero não pode estar vazio.");
+            throw new ValidationException("Nome do desenvolvedor não pode estar vazio.");
         }
 
         Developer existing = developerDAO.findByName(name.trim());
@@ -80,7 +74,6 @@ public class DeveloperService {
         developerDAO.save(newDev);
         return newDev;
     }
-    // #endregion Create or Find
 
     public void deleteDeveloper(Long id) {
         developerDAO.delete(id);

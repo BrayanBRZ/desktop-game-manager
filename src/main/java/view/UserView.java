@@ -1,14 +1,19 @@
 package view;
 
+import java.util.List;
 import java.util.Set;
 
 import model.game.Game;
 import model.user.FriendRequest;
 import model.user.User;
 import model.user.UserGame;
+import service.UserService;
+import service.exception.ServiceException;
 import util.ConsoleUtils;
 
 public class UserView {
+
+    private static final UserService userService = new UserService();
 
     public static void showLibrary(Set<UserGame> library) {
         System.out.println("\n--- MINHA BIBLIOTECA (" + library.size() + ") ---");
@@ -26,7 +31,16 @@ public class UserView {
     }
 
     public static void showFriends(Set<User> friends) {
-        ConsoleUtils.printUsersSet(friends, "MEUS AMIGOS");
+        printUsersSet(friends, "MEUS AMIGOS");
+    }
+
+    public static void printUsersSet(Set<User> friends, String string) {
+        System.out.println(string);
+        if (friends.isEmpty()) {
+            System.out.println("Nenhum usuário encontrado.");
+        } else {
+            friends.forEach(u -> System.out.printf("ID: %d | Nome: %s%n", u.getId(), u.getName()));
+        }
     }
 
     public static void showReceivedPendingRequests(Set<FriendRequest> requests) {
@@ -49,5 +63,15 @@ public class UserView {
         requests.forEach(r -> System.out.printf("ID %d | Para: %s | %s%n",
                 r.getId(), r.getToUser().getName(),
                 ConsoleUtils.formatDateTime(r.getCreatedAt())));
+    }
+
+    public static void listAll() throws ServiceException {
+        List<User> users = userService.findAll();
+        System.out.println("\n[ LISTA DE USUÁRIOS ]");
+        if (users.isEmpty()) {
+            System.out.println("Nenhum usuário cadastrado.");
+        } else {
+            users.forEach(d -> System.out.println("ID: " + d.getId() + " - " + d.getName()));
+        }
     }
 }

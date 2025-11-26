@@ -7,11 +7,10 @@ import model.user.User;
 import java.time.LocalDate;
 import java.util.List;
 
-public class UserDAO extends GenericDAO<User, Long> {
+public class UserDAO extends GenericDAO<User> {
 
-    // Constructor
     public UserDAO() {
-        super();
+        super(User.class);
     }
 
     // #region Finders by Profile Data

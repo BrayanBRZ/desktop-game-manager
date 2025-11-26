@@ -33,9 +33,6 @@ public class User {
     @Column(nullable = false, length = 250)
     private String password;
 
-    @Column(nullable = true, length = 500, name = "avatar_path")
-    private String avatarPath;
-
     @Column(nullable = true, name = "birth_date")
     private LocalDate birthDate;
 
@@ -72,10 +69,9 @@ public class User {
         this.password = password;
     }
 
-    public User(String name, String password, String avatarPath, LocalDate birthDate) {
+    public User(String name, String password, LocalDate birthDate) {
         this.name = name;
         this.password = password;
-        this.avatarPath = avatarPath;
         this.birthDate = birthDate;
     }
     // #endregion Constructors
@@ -103,14 +99,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getAvatarPath() {
-        return avatarPath;
-    }
-
-    public String setAvatarPath(String avatarPath) {
-        return this.avatarPath = avatarPath;
     }
 
     public LocalDate getBirthDate() {

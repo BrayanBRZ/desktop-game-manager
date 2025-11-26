@@ -34,12 +34,6 @@ public class Game {
     @Column(nullable = true, name = "release_date")
     private LocalDate releaseDate;
 
-    @Column(nullable = true, length = 500, name = "cover_path")
-    private String coverPath;
-
-    @Column(nullable = true, length = 500, name = "banner_path")
-    private String bannerPath;
-
     @Column(nullable = true, precision = 3, scale = 1)
     private Double rating;
 
@@ -83,8 +77,6 @@ public class Game {
     public Game(String name, LocalDate releaseDate, String coverPath, String bannerPath, Double rating) {
         this.name = name;
         this.releaseDate = releaseDate;
-        this.coverPath = coverPath;
-        this.bannerPath = bannerPath;
         this.rating = rating;
     }
     //#endregion Constructors
@@ -112,22 +104,6 @@ public class Game {
 
     public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    public String getCoverPath() {
-        return coverPath;
-    }
-
-    public void setCoverPath(String coverPath) {
-        this.coverPath = coverPath;
-    }
-
-    public String getBannerPath() {
-        return bannerPath;
-    }
-
-    public void setBannerPath(String bannerPath) {
-        this.bannerPath = bannerPath;
     }
 
     public Double getRating() {

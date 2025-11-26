@@ -2,7 +2,7 @@ package dao;
 
 import java.util.List;
 
-public interface IGenericDAO<T, K> {
+public interface IGenericDAO<T> {
 
     /**
      * Persists a new entity to the database.
@@ -24,7 +24,7 @@ public interface IGenericDAO<T, K> {
      *
      * @param id The ID of the entity to be removed.
      */
-    void delete(K id);
+    void delete(Long id);
 
     /**
      * Finds an entity by its primary key ID.
@@ -33,7 +33,7 @@ public interface IGenericDAO<T, K> {
      * @return The found entity, or {@code null} if no entity with the given ID
      *         exists.
      */
-    T findById(K id);
+    T findById(Long id);
 
     /**
      * Retrieves all instances of the entity type from the database.

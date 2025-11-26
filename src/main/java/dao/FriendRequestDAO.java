@@ -8,10 +8,10 @@ import javax.persistence.TypedQuery;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FriendRequestDAO extends GenericDAO<FriendRequest, Long> {
+public class FriendRequestDAO extends GenericDAO<FriendRequest> {
 
     public FriendRequestDAO() {
-        super();
+        super(FriendRequest.class);
     }
 
     public Set<User> findFriendsByUserId(Long userId) {
@@ -45,10 +45,6 @@ public class FriendRequestDAO extends GenericDAO<FriendRequest, Long> {
         });
     }
 
-    /**
-     * Busca todas as solicitações PENDENTES recebidas por um usuário. Usado
-     * para exibir o contador e a lista de solicitações pendentes.
-     */
     public Set<FriendRequest> findPendingReceivedByUserId(Long toUserId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT fr FROM FriendRequest fr JOIN FETCH fr.fromUser "
@@ -62,10 +58,6 @@ public class FriendRequestDAO extends GenericDAO<FriendRequest, Long> {
         });
     }
 
-    /**
-     * Busca solicitações recebidas por um usuário com filtro de status. Útil
-     * para reutilizar em rejeitadas, aceitas, etc. (se precisar no futuro)
-     */
     public Set<FriendRequest> findReceivedByUserIdAndStatus(Long toUserId, FriendRequestState status) {
         return executeInTransaction(em -> {
             String jpql = "SELECT fr FROM FriendRequest fr JOIN FETCH fr.fromUser "
@@ -79,10 +71,6 @@ public class FriendRequestDAO extends GenericDAO<FriendRequest, Long> {
         });
     }
 
-    /**
-     * Verifica se já existe uma solicitação pendente entre dois usuários (em
-     * qualquer sentido). Usado na validação ao enviar nova solicitação.
-     */
     public boolean existsPendingBetween(Long userId1, Long userId2) {
         return executeInTransaction(em -> {
             String jpql = "SELECT COUNT(fr) FROM FriendRequest fr WHERE fr.status = 'PENDING' AND ("
@@ -97,10 +85,6 @@ public class FriendRequestDAO extends GenericDAO<FriendRequest, Long> {
         });
     }
 
-    /**
-     * Busca uma solicitação específica pelo ID com JOIN FETCH dos usuários
-     * (evita LazyInitializationException).
-     */
     @Override
     public FriendRequest findById(Long id) {
         return executeInTransaction(em -> {

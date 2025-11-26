@@ -11,9 +11,9 @@ public class GenreView {
     
     private static final GenreService genreService = new GenreService();
 
-    public static void listarGeneros() throws ServiceException {
+    public static void listAll() throws ServiceException {
         List<Genre> genres = genreService.findAll();
-        System.out.println("\n--- GÊNEROS DISPONÍVEIS ---");
+        System.out.println("\n[ GÊNEROS DISPONÍVEIS ]");
         if (genres.isEmpty()) {
             System.out.println("Nenhum gênero cadastrado.");
         } else {

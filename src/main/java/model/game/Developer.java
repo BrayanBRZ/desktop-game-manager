@@ -24,12 +24,6 @@ public class Developer {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(nullable = true, length = 500, name = "symbol_path")
-    private String symbolPath;
-
-    @Column(nullable = true, length = 150)
-    private String location;
-
     // --- Audit Fields ---
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -42,10 +36,8 @@ public class Developer {
     public Developer() {
     }
 
-    public Developer(String name, String symbolPath, String location) {
+    public Developer(String name) {
         this.name = name;
-        this.symbolPath = symbolPath;
-        this.location = location;
     }
     // #endregion Constructors
 
@@ -64,22 +56,6 @@ public class Developer {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSymbolPath() {
-        return symbolPath;
-    }
-
-    public void setSymbolPath(String symbolPath) {
-        this.symbolPath = symbolPath;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 
     public LocalDateTime getCreatedAt() {

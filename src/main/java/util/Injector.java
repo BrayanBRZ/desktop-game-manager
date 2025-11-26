@@ -1,11 +1,13 @@
 package util;
 
-import controller.UserMenuController;
-import controller.admin.DeveloperAdminController;
-import controller.admin.GameAdminController;
-import controller.admin.GenreAdminController;
-import controller.admin.PlatformAdminController;
-import controller.admin.UserAdminController;
+import controller.ConfigMenuController;
+import controller.game.DeveloperAdminController;
+import controller.game.GameAdminController;
+import controller.game.GenreAdminController;
+import controller.game.PlatformAdminController;
+import controller.user.FriendMenuController;
+import controller.user.UserAdminController;
+import controller.user.UserMenuController;
 import service.AuthService;
 import service.FriendshipService;
 import service.GameService;
@@ -55,7 +57,7 @@ public final class Injector {
         );
     }
 
-    public static PlatformAdminController createPlatformAdminController() {
+    public static PlatformAdminController createPlatformMenuController() {
         return new  PlatformAdminController(
             platformService
         );
@@ -63,7 +65,19 @@ public final class Injector {
 
     public static UserAdminController createUserAdminController() {
         return new UserAdminController(
-            userService
+            userService,
+            authService
         );
+    }
+
+    public static FriendMenuController createFriendMenuController() {
+        return new FriendMenuController(
+            userService, 
+            friendshipService
+        );
+    }
+
+    public static ConfigMenuController createConfigMenuController() {
+        return new ConfigMenuController();
     }
 }

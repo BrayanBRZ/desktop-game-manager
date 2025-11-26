@@ -11,7 +11,7 @@ public class PlatformView {
 
     private static final PlatformService platformService = new PlatformService();
     
-    public static void listarPlataformas() throws ServiceException {
+    public static void listAll() throws ServiceException {
         List<Platform> platforms = platformService.findAll();
         System.out.println("\n--- PLATAFORMAS DISPONÍVEIS ---");
         if (platforms.isEmpty()) {

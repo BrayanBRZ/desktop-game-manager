@@ -1,44 +1,55 @@
 package controller;
 
+import controller.user.UserMenuController;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
+
 import util.ConsoleUtils;
 import util.Injector;
+import util.Navigation;
+import view.MenuRenderer;
 
 public class MainMenuController {
 
     UserMenuController userMenuController = Injector.createUserMenuController();
-    AdminMenuController adminMenuController = new AdminMenuController();
-
+    ConfigMenuController adminMenuController = Injector.createConfigMenuController();
+    
     public void runMainMenu() {
-        String option;
-        do {
-            System.out.println("\n=== MENU PRINCIPAL ===");
-            System.out.println("1 - Acessar Biblioteca (Login/Registro)");
-            System.out.println("2 - Gerenciar Catálogo (Admin)");
-            System.out.println("0 - Sair");
-            option = ConsoleUtils.readString("Escolha: ");
+        Navigation.push("Home");
+        while (true) {
+            ConsoleUtils.clearScreen();
+            MenuRenderer.renderBanner("Desktop Game Manager (Home)");
+            MenuRenderer.renderOptions(
+                "1 - Efetuar (Login/Registro)",
+                "2 - Gerenciar Configurações",
+                "0 - Sair"
+            );
+            String option = ConsoleUtils.readString("Escolha: ").trim();
 
             try {
                 switch (option) {
                     case "1":
-                        userMenuController.start();
+                        userMenuController.loginOrRegister();
                         break;
                     case "2":
-                        adminMenuController.manageCatalogMenu();
+                        adminMenuController.configManagementMenu();
                         break;
                     case "0":
-                        break;
+                        return;
                     default:
-                        System.out.println("Opção inválida.");
+                        MenuRenderer.renderError("Opção inválida.");
+                        ConsoleUtils.waitEnter();
                 }
             } catch (ValidationException e) {
-                System.out.println("Erro de validação: " + e.getMessage());
+                MenuRenderer.renderValidationException(e);
+                ConsoleUtils.waitEnter();
             } catch (ServiceException e) {
-                System.out.println("Erro no serviço: " + e.getMessage());
+                MenuRenderer.renderServiceException(e);
+                ConsoleUtils.waitEnter();
             } catch (Exception e) {
-                System.out.println("Erro inesperado: " + e.getMessage());
+                MenuRenderer.renderException(e);
+                ConsoleUtils.waitEnter();
             }
-        } while (!option.equals("0"));
+        }
     }
 }

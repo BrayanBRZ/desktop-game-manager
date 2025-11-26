@@ -66,7 +66,6 @@ public class AuthService {
         safe.setId(u.getId());
         safe.setName(u.getName());
         safe.setBirthDate(u.getBirthDate());
-        safe.setAvatarPath(u.getAvatarPath());
         safe.setCreatedAt(u.getCreatedAt());
         return safe;
     }
