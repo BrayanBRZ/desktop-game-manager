@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import model.game.Game;
 import service.exception.ServiceException;
 import service.game.GameService;
 
@@ -201,13 +200,6 @@ public class GameSeeder {
 
         for (GameSeed seed : seeds) {
             try {
-                Game exists = gameService.findByName(seed.name);
-
-                if (exists != null) {
-                    System.out.println("Game já existe, pulando: " + seed.name);
-                    continue;
-                }
-
                 System.out.println("Criando game: " + seed.name);
 
                 gameService.createGame(

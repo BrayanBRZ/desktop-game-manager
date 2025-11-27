@@ -17,9 +17,7 @@ public class GenreSeeder {
         };
 
         for (String g : genres) {
-            if (genreService.findByName(g) != null) {
-                genreService.createGenre(g);
-            }
+            genreService.createGenre(g);
         }
     }
 }

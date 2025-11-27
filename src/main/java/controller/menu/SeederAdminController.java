@@ -91,25 +91,25 @@ public class SeederAdminController {
     private void seedGenres() throws ServiceException, ValidationException {
         System.out.println("\n[ SEEDER: GÊNEROS ]");
         genreSeeder.seed();
-        System.out.println("✔ Gêneros semeados com sucesso.");
+        System.out.println("Gêneros semeados com sucesso.");
     }
 
     private void seedPlatforms() throws ServiceException, ValidationException {
         System.out.println("\n[ SEEDER: PLATAFORMAS ]");
         platformSeeder.seed();
-        System.out.println("✔ Plataformas semeadas com sucesso.");
+        System.out.println("Plataformas semeadas com sucesso.");
     }
 
     private void seedDevelopers() throws ServiceException, ValidationException {
         System.out.println("\n[ SEEDER: DESENVOLVEDORES ]");
         developerSeeder.seed();
-        System.out.println("✔ Desenvolvedores semeados com sucesso.");
+        System.out.println("Desenvolvedores semeados com sucesso.");
     }
 
     private void seedGames() throws ServiceException, ValidationException {
         System.out.println("\n[ SEEDER: GAMES ]");
         gameSeeder.seed();
-        System.out.println("✔ Jogos semeados com sucesso.");
+        System.out.println("Jogos semeados com sucesso.");
     }
 
     private void seedAll() throws ServiceException, ValidationException {
@@ -120,6 +120,6 @@ public class SeederAdminController {
         developerSeeder.seed();
         gameSeeder.seed();
 
-        System.out.println("\n✔ TODOS OS SEEDS FORAM EXECUTADOS COM SUCESSO!");
+        System.out.println("\nTODOS OS SEEDS FORAM EXECUTADOS COM SUCESSO!");
     }
 }

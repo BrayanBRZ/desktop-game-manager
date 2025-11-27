@@ -2,8 +2,6 @@ package core.seed;
 
 import service.game.DeveloperService;
 
-
-
 public class DeveloperSeeder {
 
     private final DeveloperService developerService;
@@ -20,9 +18,7 @@ public class DeveloperSeeder {
         };
 
         for (String d : developers) {
-            if (developerService.findByName(d) != null) {
-                developerService.createDeveloper(d);
-            }
+            developerService.createDeveloper(d);
         }
     }
 }

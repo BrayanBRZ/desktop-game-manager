@@ -2,7 +2,6 @@ package core.seed;
 
 import service.game.PlatformService;
 
-
 public class PlatformSeeder {
 
     private final PlatformService platformService;
@@ -18,9 +17,7 @@ public class PlatformSeeder {
         };
 
         for (String p : platforms) {
-            if (platformService.findByName(p) != null) {
-                platformService.createPlatform(p);
-            }
+            platformService.createPlatform(p);
         }
     }
 }
