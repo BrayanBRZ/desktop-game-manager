@@ -1,13 +1,13 @@
 package controller.menu;
 
-import controller.game.*;
-import controller.user.UserConfigController;
-import core.Injector;
-import core.Navigation;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import utils.ConsoleUtils;
+import controller.game.*;
+import controller.user.UserConfigController;
 import view.MainMenuView;
+import core.Injector;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class MainConfigController {
 

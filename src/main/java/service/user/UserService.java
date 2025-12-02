@@ -1,15 +1,14 @@
 package service.user;
 
-import dao.game.GameDAO;
-import dao.user.UserDAO;
 import model.game.Game;
 import model.user.User;
 import model.user.UserGame;
+import dao.game.GameDAO;
+import dao.user.UserDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
+import utils.MyLinkedList;
 import java.time.LocalDate;
-import java.util.List;
 
 public class UserService {
 
@@ -40,6 +39,7 @@ public class UserService {
         if (user == null) {
             throw new ServiceException("Usuário não encontrado.");
         }
+        
         userDAO.delete(id);
     }
 
@@ -77,7 +77,7 @@ public class UserService {
         return userDAO.findByName(name.trim());
     }
 
-    public List<User> findAll() throws ServiceException {
+    public MyLinkedList<User> findAll() throws ServiceException {
         return userDAO.findAll();
     }
 

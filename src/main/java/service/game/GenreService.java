@@ -1,12 +1,10 @@
 package service.game;
 
 import model.game.Genre;
+import dao.game.GenreDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
-import java.util.List;
-
-import dao.game.GenreDAO;
+import utils.MyLinkedList;
 
 public class GenreService {
 
@@ -89,11 +87,11 @@ public class GenreService {
         return genreDAO.executeReadOnly(em -> genreDAO.findByName(name));
     }
 
-    public List<Genre> findAll() throws ServiceException {
+    public MyLinkedList<Genre> findAll() throws ServiceException {
         return genreDAO.executeReadOnly(em -> genreDAO.findAll());
     }
 
-    public List<Genre> findByNameContaining(String term) throws ServiceException {
+    public MyLinkedList<Genre> findByNameContaining(String term) throws ServiceException {
         return genreDAO.executeReadOnly(em -> genreDAO.findByNameContaining(term));
     }
     // #endregion Read-Only Operations

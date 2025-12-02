@@ -3,13 +3,10 @@ package dao.user;
 import model.user.FriendRequest;
 import model.user.FriendRequestState;
 import model.user.User;
-
-import javax.persistence.TypedQuery;
-
 import dao.GenericDAO;
-
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.TypedQuery;
 
 public class FriendRequestDAO extends GenericDAO<FriendRequest> {
 

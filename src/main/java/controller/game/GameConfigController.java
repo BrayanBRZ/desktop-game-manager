@@ -1,22 +1,14 @@
 package controller.game;
 
+import model.game.*;
+import service.game.*;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import service.game.DeveloperService;
-import service.game.GameService;
-import service.game.GenreService;
-import service.game.PlatformService;
-import utils.ConsoleUtils;
-
-import java.util.List;
-
-import core.Navigation;
-import model.game.Developer;
-import model.game.Game;
-import model.game.Genre;
-import model.game.Platform;
 import view.game.GameConfigView;
 import view.game.GameConfigView.GameFormDTO;
+import core.Navigation;
+import utils.ConsoleUtils;
+import utils.MyLinkedList;
 
 public class GameConfigController {
 
@@ -77,7 +69,7 @@ public class GameConfigController {
                         ConsoleUtils.waitEnter();
                         break;
                     case 6:
-                        gameConfigView.renderListEntity(genreService.findAll());
+                        gameConfigView.renderEntityList(genreService.findAll());
                         gameConfigView.genericGameFinderLong(
                                 "ID do gênero: ",
                                 "gênero",
@@ -85,7 +77,7 @@ public class GameConfigController {
                         ConsoleUtils.waitEnter();
                         break;
                     case 7:
-                        gameConfigView.renderListEntity(platformService.findAll());
+                        gameConfigView.renderEntityList(platformService.findAll());
                         gameConfigView.genericGameFinderLong(
                                 "ID da plataforma: ",
                                 "plataforma",
@@ -93,7 +85,7 @@ public class GameConfigController {
                         ConsoleUtils.waitEnter();
                         break;
                     case 8:
-                        gameConfigView.renderListEntity(developerService.findAll());
+                        gameConfigView.renderEntityList(developerService.findAll());
                         gameConfigView.genericGameFinderLong(
                                 "ID do desenvolvedor: ",
                                 "desenvolvedor",
@@ -121,21 +113,9 @@ public class GameConfigController {
     }
 
     private void createGame() throws ServiceException, ValidationException {
-        List<Genre> genres = genreService.findAll();
-        List<Platform> platforms = platformService.findAll();
-        List<Developer> devs = developerService.findAll();
-
-        if (genres.isEmpty()) {
-            throw new ValidationException("Não é possível criar jogo - nenhum gênero cadastrado.");
-        }
-
-        if (platforms.isEmpty()) {
-            throw new ValidationException("Não é possível criar jogo - nenhuma plataforma cadastrada.");
-        }
-
-        if (devs.isEmpty()) {
-            throw new ValidationException("Não é possível criar jogo - nenhum desenvolvedor cadastrado.");
-        }
+        MyLinkedList<Genre> genres = genreService.findAll();
+        MyLinkedList<Platform> platforms = platformService.findAll();
+        MyLinkedList<Developer> devs = developerService.findAll();
 
         GameConfigView.GameFormDTO dto = gameConfigView.promptGameCreation(genres, platforms, devs);
 
@@ -151,13 +131,8 @@ public class GameConfigController {
     }
 
     private void updateGame() {
-        Long id = ConsoleUtils.readLong("ID do jogo: ");
+        Long id = ConsoleUtils.readLong("ID do jogo: ", null);
         Game existing = gameService.findById(id);
-
-        if (existing == null) {
-            gameConfigView.renderMessageLine("Jogo não encontrado.");
-            return;
-        }
 
         GameFormDTO dto = gameConfigView.promptGameUpdate(
                 existing,
@@ -179,9 +154,8 @@ public class GameConfigController {
     }
 
     private void deleteGame() {
-        Long id = ConsoleUtils.readLong("ID do jogo: ");
-        gameConfigView.renderMessage("Confirma exclusão? (s/n): ");
-        if (ConsoleUtils.readString("").equalsIgnoreCase("s")) {
+        Long id = ConsoleUtils.readLong("ID do jogo: ", null);
+        if (ConsoleUtils.readString("Confirma exclusão? (s/n): ", null).equalsIgnoreCase("s")) {
             gameService.deleteGame(id);
             gameConfigView.renderMessage("Jogo deletado com sucesso.");
         } else {

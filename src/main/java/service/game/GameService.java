@@ -1,17 +1,13 @@
 package service.game;
 
-import dao.game.DeveloperDAO;
-import dao.game.GameDAO;
-import dao.game.GenreDAO;
-import dao.game.PlatformDAO;
 import model.game.*;
+import dao.game.*;
 import service.exception.ValidationException;
+import utils.MyLinkedList;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class GameService {
 
@@ -31,9 +27,9 @@ public class GameService {
     public Game createGame(
             String name,
             LocalDate releaseDate,
-            List<Long> genreIds,
-            List<Long> platformIds,
-            List<Long> developerIds
+            MyLinkedList<Long> genreIds,
+            MyLinkedList<Long> platformIds,
+            MyLinkedList<Long> developerIds
     ) {
 
         ValidatedGameData data = validateAndFetchGameData(
@@ -55,10 +51,12 @@ public class GameService {
             Long id,
             String name,
             LocalDate releaseDate,
-            List<Long> genreIds,
-            List<Long> platformIds,
-            List<Long> developerIds
+            MyLinkedList<Long> genreIds,
+            MyLinkedList<Long> platformIds,
+            MyLinkedList<Long> developerIds
     ) {
+
+        
 
         Game originalGame = gameDAO.findById(id);
         if (originalGame == null) {
@@ -122,9 +120,9 @@ public class GameService {
 
     private ValidatedGameData validateAndFetchGameData(
             String name,
-            List<Long> genreIds,
-            List<Long> platformIds,
-            List<Long> developerIds
+            MyLinkedList<Long> genreIds,
+            MyLinkedList<Long> platformIds,
+            MyLinkedList<Long> developerIds
     ) {
         if (name == null || name.trim().isEmpty()) {
             throw new ValidationException("Nome do jogo não pode estar vazio.");
@@ -139,20 +137,11 @@ public class GameService {
             throw new ValidationException("O jogo precisa de pelo menos um desenvolvedor.");
         }
 
-        Set<Genre> genres = genreIds.stream()
-                .map(genreDAO::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Genre> genres = loadEntities(genreIds, genreDAO::findById);
 
-        Set<Platform> platforms = platformIds.stream()
-                .map(platformDAO::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Platform> platforms = loadEntities(platformIds, platformDAO::findById);
 
-        Set<Developer> developers = developerIds.stream()
-                .map(developerDAO::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Developer> developers = loadEntities(developerIds, developerDAO::findById);
 
         if (genres.size() != genreIds.size()) {
             throw new ValidationException("Alguns gêneros informados não existem.");
@@ -167,51 +156,65 @@ public class GameService {
         return new ValidatedGameData(name.trim(), genres, platforms, developers);
     }
 
-    
+    private <T> Set<T> loadEntities(MyLinkedList<Long> ids, java.util.function.Function<Long, T> findFunction) {
+        Set<T> result = new HashSet<>();
+        for (Long id : ids) {
+            T entidade = findFunction.apply(id);
+            if (entidade != null) {
+                result.add(entidade);
+            }
+        }
+        return result;
+    }
     // #endregion Helpers
 
     // #region Read-Only Operations
     public Game findById(Long id) {
-        return gameDAO.findById(id);
+        Game game = gameDAO.findById(id);
+        if (game != null) {
+            return game;
+        } else {
+            throw new ValidationException("Jogo não encontrado com o ID: " + id);
+        }
     }
 
     public Game findByName(String name) {
         return gameDAO.findByName(name);
     }
 
-    public List<Game> findAll() {
+    public MyLinkedList<Game> findAll() {
         return gameDAO.findAll();
     }
 
-    public List<Game> findByNameContaining(String term) {
+    public MyLinkedList<Game> findByNameContaining(String term) {
         return gameDAO.findByNameContaining(term);
     }
 
-    public List<Game> listByGenreName(String genre) {
+    public MyLinkedList<Game> listByGenreName(String genre) {
         return gameDAO.findByGenreName(genre);
     }
 
-    public List<Game> listByPlatformName(String platform) {
+    public MyLinkedList<Game> listByPlatformName(String platform) {
         return gameDAO.findByPlatformName(platform);
     }
 
-    public List<Game> listByDeveloperName(String dev) {
+    public MyLinkedList<Game> listByDeveloperName(String dev) {
         return gameDAO.findByDeveloperName(dev);
     }
 
-    public List<Game> listByGenreId(Long id) {
+    public MyLinkedList<Game> listByGenreId(Long id) {
         return gameDAO.findByGenreId(id);
     }
 
-    public List<Game> listByPlatformId(Long id) {
+    public MyLinkedList<Game> listByPlatformId(Long id) {
         return gameDAO.findByPlatformId(id);
     }
 
-    public List<Game> listByDeveloperId(Long id) {
+    public MyLinkedList<Game> listByDeveloperId(Long id) {
         return gameDAO.findByDeveloperId(id);
     }
 
-    public List<Game> listByRatingGreaterThan(Double minRating) {
+    public MyLinkedList<Game> listByRatingGreaterThan(Double minRating) {
         return gameDAO.findByRatingGreaterThan(minRating);
     }
     // #endregion Read-Only Operations

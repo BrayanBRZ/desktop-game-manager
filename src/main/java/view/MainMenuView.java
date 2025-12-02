@@ -13,6 +13,6 @@ public class MainMenuView extends BaseView {
             "2 - Gerenciar Configurações",
             "0 - Sair"
         );
-        return ConsoleUtils.readString("Escolha: ").trim();
+        return ConsoleUtils.readString("Escolha: ", null).trim();
     }
 }

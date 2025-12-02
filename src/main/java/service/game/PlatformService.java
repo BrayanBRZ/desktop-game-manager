@@ -1,12 +1,10 @@
 package service.game;
 
 import model.game.Platform;
+import dao.game.PlatformDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
-import java.util.List;
-
-import dao.game.PlatformDAO;
+import utils.MyLinkedList;
 
 public class PlatformService {
 
@@ -93,11 +91,11 @@ public class PlatformService {
         return platformDAO.findByName(name);
     }
 
-    public List<Platform> findAll() throws ServiceException {
+    public MyLinkedList<Platform> findAll() throws ServiceException {
         return platformDAO.findAll();
     }
 
-    public List<Platform> findByNameContaining(String term) throws ServiceException {
+    public MyLinkedList<Platform> findByNameContaining(String term) throws ServiceException {
         return platformDAO.findByNameContaining(term);
     }
     // #endregion Read-Only Operations

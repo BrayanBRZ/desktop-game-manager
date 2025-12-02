@@ -1,12 +1,12 @@
 package controller.game;
 
-import core.Navigation;
 import model.game.Genre;
+import service.game.GenreService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import service.game.GenreService;
-import utils.ConsoleUtils;
 import view.game.genreConfigView;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class GenreConfigController {
 
@@ -20,7 +20,6 @@ public class GenreConfigController {
 
     public void manageGenresMenu() {
         Navigation.push("Genre Management Menu");
-        String entityName = "Gêneros";
 
         while (true) {
             int choice = genreConfigView.renderBanner(
@@ -36,7 +35,7 @@ public class GenreConfigController {
                         ConsoleUtils.waitEnter();
                         break;
                     case 2:
-                        genreConfigView.displayEntityList(genreService.findAll(), entityName);
+                        genreConfigView.renderEntityList(genreService.findAll());
                         ConsoleUtils.waitEnter();
                         break;
                     case 0:
@@ -61,7 +60,7 @@ public class GenreConfigController {
     }
 
     private void createOrFind() {
-        String name = ConsoleUtils.readString("\nNome do gênero para criar ou encontrar: ");
+        String name = ConsoleUtils.readString("Nome do gênero para criar ou encontrar: ", null);
         Genre genre = genreService.createOrFind(name);
         genreConfigView.renderMessageLine("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
     }

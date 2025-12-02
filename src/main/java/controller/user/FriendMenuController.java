@@ -2,24 +2,21 @@ package controller.user;
 
 import java.util.Set;
 
-import core.Navigation;
-import dao.user.FriendRequestDAO;
 import model.user.FriendRequest;
 import model.user.User;
-import service.exception.ServiceException;
-import service.exception.ValidationException;
-import service.session.SessionManager;
 import service.user.FriendshipService;
 import service.user.UserService;
-import utils.ConsoleUtils;
-import utils.MenuRenderer;
+import service.session.SessionManager;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 import view.user.UserConfigView;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class FriendMenuController {
 
     private final UserService userService;
     private final FriendshipService friendshipService;
-    private final FriendRequestDAO friendRequestDAO = new FriendRequestDAO();
 
     public FriendMenuController(UserService userService, FriendshipService friendshipService) {
         this.userService = userService;
@@ -35,7 +32,7 @@ public class FriendMenuController {
         while (true) {
             SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
             User currentUser = SessionManager.getCurrentUser();
-            int pending = friendRequestDAO.findPendingReceivedByUserId(currentUser.getId()).size();
+            int pending = friendshipService.getPendingReceived(currentUser.getId()).size();
             int choice = userConfigView.renderBanner(
                     "Você tem " + pending + " solicitação(ões) pendente(s).",
                     "1 - Enviar solicitação de amizade",
@@ -63,7 +60,7 @@ public class FriendMenuController {
                         break;
 
                     case 4:
-                        userConfigView.showFriends(friendRequestDAO.findFriendsByUserId(currentUser.getId()));
+                        userConfigView.showFriends(friendshipService.getFriends(currentUser.getId()));
                         ConsoleUtils.waitEnter();
                         break;
 
@@ -90,23 +87,23 @@ public class FriendMenuController {
     }
 
     private void sendFriendRequest() throws ValidationException, ServiceException {
-        Long toUserId = ConsoleUtils.readLong("ID do usuário destino: ");
+        Long toUserId = ConsoleUtils.readLong("ID do usuário destino: ", null);
         friendshipService.sendFriendRequest(SessionManager.getCurrentUserId(), toUserId);
         userConfigView.renderMessageLine("Solicitação enviada com sucesso!");
     }
 
     private void managePendingRequests() {
         Long userId = SessionManager.getCurrentUserId();
-        Set<FriendRequest> pending = friendRequestDAO.findPendingReceivedByUserId(userId);
+        Set<FriendRequest> pending = friendshipService.getPendingReceived(userId);
 
         userConfigView.showReceivedPendingRequests(pending);
 
         if (pending.isEmpty())  return;
 
-        Long id = ConsoleUtils.readLong("ID da solicitação (0 para cancelar): ");
+        Long id = ConsoleUtils.readLong("ID da solicitação (0 para cancelar): ", null);
         if (id == 0) return;
 
-        String action = ConsoleUtils.readString("Aceitar (s) ou Rejeitar (n): ");
+        String action = userConfigView.readString("Aceitar (s) ou Rejeitar (n): ", null);
         boolean accept = action.equalsIgnoreCase("s");
 
         try {
@@ -118,13 +115,13 @@ public class FriendMenuController {
                 System.out.println("Solicitação rejeitada.");
             }
         } catch (ValidationException | ServiceException e) {
-            MenuRenderer.renderException(e);
+            userConfigView.renderException(e);
         }
     }
 
     private void viewSentPendingRequests() {
         Long userId = SessionManager.getCurrentUserId();
-        Set<FriendRequest> sent = friendRequestDAO.findSentPendingByUserId(userId);
+        Set<FriendRequest> sent = friendshipService.getSentPending(userId);
         userConfigView.showSentPendingRequests(sent);
     }
 }

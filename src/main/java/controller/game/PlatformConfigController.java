@@ -1,12 +1,12 @@
 package controller.game;
 
-import core.Navigation;
 import model.game.Platform;
+import service.game.PlatformService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import service.game.PlatformService;
-import utils.ConsoleUtils;
 import view.game.PlatformConfigView;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class PlatformConfigController {
 
@@ -20,7 +20,6 @@ public class PlatformConfigController {
 
     public void managePlatformsMenu() {
         Navigation.push("Platform Management Menu");
-        String entityName = "Plataformas";
 
         while (true) {
             int choice = platformConfigView.renderBanner(
@@ -37,7 +36,7 @@ public class PlatformConfigController {
                         break;
 
                     case 2:
-                        platformConfigView.displayEntityList(platformService.findAll(), entityName);
+                        platformConfigView.renderEntityList(platformService.findAll());
                         ConsoleUtils.waitEnter();
                         break;
 
@@ -63,8 +62,8 @@ public class PlatformConfigController {
     }
 
     private void createOrFind() {
-        String name = ConsoleUtils.readString("\nNome da plataforma para criar ou encontrar: ");
+        String name = ConsoleUtils.readString("\nNome da plataforma para criar ou encontrar: ", null);
         Platform platform = platformService.createOrFind(name);
-        System.out.println("Plataforma '" + platform.getName() + "' processada com ID: " + platform.getId());
+        platformConfigView.renderMessageLine("Plataforma '" + platform.getName() + "' processada com ID: " + platform.getId());
     }
 }

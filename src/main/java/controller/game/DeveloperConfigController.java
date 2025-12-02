@@ -1,12 +1,12 @@
 package controller.game;
 
-import core.Navigation;
 import model.game.Developer;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
 import service.game.DeveloperService;
-import utils.ConsoleUtils;
 import view.game.DeveloperConfigView;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class DeveloperConfigController {
 
@@ -20,7 +20,6 @@ public class DeveloperConfigController {
 
     public void manageDevelopersMenu() {
         Navigation.push("Developer Management Menu");
-        String entityName = "Desenvolvedores";
 
         while (true) {
             int choice = developerConfigView.renderBanner(
@@ -36,7 +35,7 @@ public class DeveloperConfigController {
                         ConsoleUtils.waitEnter();
                         break;
                     case 2:
-                        developerConfigView.displayEntityList(developerService.findAll(), entityName);
+                        developerConfigView.renderEntityList(developerService.findAll());
                         ConsoleUtils.waitEnter();
                         break;
                     case 0:
@@ -60,8 +59,8 @@ public class DeveloperConfigController {
     }
 
     public void createOrFind() {
-        String name = ConsoleUtils.readString("\nNome do desenvolvedor para criar ou encontrar: ");
+        String name = ConsoleUtils.readString("\nNome do desenvolvedor para criar ou encontrar: ", null);
         Developer dev = developerService.createOrFind(name);
-        developerConfigView.renderMessage("Desenvolvedor '" + dev.getName() + "' processado com ID: " + dev.getId());
+        developerConfigView.renderMessageLine("Desenvolvedor '" + dev.getName() + "' processado com ID: " + dev.getId());
     }
 }

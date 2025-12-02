@@ -1,14 +1,14 @@
 package controller.menu;
 
+import service.exception.ServiceException;
+import service.exception.ValidationException;
+import view.SeederConfigView;
 import core.Navigation;
+import utils.ConsoleUtils;
 import core.seed.DeveloperSeeder;
 import core.seed.GameSeeder;
 import core.seed.GenreSeeder;
 import core.seed.PlatformSeeder;
-import service.exception.ServiceException;
-import service.exception.ValidationException;
-import utils.ConsoleUtils;
-import view.SeederConfigView;
 
 public class SeederConfigController {
 

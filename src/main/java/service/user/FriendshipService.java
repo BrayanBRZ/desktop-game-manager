@@ -1,13 +1,12 @@
 package service.user;
 
-import java.util.Set;
-
-import dao.user.FriendRequestDAO;
-import dao.user.UserDAO;
 import model.user.FriendRequest;
 import model.user.FriendRequestState;
 import model.user.User;
+import dao.user.FriendRequestDAO;
+import dao.user.UserDAO;
 import service.exception.ValidationException;
+import java.util.Set;
 
 public class FriendshipService {
 
@@ -59,10 +58,6 @@ public class FriendshipService {
     }
 
     // #region Read-Only Operations
-    public int getPendingReceivedCount(Long userId) {
-        return requestDAO.findPendingReceivedByUserId(userId).size();
-    }
-
     public Set<FriendRequest> getPendingReceived(Long userId) {
         return requestDAO.findPendingReceivedByUserId(userId);
     }

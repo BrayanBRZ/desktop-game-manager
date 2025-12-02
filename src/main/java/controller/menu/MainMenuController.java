@@ -1,12 +1,12 @@
 package controller.menu;
 
 import controller.user.UserMenuController;
-import core.Injector;
-import core.Navigation;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-import utils.ConsoleUtils;
 import view.MainMenuView;
+import core.Injector;
+import core.Navigation;
+import utils.ConsoleUtils;
 
 public class MainMenuController {
 

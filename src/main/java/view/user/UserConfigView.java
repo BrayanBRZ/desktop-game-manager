@@ -1,12 +1,11 @@
 package view.user;
 
-import java.util.List;
-import java.util.Set;
-
 import model.user.FriendRequest;
 import model.user.User;
-import utils.ConsoleUtils;
 import view.BaseView;
+import utils.ConsoleUtils;
+import utils.MyLinkedList;
+import java.util.Set;
 
 public class UserConfigView extends BaseView {
 
@@ -45,7 +44,7 @@ public class UserConfigView extends BaseView {
                 ConsoleUtils.formatDateTime(r.getCreatedAt())));
     }
 
-    public void listAllUsers(List<User> users) {
+    public void listAllUsers(MyLinkedList<User> users) {
         renderMessageLine("\n[ LISTA DE USUÁRIOS ]");
         if (users.isEmpty()) {
             renderMessageLine("Nenhum usuário cadastrado.");

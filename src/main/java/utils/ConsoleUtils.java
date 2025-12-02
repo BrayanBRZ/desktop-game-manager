@@ -1,19 +1,14 @@
 package utils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import model.common.Listable;
 import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
-import model.common.Listable;
 
 public final class ConsoleUtils {
 
@@ -35,12 +30,12 @@ public final class ConsoleUtils {
         return date.format(DATE_FORMATTER);
     }
 
-    public static <T extends Listable> List<Long> selecionarMultiplasEntidades(List<T> entities, String entityName) {
+    public static <T extends Listable> MyLinkedList<Long> selecionarMultiplasEntidades(MyLinkedList<T> entities, String entityName) {
         MenuRenderer.renderMessageLine("\n--- Selecione " + entityName + " (IDs separados por vírgula, ou Enter para manter atuais) ---");
 
         if (entities.isEmpty()) {
             MenuRenderer.renderMessageLine("Nenhum(a) " + entityName + " cadastrado(a).");
-            return new ArrayList<>();
+            return new MyLinkedList<>();
         }
 
         for (T e : entities) {
@@ -50,107 +45,96 @@ public final class ConsoleUtils {
         return readListIds("IDs: ");
     }
 
-    private static void cleanIfNumericGarbage() {
-        if (scanner.hasNextLine()) {
-            scanner.nextLine();
-        }
-    }
-
-    public static String readString(String prompt) {
+    // private static void cleanIfNumericGarbage() {
+    //     if (scanner.hasNextLine()) {
+    //         scanner.nextLine();
+    //     }
+    // }
+    
+    public static String readString(String prompt, String defaultValue) {
         MenuRenderer.renderMessage(prompt);
-        return scanner.nextLine().trim();
-    }
+        String input = scanner.nextLine().trim();
 
-    public static int readInteger(String prompt) {
-        while (true) {
-            try {
-                MenuRenderer.renderMessage(prompt);
-                int value = scanner.nextInt();
-                cleanIfNumericGarbage();
-                return value;
-            } catch (InputMismatchException e) {
-                scanner.nextLine();
-                MenuRenderer.renderMessageLine("ID inválido. Digite um número.");
-            }
-        }
-    }
-
-    public static long readLong(String prompt) {
-        while (true) {
-            try {
-                MenuRenderer.renderMessage(prompt);
-                long value = scanner.nextLong();
-                cleanIfNumericGarbage();
-                return value;
-            } catch (InputMismatchException e) {
-                scanner.nextLine();
-                MenuRenderer.renderMessageLine("ID inválido. Digite um número.");
-            }
-        }
-    }
-
-    public static double readDouble(String prompt) {
-        while (true) {
-            String input = readString(prompt);
-            try {
-                double value = Double.parseDouble(input);
-                if (value < 0) {
-                    throw new NumberFormatException();
-                }
-                return value;
-            } catch (NumberFormatException e) {
-                MenuRenderer.renderMessageLine("Valor inválido. Digite um número não-negativo.");
-            }
-        }
-    }
-
-    public static LocalDate readData(String prompt, LocalDate defaultValue) {
-        String input = readString(prompt);
-        if (input.isEmpty()) {
+        if (input.isEmpty() && defaultValue != null) {
             return defaultValue;
         }
+        return input;
+    }
 
+    public static int readInteger(String prompt, String defaultValue) {
+        while (true) {
+            String input = readString(prompt, defaultValue);
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                MenuRenderer.renderMessageLine("Valor inválido. Digite um número.");
+            }
+        }
+    }
+
+    public static long readLong(String prompt, String defaultValue) {
+        while (true) {
+            String input = readString(prompt, defaultValue);
+            try {
+                return Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                MenuRenderer.renderMessageLine("Valor inválido. Digite um número.");
+            }
+        }
+    }
+
+    public static double readDouble(String prompt, String defaultValue) {
+        while (true) {
+            String input = readString(prompt, defaultValue);
+            try {
+                return Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                MenuRenderer.renderMessageLine("Valor inválido. Digite um número.");
+            }
+        }
+    }
+
+    public static LocalDate readData(String prompt, String defaultValue) {
+        String input = readString(prompt, defaultValue);
         try {
             return LocalDate.parse(input, DATE_FORMATTER);
         } catch (DateTimeParseException e) {
             MenuRenderer.renderMessageLine("Data inválida. Retornando valor padrão.");
-            return defaultValue;
+            return LocalDate.parse(defaultValue, DATE_FORMATTER);
         }
     }
 
-    public static LocalDateTime readDataHora(String prompt, LocalDateTime defaultValue) {
-        String input = readString(prompt);
-        if (input.isEmpty()) {
-            return defaultValue;
-        }
-
+    public static LocalDateTime readDataHora(String prompt, String defaultValue) {
+        String input = readString(prompt, defaultValue);
         try {
             return LocalDateTime.parse(input, DATE_TIME_FORMATTER);
         } catch (DateTimeParseException e) {
             MenuRenderer.renderMessageLine("Data/hora inválida. Retornando valor padrão.");
-            return defaultValue;
+            return LocalDateTime.parse(defaultValue, DATE_TIME_FORMATTER);
         }
     }
 
-    public static List<Long> readListIds(String prompt) {
-        String input = readString(prompt);
+    public static MyLinkedList<Long> readListIds(String prompt) {
+        String input = readString(prompt, null);
         if (input.isEmpty()) {
-            return new ArrayList<>();
+            return new MyLinkedList<>();
         }
 
-        return Arrays.stream(input.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(s -> {
-                    try {
-                        return Long.valueOf(s);
-                    } catch (NumberFormatException e) {
-                        MenuRenderer.renderMessageLine("ID inválido ignorado: " + s);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return MyLinkedList.fromJavaList(
+                Arrays.stream(input.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .map(s -> {
+                            try {
+                                return Long.valueOf(s);
+                            } catch (NumberFormatException e) {
+                                MenuRenderer.renderMessageLine("ID inválido ignorado: " + s);
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
     }
 
     public static void waitEnter() {

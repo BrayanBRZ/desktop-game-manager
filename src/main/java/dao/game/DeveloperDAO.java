@@ -1,7 +1,7 @@
 package dao.game;
 
-import dao.GenericDAO;
 import model.game.Developer;
+import dao.GenericDAO;
 
 public class DeveloperDAO extends GenericDAO<Developer> {
 

@@ -3,15 +3,14 @@ package view.user;
 import model.user.User;
 import model.user.UserGame;
 import model.user.UserGameState;
-import service.session.SessionManager;
 import model.user.FriendRequest;
-import utils.ConsoleUtils;
+import service.session.SessionManager;
 import view.BaseView;
-
+import utils.ConsoleUtils;
+import utils.MyLinkedList;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 public class UserMenuView extends BaseView {
@@ -74,7 +73,7 @@ public class UserMenuView extends BaseView {
         renderMessageLine("Estado atual: " + userGame.getGameState());
         renderMessageLine("Estados disponíveis: " + Arrays.toString(UserGameState.values()));
 
-        String stateInput = ConsoleUtils.readString("Novo estado: ").toUpperCase();
+        String stateInput = ConsoleUtils.readString("Novo estado: ", null).toUpperCase();
         UserGameState state;
 
         try {
@@ -85,13 +84,13 @@ public class UserMenuView extends BaseView {
         }
 
         boolean estimated
-                = ConsoleUtils.readString("O jogo é amado? (s/n): ").equalsIgnoreCase("s");
+                = ConsoleUtils.readString("O jogo é amado? (s/n): ", null).equalsIgnoreCase("s");
 
-        double hours = ConsoleUtils.readDouble("Horas jogadas: ");
+        double hours = ConsoleUtils.readDouble("Horas jogadas: ", null);
 
         LocalDateTime lastPlayed
                 = ConsoleUtils.readDataHora("Última sessão (dd/MM/yyyy, ou Enter para agora): ",
-                        LocalDateTime.now());
+                        LocalDateTime.now().toString());
 
         return new UserGameUpdateDTO(
                 SessionManager.getCurrentUserId(),
@@ -106,16 +105,13 @@ public class UserMenuView extends BaseView {
     public UserProfileUpdateDTO promptProfileUpdate(User user) {
 
         String name = ConsoleUtils.readString(
-                "Novo nome (Enter para manter '" + user.getName() + "'): "
+            "Novo nome (Enter para manter '" + user.getName() + "'): ",
+            user.getName()
         );
-
-        if (name.isEmpty()) {
-            name = user.getName();
-        }
 
         LocalDate birth = ConsoleUtils.readData(
                 "Nascimento (dd/MM/yyyy ou Enter): ",
-                user.getBirthDate()
+                user.getBirthDate().toString()
         );
 
         return new UserProfileUpdateDTO(
@@ -125,8 +121,8 @@ public class UserMenuView extends BaseView {
         );
     }
 
-    public void displayUserList(List<User> users) {
-        renderMessageLine("\n[ LISTA DE USUÁRIOS ]");
+    public void displayUserList(MyLinkedList<User> users) {
+        renderMessageLine("[ LISTA DE USUÁRIOS ]");
         if (users.isEmpty()) {
             renderMessageLine("Nenhum usuário cadastrado.");
         } else {
@@ -136,7 +132,7 @@ public class UserMenuView extends BaseView {
     }
 
     public void showLibrary(Set<UserGame> library) {
-        renderMessageLine("\n[ MINHA BIBLIOTECA (" + library.size() + ") ]");
+        renderMessageLine("[ MINHA BIBLIOTECA (" + library.size() + ") ]");
         if (library.isEmpty()) {
             renderMessageLine("Você ainda não tem jogos na biblioteca.");
             return;
@@ -155,7 +151,7 @@ public class UserMenuView extends BaseView {
     }
 
     public void displayFriends(Set<User> friends) {
-        renderMessageLine("\n[ MEUS AMIGOS ]");
+        renderMessageLine("[ MEUS AMIGOS ]");
         if (friends.isEmpty()) {
             renderMessageLine("Nenhum amigo encontrado.");
             return;
@@ -165,7 +161,7 @@ public class UserMenuView extends BaseView {
     }
 
     public void showReceivedPendingRequests(Set<FriendRequest> requests) {
-        renderMessageLine("\n[ SOLICITAÇÕES RECEBIDAS ]");
+        renderMessageLine("[ SOLICITAÇÕES RECEBIDAS ]");
         if (requests.isEmpty()) {
             renderMessageLine("Nenhuma solicitação pendente.");
             return;

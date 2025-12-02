@@ -2,20 +2,19 @@ package controller.user;
 
 import model.user.User;
 import model.user.UserGame;
-import service.exception.ServiceException;
-import service.exception.ValidationException;
 import service.session.AuthService;
 import service.session.SessionManager;
 import service.user.FriendshipService;
 import service.user.UserGameService;
 import service.user.UserService;
-import utils.ConsoleUtils;
+import service.exception.ServiceException;
+import service.exception.ValidationException;
 import view.user.UserMenuView;
 import view.user.UserMenuView.UserGameUpdateDTO;
 import view.user.UserMenuView.UserProfileUpdateDTO;
-
 import core.Injector;
 import core.Navigation;
+import utils.ConsoleUtils;
 
 public class UserMenuController {
 
@@ -38,18 +37,18 @@ public class UserMenuController {
         ConsoleUtils.clearScreen();
 
         userMenuView.renderMessageLine("[ LOGIN / REGISTRO ]");
-        String name = ConsoleUtils.readString("Nome de usuário: ").trim();
+        String name = ConsoleUtils.readString("Nome de usuário: ",null).trim();
 
         User user = userService.findByName(name);
 
         if (user == null) { // Usuario nao existe
-            String answer = ConsoleUtils.readString("Usuário não encontrado. Deseja criar uma conta? (s/n): ").trim();
+            String answer = ConsoleUtils.readString("Usuário não encontrado. Deseja criar uma conta? (s/n): ", null).trim();
 
             if (!answer.equalsIgnoreCase("s")) {
                 return;
             }
 
-            String password = ConsoleUtils.readString("Nova senha: ");
+            String password = ConsoleUtils.readString("Nova senha: ", null);
 
             try {
                 user = authService.register(name, password);
@@ -60,7 +59,7 @@ public class UserMenuController {
                 return;
             }
         } else { // Usuario existe
-            String password = ConsoleUtils.readString("Senha: ");
+            String password = ConsoleUtils.readString("Senha: ", null);
 
             try {
                 user = authService.login(name, password);
@@ -162,19 +161,19 @@ public class UserMenuController {
 
     private void addGameToLibrary() throws ServiceException, ValidationException {
         userMenuView.renderMessageLine("\n[ ADICIONAR JOGO ]");
-        String gameName = ConsoleUtils.readString("Nome do jogo: ");
+        String gameName = ConsoleUtils.readString("Nome do jogo: ", null);
         userService.addGameToLibrary(SessionManager.getCurrentUserId(), gameName);
         userMenuView.renderMessageLine("Jogo adicionado com sucesso!");
     }
 
     private void removeGameFromLibrary() throws ServiceException, ValidationException {
-        Long gameId = ConsoleUtils.readLong("ID do jogo para remover: ");
+        Long gameId = ConsoleUtils.readLong("ID do jogo para remover: ", null);
         userService.removeGameFromLibrary(SessionManager.getCurrentUserId(), gameId);
         userMenuView.renderMessageLine("Jogo removido com sucesso!");
     }
 
     public void updateGameProgress() {
-        Long gameId = ConsoleUtils.readLong("ID do jogo: ");
+        Long gameId = ConsoleUtils.readLong("ID do jogo: ", null);
 
         UserGame userGame = userGameService.findByUserAndGame(
                 SessionManager.getCurrentUserId(), gameId
@@ -215,8 +214,8 @@ public class UserMenuController {
     }
 
     private void changePassword() throws ServiceException, ValidationException {
-        String current = ConsoleUtils.readString("Senha atual: ");
-        String nova = ConsoleUtils.readString("Nova senha: ");
+        String current = ConsoleUtils.readString("Senha atual: ", null);
+        String nova = ConsoleUtils.readString("Nova senha: ", null);
         authService.changePassword(SessionManager.getCurrentUserId(), current, nova);
         userMenuView.renderMessageLine("Senha alterada com sucesso!");
     }

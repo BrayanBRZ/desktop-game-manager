@@ -2,15 +2,13 @@
 package service.session;
 
 import model.user.User;
+import dao.user.UserDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-
-import dao.user.UserDAO;
 
 public class AuthService {
 

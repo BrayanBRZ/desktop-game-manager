@@ -1,7 +1,7 @@
 package dao.game;
 
-import dao.GenericDAO;
 import model.game.Genre;
+import dao.GenericDAO;
 
 public class GenreDAO extends GenericDAO<Genre> {
 

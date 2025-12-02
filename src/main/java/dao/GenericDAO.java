@@ -1,15 +1,14 @@
 package dao;
 
+import utils.MyLinkedList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.EntityTransaction;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.List;
 
 public abstract class GenericDAO<T> implements IGenericDAO<T> {
 
@@ -92,9 +91,10 @@ public abstract class GenericDAO<T> implements IGenericDAO<T> {
     }
 
     @Override
-    public List<T> findAll() {
-        return executeReadOnly(em -> em.createQuery("FROM " + persistentClass.getName(), persistentClass)
-                .getResultList());
+    public MyLinkedList<T> findAll() {
+        return executeReadOnly(em -> MyLinkedList.fromJavaList(
+                em.createQuery("FROM " + persistentClass.getName(), persistentClass).getResultList()
+        ));
     }
 
     public T findByName(String name) {
@@ -110,14 +110,14 @@ public abstract class GenericDAO<T> implements IGenericDAO<T> {
         });
     }
 
-    public List<T> findByNameContaining(String searchTerm) {
+    public MyLinkedList<T> findByNameContaining(String searchTerm) {
         return executeReadOnly(em -> {
             String jpql = "SELECT t FROM " + persistentClass.getName()
                     + " t WHERE LOWER(t.name) LIKE LOWER(:searchTerm)";
             TypedQuery<T> query = em.createQuery(jpql, persistentClass);
             String searchTermWithWildcards = "%" + (searchTerm == null ? "" : searchTerm) + "%";
             query.setParameter("searchTerm", searchTermWithWildcards);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
     // #endregion Read-only Methods

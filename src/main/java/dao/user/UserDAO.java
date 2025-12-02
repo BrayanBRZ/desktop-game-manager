@@ -1,12 +1,10 @@
 package dao.user;
 
-import javax.persistence.TypedQuery;
-
-import dao.GenericDAO;
 import model.user.User;
-
+import dao.GenericDAO;
+import utils.MyLinkedList;
 import java.time.LocalDate;
-import java.util.List;
+import javax.persistence.TypedQuery;
 
 public class UserDAO extends GenericDAO<User> {
 
@@ -15,16 +13,16 @@ public class UserDAO extends GenericDAO<User> {
     }
 
     // #region Finders by Profile Data
-    public List<User> findByBirthDate(LocalDate birthDate) {
+    public MyLinkedList<User> findByBirthDate(LocalDate birthDate) {
         return executeInTransaction(em -> {
             String jpql = "SELECT u FROM User u WHERE u.birthDate = :birthDate";
             TypedQuery<User> query = em.createQuery(jpql, User.class);
             query.setParameter("birthDate", birthDate);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
 
-    public List<User> findByAge(int age) {
+    public MyLinkedList<User> findByAge(int age) {
         return executeInTransaction(em -> {
             LocalDate today = LocalDate.now();
             LocalDate startDate = today.minusYears(age + 1).plusDays(1);
@@ -34,27 +32,27 @@ public class UserDAO extends GenericDAO<User> {
             TypedQuery<User> query = em.createQuery(jpql, User.class);
             query.setParameter("startDate", startDate);
             query.setParameter("endDate", endDate);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
     // #endregion Finders by Profile Data
 
     // #region Finders by RELATED ENTITY
-    public List<User> findByGameName(String gameName) {
+    public MyLinkedList<User> findByGameName(String gameName) {
         return executeInTransaction(em -> {
             String jpql = "SELECT DISTINCT u FROM User u JOIN u.userGames ug WHERE ug.game.name = :gameName";
             TypedQuery<User> query = em.createQuery(jpql, User.class);
             query.setParameter("gameName", gameName);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
 
-    public List<User> findByGameId(Long gameId) {
+    public MyLinkedList<User> findByGameId(Long gameId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT DISTINCT u FROM User u JOIN u.userGames ug WHERE ug.game.id = :gameId";
             TypedQuery<User> query = em.createQuery(jpql, User.class);
             query.setParameter("gameId", gameId);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
     // #endregion Finders by RELATED ENTITY

@@ -1,6 +1,6 @@
 package dao;
 
-import java.util.List;
+import utils.MyLinkedList;
 
 public interface IGenericDAO<T> {
 
@@ -40,5 +40,5 @@ public interface IGenericDAO<T> {
      *
      * @return A list containing all entities of the specified type.
      */
-    List<T> findAll();
+    MyLinkedList<T> findAll();
 }

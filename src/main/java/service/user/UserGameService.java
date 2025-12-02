@@ -2,13 +2,11 @@ package service.user;
 
 import model.user.UserGame;
 import model.user.UserGameState;
+import dao.user.UserGameDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
-
+import utils.MyLinkedList;
 import java.time.LocalDateTime;
-import java.util.List;
-
-import dao.user.UserGameDAO;
 
 public class UserGameService {
 
@@ -94,15 +92,15 @@ public class UserGameService {
         return userGameDAO.findByUserAndGame(userId, gameId);
     }
 
-    public List<UserGame> findAllByUser(Long userId) throws ServiceException {
+    public MyLinkedList<UserGame> findAllByUser(Long userId) throws ServiceException {
         return userGameDAO.findAllByUser(userId);
     }
 
-    public List<UserGame> findByEstimated(Long userId) throws ServiceException {
+    public MyLinkedList<UserGame> findByEstimated(Long userId) throws ServiceException {
         return userGameDAO.findByEstimated(userId);
     }
 
-    public List<UserGame> findByGameState(Long userId, UserGameState state) throws ServiceException {
+    public MyLinkedList<UserGame> findByGameState(Long userId, UserGameState state) throws ServiceException {
         return userGameDAO.findByGameState(userId, state);
     }
     // #endregion Read-Only Operations

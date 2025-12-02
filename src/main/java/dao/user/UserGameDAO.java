@@ -1,13 +1,11 @@
 package dao.user;
 
-import java.util.List;
-
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-
-import dao.GenericDAO;
 import model.user.UserGame;
 import model.user.UserGameState;
+import dao.GenericDAO;
+import utils.MyLinkedList;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
 public class UserGameDAO extends GenericDAO<UserGame> {
 
@@ -30,31 +28,31 @@ public class UserGameDAO extends GenericDAO<UserGame> {
         });
     }
 
-    public List<UserGame> findAllByUser(Long userId) {
+    public MyLinkedList<UserGame> findAllByUser(Long userId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId";
             TypedQuery<UserGame> query = em.createQuery(jpql, UserGame.class);
             query.setParameter("userId", userId);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
 
-    public List<UserGame> findByEstimated(Long userId) {
+    public MyLinkedList<UserGame> findByEstimated(Long userId) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId AND ug.estimated = true";
             TypedQuery<UserGame> query = em.createQuery(jpql, UserGame.class);
             query.setParameter("userId", userId);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
 
-    public List<UserGame> findByGameState(Long userId, UserGameState state) {
+    public MyLinkedList<UserGame> findByGameState(Long userId, UserGameState state) {
         return executeInTransaction(em -> {
             String jpql = "SELECT ug FROM UserGame ug WHERE ug.user.id = :userId AND ug.gameState = :state";
             TypedQuery<UserGame> query = em.createQuery(jpql, UserGame.class);
             query.setParameter("userId", userId);
             query.setParameter("state", state);
-            return query.getResultList();
+            return MyLinkedList.fromJavaList(query.getResultList());
         });
     }
     // #endregion Finders

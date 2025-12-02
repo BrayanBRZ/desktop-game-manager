@@ -1,11 +1,10 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.List;
+import utils.MyLinkedList;
 
 public final class Navigation {
 
-    private static final List<String> path = new ArrayList<>();
+    private static final MyLinkedList<String> path = new MyLinkedList<>();
 
     public static void push(String name) {
         path.add(name);

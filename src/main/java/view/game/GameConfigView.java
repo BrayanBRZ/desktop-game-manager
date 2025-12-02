@@ -1,17 +1,15 @@
 package view.game;
 
-import utils.ConsoleUtils;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import model.game.Developer;
 import model.game.Game;
 import model.game.Genre;
 import model.game.Platform;
 import view.BaseView;
+import utils.ConsoleUtils;
+import utils.MyLinkedList;
+import java.time.LocalDate;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class GameConfigView extends BaseView {
 
@@ -20,17 +18,17 @@ public final class GameConfigView extends BaseView {
         public final Long id;
         public final String name;
         public final LocalDate releaseDate;
-        public final List<Long> genreIds;
-        public final List<Long> platformIds;
-        public final List<Long> developerIds;
+        public final MyLinkedList<Long> genreIds;
+        public final MyLinkedList<Long> platformIds;
+        public final MyLinkedList<Long> developerIds;
 
         public GameFormDTO(
                 Long id,
                 String name,
                 LocalDate releaseDate,
-                List<Long> genreIds,
-                List<Long> platformIds,
-                List<Long> developerIds
+                MyLinkedList<Long> genreIds,
+                MyLinkedList<Long> platformIds,
+                MyLinkedList<Long> developerIds
         ) {
             this.id = id;
             this.name = name;
@@ -43,17 +41,17 @@ public final class GameConfigView extends BaseView {
 
     // Create
     public GameFormDTO promptGameCreation(
-            List<Genre> genres,
-            List<Platform> platforms,
-            List<Developer> devs
+            MyLinkedList<Genre> genres,
+            MyLinkedList<Platform> platforms,
+            MyLinkedList<Developer> devs
     ) {
         System.out.println("\n[ ADICIONAR NOVO JOGO ]");
 
-        String name = ConsoleUtils.readString("Nome do jogo: ");
+        String name = ConsoleUtils.readString("Nome do jogo: ", null);
         LocalDate releaseDate = ConsoleUtils.readData("Data de lançamento (dd/MM/yyyy, ou Enter para vazio): ", null);
-        List<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
-        List<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
-        List<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
+        MyLinkedList<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
+        MyLinkedList<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
+        MyLinkedList<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
 
         return new GameFormDTO(
                 null,
@@ -67,35 +65,41 @@ public final class GameConfigView extends BaseView {
     // Update
     public GameFormDTO promptGameUpdate(
             Game existingGame,
-            List<Genre> genres,
-            List<Platform> platforms,
-            List<Developer> devs
+            MyLinkedList<Genre> genres,
+            MyLinkedList<Platform> platforms,
+            MyLinkedList<Developer> devs
     ) {
-        System.out.println("\n[ ATUALIZAR JOGO ]");
+        renderMessageLine("[ ATUALIZAR JOGO ]");
 
-        String name = ConsoleUtils.readString("Novo nome (Enter para manter '" + existingGame.getName() + "'): ");
-        if (name.isEmpty()) name = existingGame.getName();
+        String name = ConsoleUtils.readString(
+            "Novo nome (Enter para manter '" + existingGame.getName() + "'): ", 
+            existingGame.getName()
+        );
 
         LocalDate releaseDate = ConsoleUtils.readData(
                 "Nova data (dd/MM/yyyy, ou Enter para manter): ",
-                existingGame.getReleaseDate()
+                existingGame.getReleaseDate().toString()
         );
 
-        List<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
+        MyLinkedList<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
         if (genreIds.isEmpty()) {
-            genreIds = existingGame.getGameGenres().stream().map(gg -> gg.getGenre().getId()).collect(Collectors.toList());
+            genreIds = MyLinkedList.fromJavaList(
+                    existingGame.getGameGenres().stream().map(gg -> gg.getGenre().getId()).collect(Collectors.toList())
+            );
         }
 
-        List<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
+        MyLinkedList<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
         if (platformIds.isEmpty()) {
-            platformIds = existingGame.getGamePlatforms().stream().map(gp -> gp.getPlatform().getId())
-                    .collect(Collectors.toList());
+            platformIds = MyLinkedList.fromJavaList(
+                    existingGame.getGamePlatforms().stream().map(gp -> gp.getPlatform().getId()).collect(Collectors.toList())
+            );
         }
 
-        List<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
+        MyLinkedList<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
         if (developerIds.isEmpty()) {
-            developerIds = existingGame.getGameDevelopers().stream().map(gd -> gd.getDeveloper().getId())
-                    .collect(Collectors.toList());
+            developerIds = MyLinkedList.fromJavaList(
+                    existingGame.getGameDevelopers().stream().map(gd -> gd.getDeveloper().getId()).collect(Collectors.toList())
+            );
         }
 
         return new GameFormDTO(
@@ -108,25 +112,25 @@ public final class GameConfigView extends BaseView {
         );
     }
 
-    public void genericGameFinderString(String msg1, String msg2, Function<String, List<Game>> searchFunction) {
-        String input = ConsoleUtils.readString(msg1);
-        List<Game> games = searchFunction.apply(input);
+    public void genericGameFinderString(String msg1, String msg2, Function<String, MyLinkedList<Game>> searchFunction) {
+        String input = ConsoleUtils.readString(msg1, null);
+        MyLinkedList<Game> games = searchFunction.apply(input);
         if (games.isEmpty()) {
             renderMessageLine("Nenhum game encontrado para o " + msg2 + "'" + input + "'.");
         }
         displayGameList(games);
     }
 
-    public void genericGameFinderLong(String msg1, String msg2, Function<Long, List<Game>> searchFunction) {
-        Long input = ConsoleUtils.readLong(msg1);
-        List<Game> games = searchFunction.apply(input);
+    public void genericGameFinderLong(String msg1, String msg2, Function<Long, MyLinkedList<Game>> searchFunction) {
+        Long input = ConsoleUtils.readLong(msg1, null);
+        MyLinkedList<Game> games = searchFunction.apply(input);
         if (games.isEmpty()) {
             renderMessageLine("Nenhum game encontrado para o " + msg2 + "'" + input + "'.");
         }
         displayGameList(games);
     }
 
-    public void displayGameList(List<Game> games) {
+    public void displayGameList(MyLinkedList<Game> games) {
         if (games.isEmpty()) {
             renderError("Nenhum game encontrado.");
         } else {

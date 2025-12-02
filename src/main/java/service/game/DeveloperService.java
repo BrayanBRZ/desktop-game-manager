@@ -1,11 +1,10 @@
 package service.game;
 
-import java.util.List;
-
-import dao.game.DeveloperDAO;
 import model.game.Developer;
+import dao.game.DeveloperDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
+import utils.MyLinkedList;
 
 public class DeveloperService {
 
@@ -89,7 +88,7 @@ public class DeveloperService {
         return developerDAO.findByName(id);
     }
 
-    public List<Developer> findAll() {
+    public MyLinkedList<Developer> findAll() {
         return developerDAO.findAll();
     }
     // #endregion Read-Only Operations
