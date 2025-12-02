@@ -32,9 +32,6 @@ public class UserGame {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = true, length = 500, name = "game_path")
-    private String gamePath;
-
     @Column(nullable = true)
     private boolean estimated;
 
@@ -81,14 +78,6 @@ public class UserGame {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getGamePath() {
-        return gamePath;
-    }
-
-    public void setGamePath(String gamePath) {
-        this.gamePath = gamePath;
     }
 
     public boolean isEstimated() {

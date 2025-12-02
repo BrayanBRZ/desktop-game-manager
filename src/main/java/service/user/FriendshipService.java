@@ -47,10 +47,6 @@ public class FriendshipService {
 
         req.setStatus(FriendRequestState.ACCEPTED);
         requestDAO.update(req);
-
-        User from = req.getFromUser();
-        from.getSentRequests().remove(req);
-        userDAO.update(from);
     }
 
     public void rejectRequest(Long requestId, Long userId) throws ValidationException {
@@ -60,10 +56,6 @@ public class FriendshipService {
 
         req.setStatus(FriendRequestState.REJECTED);
         requestDAO.update(req);
-
-        User from = req.getFromUser();
-        from.getSentRequests().remove(req);
-        userDAO.update(from);
     }
 
     // #region Read-Only Operations

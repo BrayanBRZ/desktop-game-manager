@@ -12,9 +12,11 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import model.common.Listable;
+
 @Entity
 @Table(name = "platforms")
-public class Platform {
+public class Platform implements Listable {
 
     // #region Private Fields
     @Id
@@ -42,6 +44,7 @@ public class Platform {
     //#endregion Constructors
 
     // #region Getters and Setters
+    @Override
     public Long getId() {
         return id;
     }
@@ -50,6 +53,7 @@ public class Platform {
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }

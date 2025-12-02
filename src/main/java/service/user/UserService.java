@@ -43,14 +43,14 @@ public class UserService {
         userDAO.delete(id);
     }
 
-    public void addGameToLibrary(Long userId, Long gameId) {
+    public void addGameToLibrary(Long userId, String gameName) {
         User user = userDAO.findById(userId);
-        Game game = gameDAO.findById(gameId);
+        Game game = gameDAO.findByName(gameName);
         if (user == null || game == null) {
             throw new ValidationException("Usuário ou jogo não encontrado.");
         }
 
-        if (user.getUserGames().stream().anyMatch(ug -> ug.getGame().getId().equals(gameId))) {
+        if (user.getUserGames().stream().anyMatch(ug -> ug.getGame().getId().equals(game.getId()))) {
             throw new ValidationException("Você já possui este jogo.");
         }
 
@@ -68,6 +68,7 @@ public class UserService {
         userDAO.update(user);
     }
 
+    // #region Read-Only Operations
     public User findById(Long id) throws ServiceException {
         return userDAO.findById(id);
     }
@@ -85,4 +86,5 @@ public class UserService {
             throw new ValidationException("Nome deve ter pelo menos 3 caracteres.");
         }
     }
+    // #endregion Read-Only Operations
 }

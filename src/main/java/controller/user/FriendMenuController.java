@@ -11,9 +11,9 @@ import service.exception.ValidationException;
 import service.session.SessionManager;
 import service.user.FriendshipService;
 import service.user.UserService;
-import util.ConsoleUtils;
-import view.MenuRenderer;
-import view.UserView;
+import utils.ConsoleUtils;
+import utils.MenuRenderer;
+import view.user.UserConfigView;
 
 public class FriendMenuController {
 
@@ -26,66 +26,64 @@ public class FriendMenuController {
         this.friendshipService = friendshipService;
     }
 
+    private final UserConfigView userConfigView = new UserConfigView();
+
     public void friendshipMenu() {
+        ConsoleUtils.clearScreen();
         Navigation.push("Friend Menu");
 
         while (true) {
+            SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
+            User currentUser = SessionManager.getCurrentUser();
+            int pending = friendRequestDAO.findPendingReceivedByUserId(currentUser.getId()).size();
+            int choice = userConfigView.renderBanner(
+                    "Você tem " + pending + " solicitação(ões) pendente(s).",
+                    "1 - Enviar solicitação de amizade",
+                    "2 - Solicitações recebidas",
+                    "3 - Solicitações enviadas",
+                    "4 - Meus amigos",
+                    "0 - Voltar"
+            );
+
             try {
-                User currentUser = SessionManager.getCurrentUser();
-                int pending = friendRequestDAO.findPendingReceivedByUserId(currentUser.getId()).size();
-
-                ConsoleUtils.clearScreen();
-                MenuRenderer.renderBanner(Navigation.getPath());
-
-                MenuRenderer.renderOptions(
-                        "Você tem " + pending + " solicitação(ões) pendente(s).",
-                        "1 - Enviar solicitação de amizade",
-                        "2 - Solicitações recebidas",
-                        "3 - Solicitações enviadas",
-                        "4 - Meus amigos",
-                        "0 - Voltar"
-                );
-
-                String option = ConsoleUtils.readString("Opção: ");
-
-                switch (option) {
-                    case "1":
+                switch (choice) {
+                    case 1:
                         sendFriendRequest();
                         ConsoleUtils.waitEnter();
                         break;
 
-                    case "2":
+                    case 2:
                         managePendingRequests();
                         ConsoleUtils.waitEnter();
                         break;
 
-                    case "3":
+                    case 3:
                         viewSentPendingRequests();
                         ConsoleUtils.waitEnter();
                         break;
 
-                    case "4":
-                        UserView.showFriends(friendRequestDAO.findFriendsByUserId(currentUser.getId()));
+                    case 4:
+                        userConfigView.showFriends(friendRequestDAO.findFriendsByUserId(currentUser.getId()));
                         ConsoleUtils.waitEnter();
                         break;
 
-                    case "0":
+                    case 0:
                         Navigation.pop();
                         return;
 
                     default:
-                        MenuRenderer.renderError("Opção inválida.");
+                        userConfigView.renderError("Opção inválida.");
                         ConsoleUtils.waitEnter();
                 }
 
             } catch (ValidationException e) {
-                MenuRenderer.renderValidationException(e);
+                userConfigView.renderValidationException(e);
                 ConsoleUtils.waitEnter();
             } catch (ServiceException e) {
-                MenuRenderer.renderServiceException(e);
+                userConfigView.renderServiceException(e);
                 ConsoleUtils.waitEnter();
             } catch (Exception e) {
-                MenuRenderer.renderException(e);
+                userConfigView.renderException(e);
                 ConsoleUtils.waitEnter();
             }
         }
@@ -93,30 +91,23 @@ public class FriendMenuController {
 
     private void sendFriendRequest() throws ValidationException, ServiceException {
         Long toUserId = ConsoleUtils.readLong("ID do usuário destino: ");
-
         friendshipService.sendFriendRequest(SessionManager.getCurrentUserId(), toUserId);
-        System.out.println("Solicitação enviada com sucesso!");
-
-        // Atualiza usuário na sessão
-        SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
+        userConfigView.renderMessageLine("Solicitação enviada com sucesso!");
     }
 
     private void managePendingRequests() {
         Long userId = SessionManager.getCurrentUserId();
         Set<FriendRequest> pending = friendRequestDAO.findPendingReceivedByUserId(userId);
 
-        UserView.showReceivedPendingRequests(pending);
+        userConfigView.showReceivedPendingRequests(pending);
 
-        if (pending.isEmpty()) {
-            ConsoleUtils.waitEnter();
-            return;
-        }
+        if (pending.isEmpty())  return;
 
         Long id = ConsoleUtils.readLong("ID da solicitação (0 para cancelar): ");
         if (id == 0) return;
 
-        String action = ConsoleUtils.readString("Aceitar (a) ou Rejeitar (r): ");
-        boolean accept = action.equalsIgnoreCase("a");
+        String action = ConsoleUtils.readString("Aceitar (s) ou Rejeitar (n): ");
+        boolean accept = action.equalsIgnoreCase("s");
 
         try {
             if (accept) {
@@ -126,10 +117,6 @@ public class FriendMenuController {
                 friendshipService.rejectRequest(id, userId);
                 System.out.println("Solicitação rejeitada.");
             }
-
-            // Atualiza sessão após ação
-            SessionManager.login(userService.findById(userId));
-
         } catch (ValidationException | ServiceException e) {
             MenuRenderer.renderException(e);
         }
@@ -138,6 +125,6 @@ public class FriendMenuController {
     private void viewSentPendingRequests() {
         Long userId = SessionManager.getCurrentUserId();
         Set<FriendRequest> sent = friendRequestDAO.findSentPendingByUserId(userId);
-        UserView.showSentPendingRequests(sent);
+        userConfigView.showSentPendingRequests(sent);
     }
 }

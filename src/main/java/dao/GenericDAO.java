@@ -113,7 +113,7 @@ public abstract class GenericDAO<T> implements IGenericDAO<T> {
     public List<T> findByNameContaining(String searchTerm) {
         return executeReadOnly(em -> {
             String jpql = "SELECT t FROM " + persistentClass.getName()
-                    + " t WHERE LOWER(t.name) LILongE LOWER(:searchTerm)";
+                    + " t WHERE LOWER(t.name) LIKE LOWER(:searchTerm)";
             TypedQuery<T> query = em.createQuery(jpql, persistentClass);
             String searchTermWithWildcards = "%" + (searchTerm == null ? "" : searchTerm) + "%";
             query.setParameter("searchTerm", searchTermWithWildcards);

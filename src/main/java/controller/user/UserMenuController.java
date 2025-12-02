@@ -2,7 +2,6 @@ package controller.user;
 
 import model.user.User;
 import model.user.UserGame;
-import model.user.UserGameState;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
 import service.session.AuthService;
@@ -10,16 +9,13 @@ import service.session.SessionManager;
 import service.user.FriendshipService;
 import service.user.UserGameService;
 import service.user.UserService;
-import util.ConsoleUtils;
-import view.GameView;
-import view.MenuRenderer;
-import view.UserView;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import utils.ConsoleUtils;
+import view.user.UserMenuView;
+import view.user.UserMenuView.UserGameUpdateDTO;
+import view.user.UserMenuView.UserProfileUpdateDTO;
 
 import core.Injector;
+import core.Navigation;
 
 public class UserMenuController {
 
@@ -36,26 +32,18 @@ public class UserMenuController {
         this.userGameService = userGameService;
     }
 
+    private final UserMenuView userMenuView = new UserMenuView();
+
     public void loginOrRegister() {
         ConsoleUtils.clearScreen();
 
-        System.out.println("( LOGIN / REGISTRO )");
+        userMenuView.renderMessageLine("[ LOGIN / REGISTRO ]");
         String name = ConsoleUtils.readString("Nome de usuário: ").trim();
 
-        User user;
-
-        try {
-            user = userService.findByName(name);
-        } catch (ServiceException e) {
-            System.out.println("Erro ao buscar usuário: " + e.getMessage());
-            ConsoleUtils.waitEnter();
-            return;
-        }
+        User user = userService.findByName(name);
 
         if (user == null) { // Usuario nao existe
-            String answer = ConsoleUtils
-                    .readString("Usuário não encontrado. Deseja criar uma conta? (s/n): ")
-                    .trim();
+            String answer = ConsoleUtils.readString("Usuário não encontrado. Deseja criar uma conta? (s/n): ").trim();
 
             if (!answer.equalsIgnoreCase("s")) {
                 return;
@@ -65,175 +53,172 @@ public class UserMenuController {
 
             try {
                 user = authService.register(name, password);
-                System.out.println("Conta criada com sucesso!");
+                userMenuView.renderMessageLine("Conta criada com sucesso!");
             } catch (ValidationException e) {
-                System.out.println("Erro ao registrar: " + e.getMessage());
-                ConsoleUtils.waitEnter();
+                userMenuView.renderMessageLine("Erro ao registrar: " + e.getMessage());
+
                 return;
             }
-        }  else { // Usuario existe
+        } else { // Usuario existe
             String password = ConsoleUtils.readString("Senha: ");
 
             try {
                 user = authService.login(name, password);
             } catch (ValidationException e) {
-                System.out.println("Credenciais inválidas.");
-                ConsoleUtils.waitEnter();
+                userMenuView.renderMessageLine("Credenciais inválidas.");
+
                 return;
             }
         }
 
         // Sucesso
         SessionManager.login(user);
-        System.out.println("Bem-vindo(a), " + user.getName() + "!");
-        ConsoleUtils.waitEnter();
+        userMenuView.renderMessageLine("Bem-vindo(a), " + user.getName() + "!");
 
         runMainMenu();
     }
 
     private void runMainMenu() {
-        String option;
+        ConsoleUtils.clearScreen();
+        Navigation.push("User Menu");
+
         while (true) {
-            User currentUser = SessionManager.getCurrentUser();
-
-            ConsoleUtils.clearScreen();
-            MenuRenderer.renderBanner("Home -> User Menu - " + currentUser.getName());
-
-            // int pending = friendshipService.getPendingReceivedCount(SessionManager.getCurrentUserId());
-            String friendText = "7 - Amizades";
-            // if (pending > 0) {
-            //     friendText += " (" + pending + " pendente" + (pending > 1 ? "s" : "") + ")";
-            // }
-
-            MenuRenderer.renderOptions(
+            SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
+            int choice = userMenuView.renderBanner(
                     "1 - Minha biblioteca",
                     "2 - Adicionar jogo",
                     "3 - Remover jogo",
                     "4 - Atualizar progresso de jogo",
-                    "5 - Atualizar perfil",
-                    "6 - Alterar senha",
-                    friendText,
+                    "5 - Visualizar perfil",
+                    "6 - Atualizar perfil",
+                    "7 - Alterar senha",
+                    "8 - Amizades",
                     "0 - Logout"
             );
-            option = ConsoleUtils.readString("Escolha: ");
 
             try {
-                switch (option) {
+                switch (choice) {
 
-                    case "1":
+                    case 1:
                         showLibrary();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "2":
+                    case 2:
                         addGameToLibrary();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "3":
+                    case 3:
                         removeGameFromLibrary();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "4":
+                    case 4:
                         updateGameProgress();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "5":
+                    case 5:
+                        userMenuView.showProfile(SessionManager.getCurrentUser());
+                        ConsoleUtils.waitEnter();
+                        break;
+                    case 6:
                         updateProfile();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "6":
+                    case 7:
                         changePassword();
+                        ConsoleUtils.waitEnter();
                         break;
-                    case "7":
+                    case 8:
                         friendMenuController.friendshipMenu();
                         break;
-                    case "0": {
+                    case 0: {
                         SessionManager.logout();
-                        System.out.println("Logout realizado com sucesso.");
-                        break;
+                        Navigation.pop();
+                        userMenuView.renderMessageLine("Logout realizado com sucesso.");
+                        ConsoleUtils.waitEnter();
+                        return;
                     }
                     default:
-                        System.out.println("Opção inválida.");
+                        userMenuView.renderError("Opção inválida.");
                 }
             } catch (ValidationException e) {
-                System.out.println("Erro de validação: " + e.getMessage());
+                userMenuView.renderValidationException(e);
+                ConsoleUtils.waitEnter();
             } catch (ServiceException e) {
-                System.out.println("Erro no serviço: " + e.getMessage());
+                userMenuView.renderServiceException(e);
+                ConsoleUtils.waitEnter();
             } catch (Exception e) {
-                System.out.println("Erro inesperado: " + e.getMessage());
+                userMenuView.renderException(e);
+                ConsoleUtils.waitEnter();
             }
+
         }
     }
 
     // #region User Library Management
     private void showLibrary() {
         User user = SessionManager.getCurrentUser();
-        UserView.showLibrary(user.getUserGames());
+        userMenuView.showLibrary(user.getUserGames());
     }
 
     private void addGameToLibrary() throws ServiceException, ValidationException {
-        System.out.println("\n--- ADICIONAR JOGO ---");
-        GameView.listAll();
-        Long gameId = ConsoleUtils.readLong("ID do jogo: ");
-        userService.addGameToLibrary(SessionManager.getCurrentUserId(), gameId);
-        System.out.println("Jogo adicionado com sucesso!");
-        ConsoleUtils.waitEnter();
+        userMenuView.renderMessageLine("\n[ ADICIONAR JOGO ]");
+        String gameName = ConsoleUtils.readString("Nome do jogo: ");
+        userService.addGameToLibrary(SessionManager.getCurrentUserId(), gameName);
+        userMenuView.renderMessageLine("Jogo adicionado com sucesso!");
     }
 
     private void removeGameFromLibrary() throws ServiceException, ValidationException {
         Long gameId = ConsoleUtils.readLong("ID do jogo para remover: ");
         userService.removeGameFromLibrary(SessionManager.getCurrentUserId(), gameId);
-        System.out.println("Jogo removido com sucesso!");
-        ConsoleUtils.waitEnter();
+        userMenuView.renderMessageLine("Jogo removido com sucesso!");
     }
 
-    private void updateGameProgress() throws ServiceException, ValidationException {
+    public void updateGameProgress() {
         Long gameId = ConsoleUtils.readLong("ID do jogo: ");
-        UserGame ug = userGameService.findByUserAndGame(SessionManager.getCurrentUserId(), gameId);
-        if (ug == null) {
-            System.out.println("Jogo não encontrado na sua biblioteca.");
+
+        UserGame userGame = userGameService.findByUserAndGame(
+                SessionManager.getCurrentUserId(), gameId
+        );
+
+        if (userGame == null) {
+            throw new ValidationException("Jogo não encontrado na sua biblioteca.");
+        }
+
+        UserGameUpdateDTO dto = userMenuView.promptUpdateGameProgress(userGame);
+
+        if (dto == null) {
             return;
         }
 
-        System.out.println("Estado atual: " + ug.getGameState());
-        System.out.println("Estados: " + Arrays.toString(UserGameState.values()));
-        String stateInput = ConsoleUtils.readString("Novo estado: ").toUpperCase();
+        userGameService.updateAllAttributes(
+                dto.userId,
+                dto.gameId,
+                dto.estimated,
+                dto.state,
+                dto.hours,
+                dto.lastPlayed
+        );
 
-        UserGameState state;
-        try {
-            state = UserGameState.valueOf(stateInput);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Estado inválido.");
-            return;
-        }
-
-        boolean estimated = ConsoleUtils.readString("Tempo estimado? (s/n): ").equalsIgnoreCase("s");
-        double hours = ConsoleUtils.readDouble("Horas jogadas: ");
-        LocalDateTime lastPlayed = ConsoleUtils.readDataHora("Última sessão (ou Enter para agora): ", LocalDateTime.now());
-
-        userGameService.updateAllAttributes(SessionManager.getCurrentUserId(), gameId, estimated, state, hours, lastPlayed);
-        System.out.println("Progresso atualizado!");
-        ConsoleUtils.waitEnter();
+        userMenuView.renderMessageLine("Progresso atualizado!");
     }
     // #endregion User Library Management
 
     // #region User Profile Management
-    private void updateProfile() throws ServiceException, ValidationException {
+    public void updateProfile() throws ServiceException, ValidationException {
         User user = SessionManager.getCurrentUser();
-        String name = ConsoleUtils.readString("Novo nome (Enter para manter '" + user.getName() + "'): ");
-        if (name.isEmpty()) {
-            name = user.getName();
-        }
 
-        LocalDate birth = ConsoleUtils.readData("Nascimento (dd/MM/yyyy ou Enter): ", user.getBirthDate());
+        UserProfileUpdateDTO dto = userMenuView.promptProfileUpdate(user);
+        userService.updateUserProfile(dto.userId, dto.name, dto.birthDate);
+        userMenuView.renderMessageLine("Perfil atualizado!");
 
-        userService.updateUserProfile(SessionManager.getCurrentUserId(), name, birth);
-        System.out.println("Perfil atualizado!");
-        // Atualiza sessao
-        SessionManager.login(userService.findById(SessionManager.getCurrentUserId()));
-        ConsoleUtils.waitEnter();
+        SessionManager.login(userService.findById(dto.userId));
     }
 
     private void changePassword() throws ServiceException, ValidationException {
         String current = ConsoleUtils.readString("Senha atual: ");
         String nova = ConsoleUtils.readString("Nova senha: ");
         authService.changePassword(SessionManager.getCurrentUserId(), current, nova);
-        System.out.println("Senha alterada com sucesso!");
-        ConsoleUtils.waitEnter();
+        userMenuView.renderMessageLine("Senha alterada com sucesso!");
     }
     // #endregion User Profile Management
 }

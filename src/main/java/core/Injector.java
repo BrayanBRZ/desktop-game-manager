@@ -1,13 +1,13 @@
 package core;
 
-import controller.game.DeveloperAdminController;
-import controller.game.GameAdminController;
-import controller.game.GenreAdminController;
-import controller.game.PlatformAdminController;
-import controller.menu.ConfigAdminController;
-import controller.menu.SeederAdminController;
+import controller.game.DeveloperConfigController;
+import controller.game.GameConfigController;
+import controller.game.GenreConfigController;
+import controller.game.PlatformConfigController;
+import controller.menu.MainConfigController;
+import controller.menu.SeederConfigController;
 import controller.user.FriendMenuController;
-import controller.user.UserAdminController;
+import controller.user.UserConfigController;
 import controller.user.UserMenuController;
 import core.seed.DeveloperSeeder;
 import core.seed.GameSeeder;
@@ -47,14 +47,14 @@ public final class Injector {
         );
     }
 
-    public static DeveloperAdminController createDeveloperAdminController() {
-        return new DeveloperAdminController(
+    public static DeveloperConfigController createDeveloperConfigController() {
+        return new DeveloperConfigController(
             developerService
         );
     }
 
-    public static GameAdminController createGameAdminController() {
-        return new GameAdminController(
+    public static GameConfigController createGameConfigController() {
+        return new GameConfigController(
             gameService,
             genreService,
             platformService,
@@ -62,20 +62,20 @@ public final class Injector {
         );
     }
 
-    public static GenreAdminController createGenreAdminController() {
-        return new GenreAdminController(
+    public static GenreConfigController createGenreConfigController() {
+        return new GenreConfigController(
             genreService
         );
     }
 
-    public static PlatformAdminController createPlatformMenuController() {
-        return new  PlatformAdminController(
+    public static PlatformConfigController createPlatformMenuController() {
+        return new  PlatformConfigController(
             platformService
         );
     }
 
-    public static UserAdminController createUserAdminController() {
-        return new UserAdminController(
+    public static UserConfigController createUserConfigController() {
+        return new UserConfigController(
             userService,
             authService
         );
@@ -88,12 +88,12 @@ public final class Injector {
         );
     }
 
-    public static ConfigAdminController createConfigMenuController() {
-        return new ConfigAdminController();
+    public static MainConfigController createConfigMenuController() {
+        return new MainConfigController();
     }
 
-    public static SeederAdminController createSeederAdminController() {
-        return new SeederAdminController(
+    public static SeederConfigController createSeederConfigController() {
+        return new SeederConfigController(
             genreSeeder,
             platformSeeder,
             developerSeeder,
