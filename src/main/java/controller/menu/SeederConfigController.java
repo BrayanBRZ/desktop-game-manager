@@ -9,6 +9,7 @@ import core.seed.DeveloperSeeder;
 import core.seed.GameSeeder;
 import core.seed.GenreSeeder;
 import core.seed.PlatformSeeder;
+import core.seed.UserSeeder;
 
 public class SeederConfigController {
 
@@ -16,21 +17,24 @@ public class SeederConfigController {
     private final PlatformSeeder platformSeeder;
     private final DeveloperSeeder developerSeeder;
     private final GameSeeder gameSeeder;
+    private final UserSeeder userSeeder;
 
     public SeederConfigController(
             GenreSeeder genreSeeder,
             PlatformSeeder platformSeeder,
             DeveloperSeeder developerSeeder,
-            GameSeeder gameSeeder
+            GameSeeder gameSeeder,
+            UserSeeder userSeeder
     ) {
         this.genreSeeder = genreSeeder;
         this.platformSeeder = platformSeeder;
         this.developerSeeder = developerSeeder;
         this.gameSeeder = gameSeeder;
+        this.userSeeder = userSeeder;
     }
 
     private final SeederConfigView seederConfigView = new SeederConfigView();
-    String[] options = {"", "Gêneros", "Plataformas", "Desenvolvedores", "Jogos", "Todos"};
+    String[] options = {"", "Gêneros", "Plataformas", "Desenvolvedores", "Jogos", "Usuários", "Tudo"};
 
     public void seedersManagementMenu() {
         Navigation.push("Seeder Menu");
@@ -41,44 +45,35 @@ public class SeederConfigController {
                     "2 - Semear Plataformas",
                     "3 - Semear Desenvolvedores",
                     "4 - Semear Jogos",
-                    "5 - Semear Tudo (ordem correta)",
+                    "5 - Semear Usuários (Faker)",
+                    "6 - Semear Tudo (ordem correta)",
                     "0 - Voltar"
             );
 
             try {
                 switch (choice) {
                     case 1:
-                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
-                        genreSeeder.seed();
-                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
-                        ConsoleUtils.waitEnter();
+                        runSeed(1, genreSeeder::seed);
                         break;
                     case 2:
-                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
-                        platformSeeder.seed();
-                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
-                        ConsoleUtils.waitEnter();
+                        runSeed(2, platformSeeder::seed);
                         break;
                     case 3:
-                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
-                        developerSeeder.seed();
-                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
-                        ConsoleUtils.waitEnter();
+                        runSeed(3, developerSeeder::seed);
                         break;
                     case 4:
-                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
-                        gameSeeder.seed();
-                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
-                        ConsoleUtils.waitEnter();
+                        runSeed(4, gameSeeder::seed);
                         break;
                     case 5:
-                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
-                        genreSeeder.seed();
-                        platformSeeder.seed();
-                        developerSeeder.seed();
-                        gameSeeder.seed();
-                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
+                        // Lógica específica para Usuários (pede quantidade)
+                        seederConfigView.renderMessageLine("[ SEEDER: USUÁRIOS ]");
+                        int qtd = seederConfigView.readInteger("Quantidade de usuários a gerar: ");
+                        userSeeder.seed(qtd);
+                        seederConfigView.renderMessageLine("Usuários semeados com sucesso.");
                         ConsoleUtils.waitEnter();
+                        break;
+                    case 6:
+                        seedAll();
                         break;
                     case 0:
                         Navigation.pop();
@@ -98,5 +93,27 @@ public class SeederConfigController {
                 ConsoleUtils.waitEnter();
             }
         }
+    }
+
+    private void runSeed(int optionIndex, Runnable seederAction) {
+        seederConfigView.renderMessageLine("[ SEEDER: " + options[optionIndex].toUpperCase() + " ]");
+        seederAction.run();
+        seederConfigView.renderMessageLine(options[optionIndex] + " semeados com sucesso.");
+        ConsoleUtils.waitEnter();
+    }
+
+    private void seedAll() throws Exception {
+        seederConfigView.renderMessageLine("[ SEEDER: TODOS OS DADOS ]");
+        
+        genreSeeder.seed();
+        platformSeeder.seed();
+        developerSeeder.seed();
+        
+        gameSeeder.seed();
+        
+        userSeeder.seed(15);
+
+        seederConfigView.renderMessageLine("TODOS os seeds foram executados com sucesso.");
+        ConsoleUtils.waitEnter();
     }
 }

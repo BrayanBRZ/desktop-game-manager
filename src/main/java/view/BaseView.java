@@ -31,16 +31,12 @@ public abstract class BaseView {
         return ConsoleUtils.readLong(msg, null);
     }
 
+    public int readInteger(String msg) {
+        return ConsoleUtils.readInteger(msg, null);
+    }
+
     public double readDouble(String msg) {
         return ConsoleUtils.readDouble(msg, null);
-    }
-
-    public LocalDate readData(String msg) {
-        return ConsoleUtils.readData(msg, null);
-    }
-
-    public LocalDateTime readDateTime(String msg) {
-        return ConsoleUtils.readDateTime(msg, null);
     }
 
     public String readStringDefault(String msg, String defaultValue) {
@@ -55,8 +51,8 @@ public abstract class BaseView {
         return ConsoleUtils.readDouble(msg, defaultValue);
     }
 
-    public LocalDate readDataDefault(String msg, String defaultValue) {
-        return ConsoleUtils.readData(msg, defaultValue);
+    public LocalDate readDateDefault(String msg, LocalDate defaultValue) {
+        return ConsoleUtils.readDate(msg, defaultValue);
     }
 
     public LocalDateTime readDateTimeDefault(String msg, String defaultValue) {

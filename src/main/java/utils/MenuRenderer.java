@@ -68,7 +68,7 @@ public final class MenuRenderer {
     }
 
     public static void renderError(String msg) {
-        System.out.println("\u001B[33mErro de validação: " + msg + "\u001B[0m");
+        System.out.println("\u001B[33mErro: " + msg + "\u001B[0m");
     }
 
     public static void renderValidationException(ValidationException e) {

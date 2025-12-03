@@ -25,7 +25,7 @@ public final class GameConfigView extends BaseView {
         System.out.println("[ ADICIONAR NOVO JOGO ]");
 
         String name = readString("Nome do jogo: ");
-        LocalDate releaseDate = readData("Data de lançamento (dd/MM/yyyy, ou Enter para vazio): ");
+        LocalDate releaseDate = readDateDefault("Data de lançamento (dd/MM/yyyy, ou Enter para valor padrão): ", null);
         MyLinkedList<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
         MyLinkedList<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
         MyLinkedList<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
@@ -53,9 +53,9 @@ public final class GameConfigView extends BaseView {
             existingGame.getName()
         );
 
-        LocalDate releaseDate = readDataDefault(
+        LocalDate releaseDate = readDateDefault(
                 "Nova data (dd/MM/yyyy, ou Enter para manter): ",
-                existingGame.getReleaseDate().toString()
+                existingGame.getReleaseDate()
         );
 
         MyLinkedList<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");

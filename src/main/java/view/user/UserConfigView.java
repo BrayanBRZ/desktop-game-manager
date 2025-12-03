@@ -73,9 +73,9 @@ public class UserConfigView extends BaseView {
 
         String newName = readStringDefault("Novo nome (Enter para manter '" + user.getName() + "'): ", user.getName());
 
-        LocalDate newBirthDate = readDataDefault(
+        LocalDate newBirthDate = readDateDefault(
                 "Nova data de nascimento (Enter para manter atual): ",
-                user.getBirthDate().toString());
+                user.getBirthDate());
 
         return new UserDTO(
                 user.getId(), newName, null, newBirthDate

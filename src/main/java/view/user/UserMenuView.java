@@ -80,14 +80,14 @@ public class UserMenuView extends BaseView {
 
     public UserDTO promptProfileUpdate(User user) {
 
-        String name = ConsoleUtils.readString(
+        String name = readStringDefault(
                 "Novo nome (Enter para manter '" + user.getName() + "'): ",
                 user.getName()
         );
 
-        LocalDate birthdate = ConsoleUtils.readData(
+        LocalDate birthdate = readDateDefault(
                 "Nascimento (dd/MM/yyyy ou Enter): ",
-                user.getBirthDate().toString()
+                user.getBirthDate()
         );
 
         return new UserDTO(

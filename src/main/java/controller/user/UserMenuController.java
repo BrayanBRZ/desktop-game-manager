@@ -37,17 +37,18 @@ public class UserMenuController {
         ConsoleUtils.clearScreen();
 
         userMenuView.renderMessageLine("[ LOGIN / REGISTRO ]");
-        String name = ConsoleUtils.readString("Nome de usuário: ", null).trim();
+        String name = userMenuView.readString("Nome de usuário: ").trim();
 
         User user = userService.findByName(name);
 
         if (user == null) { // Usuario nao existe
-            if (ConsoleUtils.readString(
-                "Usuário não encontrado. Deseja criar uma conta? (s/n): ", null)
-                .trim().equalsIgnoreCase("s")
-            ) return;
+            if (!userMenuView.readString(
+                    "Usuário não encontrado. Deseja criar uma conta? (s/n): ")
+                    .trim().equalsIgnoreCase("s")) {
+                return;
+            }
 
-            String password = ConsoleUtils.readString("Nova senha: ", null);
+            String password = userMenuView.readString("Nova senha: ");
 
             try {
                 user = authService.register(name, password);
@@ -58,7 +59,7 @@ public class UserMenuController {
                 return;
             }
         } else { // Usuario existe
-            String password = ConsoleUtils.readString("Senha: ", null);
+            String password = userMenuView.readString("Senha: ");
 
             try {
                 user = authService.login(name, password);

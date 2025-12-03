@@ -17,16 +17,10 @@ public final class ConsoleUtils {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public static String formatDateTime(LocalDateTime dateTime) {
-        if (dateTime == null) {
-            return "N/A";
-        }
         return dateTime.format(DATE_TIME_FORMATTER);
     }
 
     public static String formatDate(LocalDate date) {
-        if (date == null) {
-            return "N/A";
-        }
         return date.format(DATE_FORMATTER);
     }
 
@@ -50,7 +44,6 @@ public final class ConsoleUtils {
     //         scanner.nextLine();
     //     }
     // }
-    
     public static String readString(String prompt, String defaultValue) {
         MenuRenderer.renderMessage(prompt);
         String input = scanner.nextLine().trim();
@@ -94,13 +87,16 @@ public final class ConsoleUtils {
         }
     }
 
-    public static LocalDate readData(String prompt, String defaultValue) {
-        String input = readString(prompt, defaultValue);
+    public static LocalDate readDate(String prompt, LocalDate defaultValue) {
+        String input = readString(prompt, null);
+        if (input.isEmpty()) {
+            return defaultValue;
+        }
         try {
             return LocalDate.parse(input, DATE_FORMATTER);
         } catch (DateTimeParseException e) {
-            MenuRenderer.renderMessageLine("Data inválida. Retornando valor padrão.");
-            return LocalDate.parse(defaultValue, DATE_FORMATTER);
+            System.out.println("Data inválida. Retornando valor padrão.");
+            return defaultValue;
         }
     }
 
@@ -109,8 +105,8 @@ public final class ConsoleUtils {
         try {
             return LocalDateTime.parse(input, DATE_TIME_FORMATTER);
         } catch (DateTimeParseException e) {
-            MenuRenderer.renderMessageLine("Data/hora inválida. Retornando valor padrão.");
-            return LocalDateTime.parse(defaultValue, DATE_TIME_FORMATTER);
+            MenuRenderer.renderMessageLine("Retornando valor padrão.");
+            return null;
         }
     }
 

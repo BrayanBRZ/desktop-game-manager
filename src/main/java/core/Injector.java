@@ -13,6 +13,7 @@ import core.seed.DeveloperSeeder;
 import core.seed.GameSeeder;
 import core.seed.GenreSeeder;
 import core.seed.PlatformSeeder;
+import core.seed.UserSeeder;
 import service.game.DeveloperService;
 import service.game.GameService;
 import service.game.GenreService;
@@ -23,6 +24,7 @@ import service.user.UserGameService;
 import service.user.UserService;
 
 public final class Injector {
+
     private static final AuthService authService = new AuthService();
     private static final UserService userService = new UserService();
     private static final FriendshipService friendshipService = new FriendshipService();
@@ -31,60 +33,63 @@ public final class Injector {
     private static final GenreService genreService = new GenreService();
     private static final PlatformService platformService = new PlatformService();
     private static final DeveloperService developerService = new DeveloperService();
-    private static final GenreSeeder genreSeeder = new GenreSeeder();
-    private static final PlatformSeeder platformSeeder = new PlatformSeeder();
-    private static final DeveloperSeeder developerSeeder = new DeveloperSeeder();
-    private static final GameSeeder gameSeeder = new GameSeeder();
-    
-    
+    private static final GenreSeeder genreSeeder = new GenreSeeder(genreService);
+    private static final PlatformSeeder platformSeeder = new PlatformSeeder(platformService);
+    private static final DeveloperSeeder developerSeeder = new DeveloperSeeder(developerService);
+
+    private static final GameSeeder gameSeeder = new GameSeeder(
+            gameService
+    );
+
+    private static final UserSeeder userSeeder = new UserSeeder(
+            authService,
+            userService,
+            userGameService,
+            friendshipService,
+            gameService
+    );
 
     public static UserMenuController createUserMenuController() {
         return new UserMenuController(
-            authService,
-            userService,
-            friendshipService,
-            userGameService
+                authService,
+                userService,
+                friendshipService,
+                userGameService
         );
     }
 
     public static DeveloperConfigController createDeveloperConfigController() {
-        return new DeveloperConfigController(
-            developerService
-        );
+        return new DeveloperConfigController(developerService);
     }
 
     public static GameConfigController createGameConfigController() {
         return new GameConfigController(
-            gameService,
-            genreService,
-            platformService,
-            developerService
+                gameService,
+                genreService,
+                platformService,
+                developerService
         );
     }
 
     public static GenreConfigController createGenreConfigController() {
-        return new GenreConfigController(
-            genreService
-        );
+        return new GenreConfigController(genreService);
     }
 
     public static PlatformConfigController createPlatformMenuController() {
-        return new  PlatformConfigController(
-            platformService
-        );
+        return new PlatformConfigController(platformService);
     }
 
     public static UserConfigController createUserConfigController() {
         return new UserConfigController(
-            userService,
-            authService
+                userService,
+                authService
         );
     }
 
     public static FriendMenuController createFriendMenuController() {
         return new FriendMenuController(
-            userService, 
-            friendshipService
+                userService,
+                friendshipService
         );
     }
 
@@ -94,10 +99,11 @@ public final class Injector {
 
     public static SeederConfigController createSeederConfigController() {
         return new SeederConfigController(
-            genreSeeder,
-            platformSeeder,
-            developerSeeder,
-            gameSeeder
+                genreSeeder,
+                platformSeeder,
+                developerSeeder,
+                gameSeeder,
+                userSeeder
         );
     }
 }
