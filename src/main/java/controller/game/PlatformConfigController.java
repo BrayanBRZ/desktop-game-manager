@@ -62,7 +62,7 @@ public class PlatformConfigController {
     }
 
     private void createOrFind() {
-        String name = ConsoleUtils.readString("\nNome da plataforma para criar ou encontrar: ", null);
+        String name = platformConfigView.readString("Nome da plataforma para criar ou encontrar: ");
         Platform platform = platformService.createOrFind(name);
         platformConfigView.renderMessageLine("Plataforma '" + platform.getName() + "' processada com ID: " + platform.getId());
     }

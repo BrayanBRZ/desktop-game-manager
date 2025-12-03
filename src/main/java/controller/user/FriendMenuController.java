@@ -87,7 +87,7 @@ public class FriendMenuController {
     }
 
     private void sendFriendRequest() throws ValidationException, ServiceException {
-        Long toUserId = ConsoleUtils.readLong("ID do usuário destino: ", null);
+        Long toUserId = userConfigView.readLong("ID do usuário destino: ");
         friendshipService.sendFriendRequest(SessionManager.getCurrentUserId(), toUserId);
         userConfigView.renderMessageLine("Solicitação enviada com sucesso!");
     }
@@ -98,19 +98,22 @@ public class FriendMenuController {
 
         userConfigView.showReceivedPendingRequests(pending);
 
-        if (pending.isEmpty())  return;
+        if (pending.isEmpty()) {
+            return;
+        }
 
         Long id = ConsoleUtils.readLong("ID da solicitação (0 para cancelar): ", null);
-        if (id == 0) return;
-
-        String action = userConfigView.readString("Aceitar (s) ou Rejeitar (n): ", null);
-        boolean accept = action.equalsIgnoreCase("s");
+        if (id == 0) {
+            return;
+        }
 
         try {
-            if (accept) {
+            if (!userConfigView.readString("Aceitar (s) ou Rejeitar (n): ").trim().equalsIgnoreCase("s")) {
+                
                 friendshipService.acceptRequest(id, userId);
                 System.out.println("Amigo adicionado!");
             } else {
+                
                 friendshipService.rejectRequest(id, userId);
                 System.out.println("Solicitação rejeitada.");
             }

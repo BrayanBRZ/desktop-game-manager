@@ -60,7 +60,7 @@ public class GenreConfigController {
     }
 
     private void createOrFind() {
-        String name = ConsoleUtils.readString("Nome do gênero para criar ou encontrar: ", null);
+        String name = genreConfigView.readString("Nome do gênero para criar ou encontrar: ");
         Genre genre = genreService.createOrFind(name);
         genreConfigView.renderMessageLine("Gênero '" + genre.getName() + "' processado com ID: " + genre.getId());
     }

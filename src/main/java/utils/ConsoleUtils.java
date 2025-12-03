@@ -104,7 +104,7 @@ public final class ConsoleUtils {
         }
     }
 
-    public static LocalDateTime readDataHora(String prompt, String defaultValue) {
+    public static LocalDateTime readDateTime(String prompt, String defaultValue) {
         String input = readString(prompt, defaultValue);
         try {
             return LocalDateTime.parse(input, DATE_TIME_FORMATTER);

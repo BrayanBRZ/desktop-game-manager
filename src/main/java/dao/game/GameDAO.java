@@ -14,7 +14,7 @@ public class GameDAO extends GenericDAO<Game> {
     // #region Utility Methods
     public Game refreshAndClearAssociations(Game game) {
         return executeInTransaction(em -> {
-            // Delete definitivo
+
             em.createNativeQuery("DELETE FROM game_genres WHERE game_id = :id")
                     .setParameter("id", game.getId()).executeUpdate();
             em.createNativeQuery("DELETE FROM game_platforms WHERE game_id = :id")
@@ -22,8 +22,8 @@ public class GameDAO extends GenericDAO<Game> {
             em.createNativeQuery("DELETE FROM game_developers WHERE game_id = :id")
                     .setParameter("id", game.getId()).executeUpdate();
 
-            em.clear();  // Limpa primeiro nível cache
-            em.flush();  // Força escrita pendente
+            em.clear(); // Limpa primeiro nível cache
+            em.flush(); // Força escrita pendente
 
             // Busca novo game sem associações
             Game freshGame = em.find(Game.class, game.getId());

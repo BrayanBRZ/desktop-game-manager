@@ -56,16 +56,13 @@ public class GameService {
             MyLinkedList<Long> developerIds
     ) {
 
-        
-
         Game originalGame = gameDAO.findById(id);
-        if (originalGame == null) {
-            throw new ValidationException("Jogo com ID " + id + " não encontrado.");
-        }
+        if (originalGame == null) throw new ValidationException("Jogo com ID " + id + " não encontrado.");
 
-        ValidatedGameData data = validateAndFetchGameData(name, genreIds, platformIds, developerIds);
+        ValidatedGameData data = validateAndFetchGameData(
+                name, genreIds, platformIds, developerIds
+        );
 
-        // --- Limpa e retorna um Game sem associações ---
         Game freshGame = gameDAO.refreshAndClearAssociations(originalGame);
         freshGame.setName(data.getName());
         freshGame.setReleaseDate(releaseDate);
@@ -170,12 +167,7 @@ public class GameService {
 
     // #region Read-Only Operations
     public Game findById(Long id) {
-        Game game = gameDAO.findById(id);
-        if (game != null) {
-            return game;
-        } else {
-            throw new ValidationException("Jogo não encontrado com o ID: " + id);
-        }
+        return gameDAO.findById(id);
     }
 
     public Game findByName(String name) {

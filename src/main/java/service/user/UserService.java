@@ -7,6 +7,8 @@ import dao.game.GameDAO;
 import dao.user.UserDAO;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
+import static core.AppConfig.ADMIN_PASSWORD;
+import utils.ConsoleUtils;
 import utils.MyLinkedList;
 import java.time.LocalDate;
 
@@ -68,6 +70,14 @@ public class UserService {
         userDAO.update(user);
     }
 
+    public void passIsValid() {
+        String password = ConsoleUtils.readString("Digite a senha MASTER para continuar: ", null);
+
+        if (!password.equals(ADMIN_PASSWORD)) {
+            throw new ValidationException("Senha incorreta. Operação cancelada.");
+        }
+    }
+    
     // #region Read-Only Operations
     public User findById(Long id) throws ServiceException {
         return userDAO.findById(id);

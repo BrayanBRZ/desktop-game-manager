@@ -5,7 +5,7 @@ import service.game.*;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
 import view.game.GameConfigView;
-import view.game.GameConfigView.GameFormDTO;
+import dto.GameDTO;
 import core.Navigation;
 import utils.ConsoleUtils;
 import utils.MyLinkedList;
@@ -117,24 +117,25 @@ public class GameConfigController {
         MyLinkedList<Platform> platforms = platformService.findAll();
         MyLinkedList<Developer> devs = developerService.findAll();
 
-        GameConfigView.GameFormDTO dto = gameConfigView.promptGameCreation(genres, platforms, devs);
+        GameDTO dto = gameConfigView.promptGameCreation(genres, platforms, devs);
 
-        Game created = gameService.createGame(
-                dto.name,
-                dto.releaseDate,
-                dto.genreIds,
-                dto.platformIds,
-                dto.developerIds
+        Game created;
+        created = gameService.createGame(
+                dto.getName(),
+                dto.getReleaseDate(),
+                dto.getGenreIds(),
+                dto.getPlatformIds(),
+                dto.getDeveloperIds()
         );
 
         gameConfigView.renderMessageLine("Jogo '" + created.getName() + "' criado com sucesso! ID: " + created.getId());
     }
 
     private void updateGame() {
-        Long id = ConsoleUtils.readLong("ID do jogo: ", null);
+        Long id = gameConfigView.readLong("ID do jogo: ");
         Game existing = gameService.findById(id);
 
-        GameFormDTO dto = gameConfigView.promptGameUpdate(
+        GameDTO dto = gameConfigView.promptGameUpdate(
                 existing,
                 genreService.findAll(),
                 platformService.findAll(),
@@ -142,20 +143,20 @@ public class GameConfigController {
         );
 
         Game updated = gameService.updateGame(
-                dto.id,
-                dto.name,
-                dto.releaseDate,
-                dto.genreIds,
-                dto.platformIds,
-                dto.developerIds
+                dto.getId(),
+                dto.getName(),
+                dto.getReleaseDate(),
+                dto.getGenreIds(),
+                dto.getPlatformIds(),
+                dto.getDeveloperIds()
         );
 
         gameConfigView.renderMessageLine("Jogo '" + updated.getName() + "' atualizado com sucesso!");
     }
 
     private void deleteGame() {
-        Long id = ConsoleUtils.readLong("ID do jogo: ", null);
-        if (ConsoleUtils.readString("Confirma exclusão? (s/n): ", null).equalsIgnoreCase("s")) {
+        Long id = gameConfigView.readLong("ID do jogo: ");
+        if (gameConfigView.readString("Confirma exclusão? (s/n): ").trim().equalsIgnoreCase("s")) {
             gameService.deleteGame(id);
             gameConfigView.renderMessage("Jogo deletado com sucesso.");
         } else {

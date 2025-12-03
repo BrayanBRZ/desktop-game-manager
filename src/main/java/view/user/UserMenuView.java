@@ -8,39 +8,16 @@ import service.session.SessionManager;
 import view.BaseView;
 import utils.ConsoleUtils;
 import utils.MyLinkedList;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
 
+import dto.UserDTO;
+import dto.UserGameDTO;
+
 public class UserMenuView extends BaseView {
-
-    public class UserGameUpdateDTO {
-
-        public final Long userId;
-        public final Long gameId;
-
-        public final boolean estimated;
-        public final UserGameState state;
-        public final double hours;
-        public final LocalDateTime lastPlayed;
-
-        public UserGameUpdateDTO(
-                Long userId,
-                Long gameId,
-                boolean estimated,
-                UserGameState state,
-                double hours,
-                LocalDateTime lastPlayed
-        ) {
-            this.userId = userId;
-            this.gameId = gameId;
-            this.estimated = estimated;
-            this.state = state;
-            this.hours = hours;
-            this.lastPlayed = lastPlayed;
-        }
-    }
 
     public class UserProfileUpdateDTO {
 
@@ -68,31 +45,30 @@ public class UserMenuView extends BaseView {
                 ConsoleUtils.formatDateTime(user.getUpdatedAt()));
     }
 
-    public UserGameUpdateDTO promptUpdateGameProgress(UserGame userGame) {
+    public UserGameDTO promptUpdateGameProgress(UserGame userGame) throws Exception {
 
         renderMessageLine("Estado atual: " + userGame.getGameState());
         renderMessageLine("Estados disponíveis: " + Arrays.toString(UserGameState.values()));
 
-        String stateInput = ConsoleUtils.readString("Novo estado: ", null).toUpperCase();
+        String stateInput = readString("Novo estado: ").toUpperCase();
         UserGameState state;
 
         try {
             state = UserGameState.valueOf(stateInput);
         } catch (IllegalArgumentException e) {
-            renderError("Estado inválido.");
-            return null;
+            throw new Exception("Estado inválido.");
         }
 
-        boolean estimated
-                = ConsoleUtils.readString("O jogo é amado? (s/n): ", null).equalsIgnoreCase("s");
+        boolean estimated = readString("O jogo é amado? (s/n): ").equalsIgnoreCase("s");
 
-        double hours = ConsoleUtils.readDouble("Horas jogadas: ", null);
+        double hours = readDouble("Horas jogadas: ");
 
-        LocalDateTime lastPlayed
-                = ConsoleUtils.readDataHora("Última sessão (dd/MM/yyyy, ou Enter para agora): ",
-                        LocalDateTime.now().toString());
+        LocalDateTime lastPlayed = readDateTimeDefault(
+                "Última sessão (dd/MM/yyyy, ou Enter para agora): ",
+                LocalDateTime.now().toString()
+        );
 
-        return new UserGameUpdateDTO(
+        return new UserGameDTO(
                 SessionManager.getCurrentUserId(),
                 userGame.getGame().getId(),
                 estimated,
@@ -102,22 +78,23 @@ public class UserMenuView extends BaseView {
         );
     }
 
-    public UserProfileUpdateDTO promptProfileUpdate(User user) {
+    public UserDTO promptProfileUpdate(User user) {
 
         String name = ConsoleUtils.readString(
-            "Novo nome (Enter para manter '" + user.getName() + "'): ",
-            user.getName()
+                "Novo nome (Enter para manter '" + user.getName() + "'): ",
+                user.getName()
         );
 
-        LocalDate birth = ConsoleUtils.readData(
+        LocalDate birthdate = ConsoleUtils.readData(
                 "Nascimento (dd/MM/yyyy ou Enter): ",
                 user.getBirthDate().toString()
         );
 
-        return new UserProfileUpdateDTO(
+        return new UserDTO(
                 user.getId(),
                 name,
-                birth
+                null,
+                birthdate
         );
     }
 

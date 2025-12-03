@@ -48,36 +48,36 @@ public class SeederConfigController {
             try {
                 switch (choice) {
                     case 1:
-                        seederConfigView.renderInitialMessage(options[choice]);
+                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
                         genreSeeder.seed();
-                        seederConfigView.renderSuccessMessage(options[choice]);
+                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
                         ConsoleUtils.waitEnter();
                         break;
                     case 2:
-                        seederConfigView.renderInitialMessage(options[choice]);
+                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
                         platformSeeder.seed();
-                        seederConfigView.renderSuccessMessage(options[choice]);
+                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
                         ConsoleUtils.waitEnter();
                         break;
                     case 3:
-                        seederConfigView.renderInitialMessage(options[choice]);
+                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
                         developerSeeder.seed();
-                        seederConfigView.renderSuccessMessage(options[choice]);
+                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
                         ConsoleUtils.waitEnter();
                         break;
                     case 4:
-                        seederConfigView.renderInitialMessage(options[choice]);
+                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
                         gameSeeder.seed();
-                        seederConfigView.renderSuccessMessage(options[choice]);
+                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
                         ConsoleUtils.waitEnter();
                         break;
                     case 5:
-                        seederConfigView.renderInitialMessage(options[choice]);
+                        seederConfigView.renderMessage("[ SEEDER: " + options[choice].toUpperCase() + " ]");
                         genreSeeder.seed();
                         platformSeeder.seed();
                         developerSeeder.seed();
                         gameSeeder.seed();
-                        seederConfigView.renderSuccessMessage(options[choice]);
+                        seederConfigView.renderMessage(options[choice] + " semeados com sucesso.");
                         ConsoleUtils.waitEnter();
                         break;
                     case 0:

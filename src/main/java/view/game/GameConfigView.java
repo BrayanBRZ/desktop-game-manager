@@ -7,53 +7,30 @@ import model.game.Platform;
 import view.BaseView;
 import utils.ConsoleUtils;
 import utils.MyLinkedList;
+
 import java.time.LocalDate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import dto.GameDTO;
+
 public final class GameConfigView extends BaseView {
 
-    public class GameFormDTO {
-
-        public final Long id;
-        public final String name;
-        public final LocalDate releaseDate;
-        public final MyLinkedList<Long> genreIds;
-        public final MyLinkedList<Long> platformIds;
-        public final MyLinkedList<Long> developerIds;
-
-        public GameFormDTO(
-                Long id,
-                String name,
-                LocalDate releaseDate,
-                MyLinkedList<Long> genreIds,
-                MyLinkedList<Long> platformIds,
-                MyLinkedList<Long> developerIds
-        ) {
-            this.id = id;
-            this.name = name;
-            this.releaseDate = releaseDate;
-            this.genreIds = genreIds;
-            this.platformIds = platformIds;
-            this.developerIds = developerIds;
-        }
-    }
-
     // Create
-    public GameFormDTO promptGameCreation(
+    public GameDTO promptGameCreation(
             MyLinkedList<Genre> genres,
             MyLinkedList<Platform> platforms,
             MyLinkedList<Developer> devs
     ) {
-        System.out.println("\n[ ADICIONAR NOVO JOGO ]");
+        System.out.println("[ ADICIONAR NOVO JOGO ]");
 
-        String name = ConsoleUtils.readString("Nome do jogo: ", null);
-        LocalDate releaseDate = ConsoleUtils.readData("Data de lançamento (dd/MM/yyyy, ou Enter para vazio): ", null);
+        String name = readString("Nome do jogo: ");
+        LocalDate releaseDate = readData("Data de lançamento (dd/MM/yyyy, ou Enter para vazio): ");
         MyLinkedList<Long> genreIds = ConsoleUtils.selecionarMultiplasEntidades(genres, "Gêneros");
         MyLinkedList<Long> platformIds = ConsoleUtils.selecionarMultiplasEntidades(platforms, "Plataformas");
         MyLinkedList<Long> developerIds = ConsoleUtils.selecionarMultiplasEntidades(devs, "Desenvolvedores");
 
-        return new GameFormDTO(
+        return new GameDTO(
                 null,
                 name,
                 releaseDate,
@@ -63,7 +40,7 @@ public final class GameConfigView extends BaseView {
     }
 
     // Update
-    public GameFormDTO promptGameUpdate(
+    public GameDTO promptGameUpdate(
             Game existingGame,
             MyLinkedList<Genre> genres,
             MyLinkedList<Platform> platforms,
@@ -71,12 +48,12 @@ public final class GameConfigView extends BaseView {
     ) {
         renderMessageLine("[ ATUALIZAR JOGO ]");
 
-        String name = ConsoleUtils.readString(
+        String name = readStringDefault(
             "Novo nome (Enter para manter '" + existingGame.getName() + "'): ", 
             existingGame.getName()
         );
 
-        LocalDate releaseDate = ConsoleUtils.readData(
+        LocalDate releaseDate = readDataDefault(
                 "Nova data (dd/MM/yyyy, ou Enter para manter): ",
                 existingGame.getReleaseDate().toString()
         );
@@ -102,7 +79,7 @@ public final class GameConfigView extends BaseView {
             );
         }
 
-        return new GameFormDTO(
+        return new GameDTO(
                 existingGame.getId(),
                 name,
                 releaseDate,

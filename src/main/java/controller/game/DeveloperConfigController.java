@@ -59,7 +59,7 @@ public class DeveloperConfigController {
     }
 
     public void createOrFind() {
-        String name = ConsoleUtils.readString("\nNome do desenvolvedor para criar ou encontrar: ", null);
+        String name = developerConfigView.readString("Nome do desenvolvedor para criar ou encontrar: ");
         Developer dev = developerService.createOrFind(name);
         developerConfigView.renderMessageLine("Desenvolvedor '" + dev.getName() + "' processado com ID: " + dev.getId());
     }

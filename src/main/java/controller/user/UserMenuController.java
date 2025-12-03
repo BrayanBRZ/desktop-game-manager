@@ -10,10 +10,10 @@ import service.user.UserService;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
 import view.user.UserMenuView;
-import view.user.UserMenuView.UserGameUpdateDTO;
-import view.user.UserMenuView.UserProfileUpdateDTO;
+import dto.UserGameDTO;
 import core.Injector;
 import core.Navigation;
+import dto.UserDTO;
 import utils.ConsoleUtils;
 
 public class UserMenuController {
@@ -37,16 +37,15 @@ public class UserMenuController {
         ConsoleUtils.clearScreen();
 
         userMenuView.renderMessageLine("[ LOGIN / REGISTRO ]");
-        String name = ConsoleUtils.readString("Nome de usuário: ",null).trim();
+        String name = ConsoleUtils.readString("Nome de usuário: ", null).trim();
 
         User user = userService.findByName(name);
 
         if (user == null) { // Usuario nao existe
-            String answer = ConsoleUtils.readString("Usuário não encontrado. Deseja criar uma conta? (s/n): ", null).trim();
-
-            if (!answer.equalsIgnoreCase("s")) {
-                return;
-            }
+            if (ConsoleUtils.readString(
+                "Usuário não encontrado. Deseja criar uma conta? (s/n): ", null)
+                .trim().equalsIgnoreCase("s")
+            ) return;
 
             String password = ConsoleUtils.readString("Nova senha: ", null);
 
@@ -160,30 +159,27 @@ public class UserMenuController {
     }
 
     private void addGameToLibrary() throws ServiceException, ValidationException {
-        userMenuView.renderMessageLine("\n[ ADICIONAR JOGO ]");
-        String gameName = ConsoleUtils.readString("Nome do jogo: ", null);
+        userMenuView.renderMessageLine("[ ADICIONAR JOGO ]");
+        String gameName = userMenuView.readString("Nome do jogo: ");
         userService.addGameToLibrary(SessionManager.getCurrentUserId(), gameName);
         userMenuView.renderMessageLine("Jogo adicionado com sucesso!");
     }
 
     private void removeGameFromLibrary() throws ServiceException, ValidationException {
-        Long gameId = ConsoleUtils.readLong("ID do jogo para remover: ", null);
+        userMenuView.renderMessageLine("[ REMOVER JOGO ]");
+        Long gameId = userMenuView.readLong("ID do jogo para remover: ");
         userService.removeGameFromLibrary(SessionManager.getCurrentUserId(), gameId);
         userMenuView.renderMessageLine("Jogo removido com sucesso!");
     }
 
-    public void updateGameProgress() {
-        Long gameId = ConsoleUtils.readLong("ID do jogo: ", null);
+    public void updateGameProgress() throws Exception {
+        Long gameId = userMenuView.readLong("ID do jogo: ");
 
         UserGame userGame = userGameService.findByUserAndGame(
                 SessionManager.getCurrentUserId(), gameId
         );
 
-        if (userGame == null) {
-            throw new ValidationException("Jogo não encontrado na sua biblioteca.");
-        }
-
-        UserGameUpdateDTO dto = userMenuView.promptUpdateGameProgress(userGame);
+        UserGameDTO dto = userMenuView.promptUpdateGameProgress(userGame);
 
         if (dto == null) {
             return;
@@ -205,17 +201,14 @@ public class UserMenuController {
     // #region User Profile Management
     public void updateProfile() throws ServiceException, ValidationException {
         User user = SessionManager.getCurrentUser();
-
-        UserProfileUpdateDTO dto = userMenuView.promptProfileUpdate(user);
-        userService.updateUserProfile(dto.userId, dto.name, dto.birthDate);
+        UserDTO dto = userMenuView.promptProfileUpdate(user);
+        userService.updateUserProfile(dto.getId(), dto.getName(), dto.getBirthDate());
         userMenuView.renderMessageLine("Perfil atualizado!");
-
-        SessionManager.login(userService.findById(dto.userId));
     }
 
     private void changePassword() throws ServiceException, ValidationException {
-        String current = ConsoleUtils.readString("Senha atual: ", null);
-        String nova = ConsoleUtils.readString("Nova senha: ", null);
+        String current = userMenuView.readString("Senha atual: ");
+        String nova = userMenuView.readString("Nova senha: ");
         authService.changePassword(SessionManager.getCurrentUserId(), current, nova);
         userMenuView.renderMessageLine("Senha alterada com sucesso!");
     }

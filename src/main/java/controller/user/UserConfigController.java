@@ -7,9 +7,8 @@ import service.exception.ServiceException;
 import service.exception.ValidationException;
 import view.user.UserConfigView;
 import core.Navigation;
-import static core.AppConfig.ADMIN_PASSWORD;
+import dto.UserDTO;
 import utils.ConsoleUtils;
-import java.time.LocalDate;
 
 public class UserConfigController {
 
@@ -42,15 +41,16 @@ public class UserConfigController {
                         break;
 
                     case 2:
+                        userService.passIsValid();
                         updateUser();
                         ConsoleUtils.waitEnter();
                         break;
 
                     // case 3:
+                    //     userService.passIsValid();
                     //     deleteUser();
                     //     ConsoleUtils.waitEnter();
                     //     break;
-
                     case 4:
                         userConfigView.listAllUsers(userService.findAll());
                         ConsoleUtils.waitEnter();
@@ -78,39 +78,28 @@ public class UserConfigController {
         }
     }
 
-    private void createUser() throws ServiceException, ValidationException {
-        userConfigView.renderMessageLine("\n[ CRIAR USUÁRIO ]");
-        String name = ConsoleUtils.readString("Nome: ", null);
-        String password = ConsoleUtils.readString("Nova senha: ", null);
-        User created = authService.register(name, password);
+    private void createUser() {
+        userConfigView.renderMessageLine("[ CRIAR USUÁRIO ]");
+
+        UserDTO dto = userConfigView.promptUserCreate();
+        User created = authService.register(
+                dto.getName(),
+                dto.getPassword()
+        );
+
         userConfigView.renderMessageLine("Usuário '" + created.getName() + "' criado com ID: " + created.getId());
     }
 
-    private void updateUser() throws ServiceException, ValidationException {
-        userConfigView.renderMessageLine("\n[ ATUALIZAR USUÁRIO ]");
-        Long id = ConsoleUtils.readLong("ID do usuário: ", null);
+    private void updateUser() {
+        userConfigView.renderMessageLine("[ ATUALIZAR USUÁRIO ]");
+        Long id = userConfigView.readLong("ID do usuário: ");
         User user = userService.findById(id);
-        if (user == null) {
-            throw new ValidationException("Usuário não encontrado.");
-        }
 
-        userConfigView.renderMessageLine("Editando usuário: " + user.getName());
-
-        String newName = ConsoleUtils.readString("Novo nome (Enter para manter '" + user.getName() + "'): ", null);
-        if (newName.isEmpty()) {
-            newName = user.getName();
-        }
-
-        LocalDate newBirthDate = ConsoleUtils.readData(
-                "Nova data de nascimento (Enter para manter atual): ",
-                user.getBirthDate().toString());
-
-        if (!passIsValid()) {
-            return;
-        }
-
+        UserDTO dto = userConfigView.promptUserUpdate(user);
         User updated = userService.updateUserProfile(
-                id, newName, newBirthDate
+                dto.getId(),
+                dto.getName(),
+                dto.getBirthDate()
         );
 
         userConfigView.renderMessageLine("Usuário '" + updated.getName() + "' atualizado com sucesso!");
@@ -124,14 +113,4 @@ public class UserConfigController {
     //     userService.deleteUser(id);
     //     userConfigView.renderMessageLine("Usuário deletado com sucesso.");
     // }
-
-    private boolean passIsValid() {
-        String password = ConsoleUtils.readString("Digite a senha MASTER para confirmar a exclusão: ", null);
-
-        if (!password.equals(ADMIN_PASSWORD)) {
-            userConfigView.renderError("Senha incorreta. Operação cancelada.");
-            return false;
-        }
-        return true;
-    }
 }

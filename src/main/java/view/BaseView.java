@@ -5,6 +5,10 @@ import utils.MyLinkedList;
 import model.common.Listable;
 import service.exception.ServiceException;
 import service.exception.ValidationException;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import core.Navigation;
 import utils.ConsoleUtils;
 import utils.MenuRenderer;
@@ -18,9 +22,47 @@ public abstract class BaseView {
         return ConsoleUtils.readInteger("Escolha: ", null);
     }
 
-    public String readString(String msg, String defaultValue) {
+    // #region Read Methods
+    public String readString(String msg) {
+        return ConsoleUtils.readString(msg, null);
+    }
+
+    public Long readLong(String msg) {
+        return ConsoleUtils.readLong(msg, null);
+    }
+
+    public double readDouble(String msg) {
+        return ConsoleUtils.readDouble(msg, null);
+    }
+
+    public LocalDate readData(String msg) {
+        return ConsoleUtils.readData(msg, null);
+    }
+
+    public LocalDateTime readDateTime(String msg) {
+        return ConsoleUtils.readDateTime(msg, null);
+    }
+
+    public String readStringDefault(String msg, String defaultValue) {
         return ConsoleUtils.readString(msg, defaultValue);
     }
+
+    public Long readLongDefault(String msg, String defaultValue) {
+        return ConsoleUtils.readLong(msg, defaultValue);
+    }
+
+    public double readDoubleDefault(String msg, String defaultValue) {
+        return ConsoleUtils.readDouble(msg, defaultValue);
+    }
+
+    public LocalDate readDataDefault(String msg, String defaultValue) {
+        return ConsoleUtils.readData(msg, defaultValue);
+    }
+
+    public LocalDateTime readDateTimeDefault(String msg, String defaultValue) {
+        return ConsoleUtils.readDateTime(msg, defaultValue);
+    }
+    // #region Read Methods
 
     // #region Render Methods
     public <T extends Listable> void renderEntityList(MyLinkedList<T> entityList) {
